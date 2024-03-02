@@ -70,6 +70,18 @@ const userSchema = new mongoose.Schema({
     enum: ['working', 'student', 'unemployed', 'other'], // Added 'unemployed' and 'other' to cover more options
     default: 'other' // Optional: you can set a default or leave it undefined
   },
+  isAdmin: {
+    type: Boolean,
+    default: false, // Most users will not be admins
+  },
+  isLinkedAccount: {
+    type: Boolean,
+    default: false, // Most users will be primary account holders, not linked accounts
+  },
+  isPremium: {
+    type: Boolean,
+    default: false // Assumes users are 'normal' by default
+  },
   
   // Add any other user fields here
 }, {

@@ -4,13 +4,27 @@ const linkedAccountSchema = new mongoose.Schema({
   UserId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    ref: 'User'
+    ref: 'User' // Admin User
   },
   linkedUsers: [{
     accountId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User'
+      ref: 'User' // Linked User Account
     },
+    firstName: { // First name of the linked user
+      type: String,
+      required: true,
+      trim: true
+    },
+    lastName: { // Last name of the linked user
+      type: String,
+      required: true,
+      trim: true
+    },
+    permissions: [{
+      type: String,
+      enum: ['upload', 'delete'], // Specifies allowed actions for linked accounts
+    }],
     addedDate: {
       type: Date,
       default: Date.now
@@ -34,7 +48,7 @@ const linkedAccountSchema = new mongoose.Schema({
   },
   paymentInfo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'TransactionLogs', // If extra accounts are added, reference the payment transaction
+    ref: 'TransactionLogs', // Reference the payment transaction if extra accounts are added
     default: null
   }
 }, {
