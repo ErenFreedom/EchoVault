@@ -25,28 +25,28 @@ const lockerSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'UserModel', // Reference to the owner (admin) user
     required: true
   },
+  dummyUserIds: [{ // New field for referencing DummyUser IDs
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser' // Reference to DummyUser who have access
+  }],
   documents: [{
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Document'
   }],
-  isPremium: {
-    type: Boolean,
-    default: false
-  },
+  
   createdAt: {
     type: Date,
     default: Date.now
   },
-  // Include any other locker-specific features or limitations here
   features: {
     type: Map,
     of: String
   }
 }, {
-  timestamps: true // This will add createdAt and updatedAt timestamps
+  timestamps: true
 });
 
 // Index to prevent users from creating multiple lockers with the same name

@@ -3,8 +3,13 @@ const mongoose = require('mongoose');
 const authenticationAttemptsSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: function() { return !this.dummyUserId; }
+  },
+  dummyUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser',
+    required: function() { return !this.userId; }
   },
   attemptTime: {
     type: Date,
@@ -24,7 +29,6 @@ const authenticationAttemptsSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  // Additional fields for professional use
   userAgent: {
     type: String,
     trim: true
@@ -40,8 +44,25 @@ const authenticationAttemptsSchema = new mongoose.Schema({
     trim: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true }, // Ensure virtuals are included when document is converted to JSON
+  toObject: { virtuals: true }
 });
+
+// Virtual property to identify the type of user making the authentication attempt
+authenticationAttemptsSchema.virtual('authenticatorType').get(function() {
+  return this.userId ? 'Admin User' : 'Dummy User';
+});
+
+// Static method to find authentication attempts by admin user
+authenticationAttemptsSchema.statics.findByAdminUserId = function(adminUserId) {
+  return this.find({ userId: adminUserId });
+};
+
+// Static method to find authentication attempts by dummy user
+authenticationAttemptsSchema.statics.findByDummyUserId = function(dummyUserId) {
+  return this.find({ dummyUserId: dummyUserId });
+};
 
 const AuthenticationAttempts = mongoose.model('AuthenticationAttempts', authenticationAttemptsSchema);
 

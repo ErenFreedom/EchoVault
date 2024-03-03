@@ -3,8 +3,13 @@ const mongoose = require('mongoose');
 const feedbackSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+  },
+  dummyUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser',
+    required: function() { return !this.userId; } // Required if userId is not provided
   },
   content: {
     type: String,
@@ -14,14 +19,13 @@ const feedbackSchema = new mongoose.Schema({
   rating: {
     type: Number,
     required: true,
-    min: 1, // Assuming the rating is on a scale from 1 to 5
+    min: 1,
     max: 5
   },
   createdAt: {
     type: Date,
     default: Date.now
   },
-  // You can include a response to feedback if needed
   response: {
     content: String,
     respondedAt: Date,
@@ -31,8 +35,25 @@ const feedbackSchema = new mongoose.Schema({
     }
   }
 }, {
-  timestamps: true // This will add both createdAt and updatedAt timestamps
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
+// Virtual property to identify the type of user (Admin or Dummy) who submitted the feedback
+feedbackSchema.virtual('submitterType').get(function() {
+  return this.userId ? 'Admin' : 'Dummy';
+});
+
+// Static method to find feedback by admin user ID
+feedbackSchema.statics.findByUserId = function(userId) {
+  return this.find({ userId });
+};
+
+// Static method to find feedback by dummy user ID
+feedbackSchema.statics.findByDummyUserId = function(dummyUserId) {
+  return this.find({ dummyUserId });
+};
 
 const Feedback = mongoose.model('Feedback', feedbackSchema);
 

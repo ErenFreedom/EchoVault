@@ -1,29 +1,19 @@
 const mongoose = require('mongoose');
 
 const linkedAccountSchema = new mongoose.Schema({
-  UserId: {
+  adminUserId: { // Renamed for clarity
     type: mongoose.Schema.Types.ObjectId,
     required: true,
     ref: 'User' // Admin User
   },
   linkedUsers: [{
-    accountId: {
+    dummyUserId: { // Reference to the DummyUser model
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'User' // Linked User Account
-    },
-    firstName: { // First name of the linked user
-      type: String,
-      required: true,
-      trim: true
-    },
-    lastName: { // Last name of the linked user
-      type: String,
-      required: true,
-      trim: true
+      ref: 'DummyUser' // Reference to Dummy User Account
     },
     permissions: [{
       type: String,
-      enum: ['upload', 'delete'], // Specifies allowed actions for linked accounts
+      enum: ['upload', 'delete'], // Specifies allowed actions for dummy accounts
     }],
     addedDate: {
       type: Date,
@@ -40,7 +30,7 @@ const linkedAccountSchema = new mongoose.Schema({
   }],
   baseLimit: {
     type: Number,
-    default: 3 // Base case limit for linked accounts without extra payment
+    default: 3 // Base limit for linked accounts without extra payment
   },
   extraAccountsAllowed: {
     type: Number,
@@ -48,8 +38,7 @@ const linkedAccountSchema = new mongoose.Schema({
   },
   paymentInfo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'TransactionLogs', // Reference the payment transaction if extra accounts are added
-    default: null
+    ref: 'TransactionLogs' // Reference the payment transaction if extra accounts are added
   }
 }, {
   timestamps: true

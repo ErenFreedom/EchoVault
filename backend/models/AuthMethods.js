@@ -3,30 +3,52 @@ const mongoose = require('mongoose');
 const authMethodSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+  },
+  dummyUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser',
+    required: function() { return !this.userId; } // Required if userId is not provided
   },
   methodType: {
     type: String,
     required: true,
-    enum: ['password', 'otp_email', 'otp_sms', 'security_question', 'other'], // Add more as needed
+    enum: ['password', 'otp_email', 'otp_sms', 'security_question', 'other'],
     trim: true
   },
   details: {
-    type: String, // This could be a description or any relevant data for the auth method
+    type: String,
     trim: true
   },
   lastUsed: {
-    type: Date, // When was this method last used for authentication
+    type: Date,
     default: Date.now
   },
   isActive: {
-    type: Boolean, // Is this authentication method currently active?
+    type: Boolean,
     default: true
   }
 }, {
-  timestamps: true // This will add both createdAt and updatedAt timestamps
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
+
+// Virtual property to identify the type of user (Admin or Dummy)
+authMethodSchema.virtual('userType').get(function() {
+  return this.userId ? 'Admin' : 'Dummy';
+});
+
+// Static method to find auth methods by admin user ID
+authMethodSchema.statics.findByUserId = function(userId) {
+  return this.find({ userId });
+};
+
+// Static method to find auth methods by dummy user ID
+authMethodSchema.statics.findByDummyUserId = function(dummyUserId) {
+  return this.find({ dummyUserId });
+};
 
 const AuthMethod = mongoose.model('AuthMethod', authMethodSchema);
 

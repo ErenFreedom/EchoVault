@@ -14,8 +14,6 @@ const subscriptionSchema = new mongoose.Schema({
   duration: {
     type: Number,
     required: true,
-    // Duration could be in days, months, etc.
-    // Assuming this is the number of months the subscription is active
   },
   features: [{
     type: String,
@@ -40,7 +38,11 @@ const subscriptionSchema = new mongoose.Schema({
   premiumFeatures: [{
     type: String,
     trim: true
-  }]
+  }],
+  accountLinkingLimit: {
+    type: Number,
+    default: 0 // Default to 0, indicating no linked accounts allowed for basic plans
+  }
 }, {
   timestamps: true
 });

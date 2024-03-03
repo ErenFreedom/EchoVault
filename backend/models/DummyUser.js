@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const userSchema = new mongoose.Schema({
+const dummyUserSchema = new mongoose.Schema({
   firstName: {
     type: String,
     required: true,
@@ -64,27 +64,26 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-
   occupationStatus: {
     type: String,
-    enum: ['working', 'student', 'unemployed', 'other'], // Added 'unemployed' and 'other' to cover more options
-    default: 'other' // Optional: you can set a default or leave it undefined
+    enum: ['working', 'student', 'unemployed', 'other'],
+    default: 'other'
   },
-  isAdmin: {
-    type: Boolean,
-    default: false, // Most users will not be admins
+  permissions: {
+    type: [String],
+    enum: ['upload', 'delete', 'view'], // Add any other permissions as necessary
+    default: []
   },
-  
-  isPremium: {
-    type: Boolean,
-    default: false // Assumes users are 'normal' by default
-  },
-  
-  // Add any other user fields here
+  // Reference to the main account (User) that this dummy account is linked to
+  linkedTo: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
 }, {
-  timestamps: true,
+  timestamps: true
 });
 
-const User = mongoose.model('User', userSchema);
+const DummyUser = mongoose.model('DummyUser', dummyUserSchema);
 
-module.exports = User;
+module.exports = DummyUser;

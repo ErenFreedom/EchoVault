@@ -3,8 +3,13 @@ const mongoose = require('mongoose');
 const userSessionSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+  },
+  dummyUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser',
+    required: function() { return !this.userId; } // Required if userId is not provided
   },
   sessionStart: {
     type: Date,
@@ -19,7 +24,14 @@ const userSessionSchema = new mongoose.Schema({
     default: true
   }
 }, {
-  timestamps: true
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+});
+
+// Virtual property to identify session user type
+userSessionSchema.virtual('userType').get(function() {
+  return this.userId ? 'Admin' : 'Dummy';
 });
 
 // Middleware to check for session timeout
@@ -36,10 +48,18 @@ userSessionSchema.methods.checkForTimeout = function() {
   return this.isActive;
 };
 
-// Static method to find an active session
-userSessionSchema.statics.findActiveSession = function(userId) {
+// Static method to find an active session by admin user
+userSessionSchema.statics.findActiveSessionByUserId = function(userId) {
   return this.findOne({
-    userId: userId,
+    userId,
+    isActive: true
+  }).exec();
+};
+
+// Static method to find an active session by dummy user
+userSessionSchema.statics.findActiveSessionByDummyUserId = function(dummyUserId) {
+  return this.findOne({
+    dummyUserId,
     isActive: true
   }).exec();
 };
