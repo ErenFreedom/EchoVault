@@ -101,3 +101,12 @@ exports.unlinkDocumentFromProof = async (identityProofId, documentId, userId) =>
 };
 
 // Additional methods as needed...
+
+module.exports={
+  addIdentityProof,
+  getIdentityProofs,
+  updateIdentityProof,
+  deleteIdentityProof,
+  linkDocumentToProof,
+  unlinkDocumentFromProof
+}

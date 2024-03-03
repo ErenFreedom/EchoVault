@@ -111,3 +111,12 @@ exports.disassociateDocumentFromTag = async (req, res, next) => {
 };
 
 // Additional methods as needed...
+
+module.exports={
+  createTag,
+  getUserTags,
+  updateTag,
+  deleteTag,
+  associateDocumentWithTag,
+  disassociateDocumentFromTag
+}

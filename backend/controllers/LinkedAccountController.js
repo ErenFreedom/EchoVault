@@ -134,5 +134,11 @@ exports.shareWith = async (req, res, next) => {
       }
       next(error);
     }
-  };
+};
 // ... Other methods to handle linking additional accounts, sharing documents, etc. ...
+
+module.exports={
+  linkAccount,
+  setAccessForLinkedAccount,
+  shareWith
+}

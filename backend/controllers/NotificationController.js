@@ -66,6 +66,24 @@ exports.notifyDocumentShared = async (userId, documentId) => {
     const message = `A document "${sharedDocument.title}" has been shared with you.`;
     await createNotification(userId, message, "document_shared", documentId, "Document");
 };
+
+exports.notifyPremiumPurchaseSuccess = async (userId, paymentAmount) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        console.error("User not found.");
+        return;
+    }
+
+    // Constructing the message to include the payment amount
+    const formattedAmount = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(paymentAmount);
+    const message = `Your payment of ${formattedAmount} has been successful. Welcome to Premium Membership!`;
+
+    // Since this is a premium purchase, the notification is only for the user who made the purchase
+    await createNotificationForMultipleUsers([userId], message, "premium_purchase_success");
+
+    console.log("Premium purchase success notification sent to:", `${user.firstName} ${user.lastName}`);
+};
+
   
 
 const createNotificationForMultipleUsers = async (userIds, message, type, associatedId = null, onModel = null) => {
@@ -183,3 +201,15 @@ exports.notifyDocumentActionByLinkedAccount = async (linkedAccountId, documentId
         console.log(`Linked account ${linkedAccount.firstName} ${linkedAccount.lastName} does not have permission to ${action}.`);
     }
 };
+
+module.exports={
+    notifyAccountCreation,
+    notifyDocumentUploaded,
+    notifyDocumentDeleted,
+    notifyDocumentShared,
+    notifyPremiumPurchaseSuccess,
+    notifyDocumentActionByAdmin,
+    notifyDocumentActionByLinkedAccount
+
+
+}

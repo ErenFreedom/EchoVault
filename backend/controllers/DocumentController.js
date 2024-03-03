@@ -96,3 +96,33 @@ exports.deleteDocument = async (req, res, next) => {
     next(error);
   }
 };
+
+exports.shareDocument = async (req, res, next) => {
+  try {
+    const { documentId, recipientId } = req.body;
+    const { _id: userId, isPremium } = req.user;
+
+    if (!isPremium) {
+      throw createError(403, 'Only premium users can share documents');
+    }
+
+    const recipientUser = await User.findById(recipientId);
+    if (!recipientUser || !recipientUser.isPremium) {
+      throw createError(400, 'Document can only be shared with another premium user');
+    }
+
+    // Logic to share the document, e.g., create a SharedDocument entry
+
+    res.status(200).json({ message: 'Document shared successfully' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = {
+  uploadDocument,
+  getDocumentById,
+  updateDocument,
+  deleteDocument,
+  shareDocument
+};

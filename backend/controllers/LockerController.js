@@ -39,56 +39,56 @@ exports.createLocker = async (req, res, next) => {
   }
 };
 
-exports.addDocumentToLocker = async (req, res, next) => {
+exports.viewLockerAccessList = async (req, res, next) => {
   try {
-    const { lockerId, documentName, fileSizeMB, format } = req.body;
+    const { lockerId } = req.params;
     const { _id: userId, isPremium } = req.user;
-
-    if (!ALLOWED_FORMATS.includes(format)) {
-      throw createError(400, `Invalid format. Allowed formats: ${ALLOWED_FORMATS.join(', ')}`);
-    }
 
     const locker = await Locker.findById(lockerId);
-    if (!locker) throw createError(404, 'Locker not found');
-    if (locker.userId.toString() !== userId.toString()) throw createError(403, 'Not authorized to add documents to this locker');
-
-    if (!isPremium && (fileSizeMB > MAX_SIZE_MB_NORMAL_USER || locker.documents.length >= DOCUMENT_LIMIT_NORMAL_USER)) {
-      throw createError(400, 'Document limit or size exceeded for normal users');
+    if (!locker) {
+      throw createError(404, "Locker not found.");
     }
 
-    if (isPremium && fileSizeMB > MAX_SIZE_MB_PREMIUM_USER) {
-      throw createError(400, 'Document size exceeded for premium users');
+    // Check if the current user is the owner of the locker
+    if (!locker.userId.equals(userId)) {
+      throw createError(403, "You do not have permission to view this locker's access list.");
     }
 
-    // Assuming functionality to actually add the document to the locker here
-    // This could involve creating a Document model instance and saving it, then updating the locker document list
+    // Access list for the owner
+    let accessList = [{ username: req.user.username, accessType: 'Owner' }];
 
-    res.status(200).json({ message: 'Document added successfully to the locker' });
+    // If the user is premium, include linked accounts in the access list
+    if (isPremium) {
+      // Assuming a LinkedAccount model exists that keeps track of which accounts are linked to a premium user
+      const linkedAccounts = await LinkedAccount.find({ userId }).populate('linkedUsers.accountId', 'username');
+
+      // Map over the linked accounts and add them to the access list
+      const linkedUsersAccessList = linkedAccounts
+        .flatMap(account => account.linkedUsers)
+        .map(link => ({
+          username: link.accountId.username, // assuming accountId is populated with the linked user's details
+          accessType: 'Linked Account'
+        }));
+
+      accessList = accessList.concat(linkedUsersAccessList);
+    }
+
+    res.status(200).json({ lockerId: locker._id, accessList });
   } catch (error) {
     next(error);
   }
 };
 
-exports.shareDocument = async (req, res, next) => {
-  try {
-    const { documentId, recipientId } = req.body;
-    const { _id: userId, isPremium } = req.user;
 
-    if (!isPremium) {
-      throw createError(403, 'Only premium users can share documents');
-    }
 
-    const recipientUser = await User.findById(recipientId);
-    if (!recipientUser || !recipientUser.isPremium) {
-      throw createError(400, 'Document can only be shared with another premium user');
-    }
 
-    // Logic to share the document, e.g., create a SharedDocument entry
 
-    res.status(200).json({ message: 'Document shared successfully' });
-  } catch (error) {
-    next(error);
-  }
-};
 
 // Additional methods as needed...
+
+module.exports={
+  createLocker,
+  
+  
+
+}

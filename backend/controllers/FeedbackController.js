@@ -67,4 +67,9 @@ exports.promptForFeedback = async (req, res, next) => {
   }
 };
 
+module.exports={
+  submitFeedback,
+  promptForFeedback
+}
+
 // Additional methods to handle feedback responses, etc...

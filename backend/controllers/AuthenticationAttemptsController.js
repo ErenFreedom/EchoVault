@@ -53,3 +53,10 @@ exports.unlockAccount = async (userId) => {
   // Unlock the user account by resetting the lockUntil field
   await User.findByIdAndUpdate(userId, { $unset: { lockUntil: "" } });
 };
+
+module.exports = {
+  recordAttempt,
+  isAccountLocked,
+  unlockAccount
+  
+};
