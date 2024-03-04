@@ -21,6 +21,7 @@ const userSchema = new mongoose.Schema({
     min: 0,
   },
   phoneNumber: {
+    type: String,
     trim: true,
     default: "",
   },
@@ -64,20 +65,19 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-
   occupationStatus: {
     type: String,
-    enum: ['working', 'student', 'unemployed', 'other'], // Added 'unemployed' and 'other' to cover more options
-    default: 'other' // Optional: you can set a default or leave it undefined
+    enum: ['working', 'student', 'unemployed', 'other'],
+    default: 'other'
   },
-  
-  
   isPremium: {
     type: Boolean,
-    default: false // Assumes users are 'normal' by default
+    default: false
   },
-  
-  // Add any other user fields here
+  refreshToken: {
+    type: String,
+    default: ""
+  }
 }, {
   timestamps: true,
 });

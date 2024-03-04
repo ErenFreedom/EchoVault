@@ -74,14 +74,17 @@ const dummyUserSchema = new mongoose.Schema({
     enum: ['upload', 'delete', 'view'], // Add any other permissions as necessary
     default: []
   },
-  // Reference to the main account (User) that this dummy account is linked to
   linkedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
+  },
+  refreshToken: { // New field for storing refresh token
+    type: String,
+    default: ""
   }
 }, {
-  timestamps: true
+  timestamps: true,
 });
 
 const DummyUser = mongoose.model('DummyUser', dummyUserSchema);
