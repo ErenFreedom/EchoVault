@@ -1,4 +1,5 @@
 const User = require('../models/UserModel');
+const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
 const otpStorage = new Map(); // This would ideally be replaced with a more persistent storage solution
@@ -111,13 +112,23 @@ exports.verifyOtp = async (req, res) => {
         const newUser = req.session.tempUser;
         await newUser.save();
 
+        // Generate JWT token after successful registration and OTP verification
+        const token = jwt.sign(
+            { userId: newUser._id, email: newUser.email },
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } // Token expires in 1 hour
+        );
+
         // Clear the OTP and attempts from the storage and session
         otpStorage.delete(email);
         delete req.session.tempUser;
         delete req.session.attempts;
 
-        // Log the user in or send a success response
-        res.status(201).send({ message: 'User registered successfully.' });
+        // Log the user in by sending JWT token
+        res.status(201).send({
+            message: 'User registered and verified successfully.',
+            token: token // Send the JWT token to the client
+        });
     } catch (error) {
         res.status(500).send({ message: 'OTP verification failed.', error: error.message });
     }

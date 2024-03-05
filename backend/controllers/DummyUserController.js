@@ -78,22 +78,24 @@ exports.registerDummyUser = async (req, res) => {
 
 exports.verifyDummyUserOtp = async (req, res) => {
     const { otp } = req.body;
-    const userEmail = req.session.premiumEmail;
+    const userEmail = req.session.premiumEmail; // Email of the premium user to which the dummy user is linked
 
     if (checkLockout(userEmail)) {
-        return res.status(403).send({ message: 'Account is temporarily locked due to multiple failed attempts.' });
+        return res.status(403).json({ message: 'Account is temporarily locked due to multiple failed attempts.' });
     }
 
     const storedOtp = otpStorage.get(userEmail);
     if (!storedOtp || storedOtp !== otp) {
         const isLockedOut = recordFailedAttempt(userEmail);
         const message = isLockedOut ? 'Account locked due to multiple failed OTP attempts.' : 'Invalid or expired OTP.';
-        return res.status(400).send({ message });
+        return res.status(400).json({ message });
     }
 
     // OTP is valid, proceed to save the dummy user
     const dummyUserData = req.session.tempDummyUser;
-    const dummyUser = new DummyUser(dummyUserData);
+    // Ensure you're hashing the password before saving it to the database
+    const hashedPassword = await bcrypt.hash(dummyUserData.password, 10);
+    const dummyUser = new DummyUser({ ...dummyUserData, password: hashedPassword });
     await dummyUser.save();
 
     // Clear the OTP and temporary user data from storage/session
@@ -101,7 +103,17 @@ exports.verifyDummyUserOtp = async (req, res) => {
     delete req.session.tempDummyUser;
     delete req.session.premiumEmail;
 
-    res.status(201).send({ message: 'Dummy user registered successfully and linked to the premium account.' });
+    // Generate JWT for the dummy user
+    const token = jwt.sign(
+        { userId: dummyUser._id, email: dummyUser.email, isDummy: true }, // Including a flag to indicate this is a dummy user
+        process.env.JWT_SECRET,
+        { expiresIn: '1h' } // Token expires in 1 hour
+    );
+
+    res.status(201).json({
+        message: 'Dummy user registered successfully and linked to the premium account.',
+        token: token // Send the token to the client
+    });
 };
 
 exports.toggleThemeDummyUser = async (req, res) => {
