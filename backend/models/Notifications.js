@@ -19,7 +19,19 @@ const notificationSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['transaction_success', 'document_shared', 'document_uploaded', 'custom'],
+    enum: [
+      'transaction_success', 
+      'document_shared', 
+      'document_uploaded', 
+      'document_downloaded',
+      'document_deleted',
+      'password_changed',
+      'info_changed',
+      'premium_purchased',
+      'guest_linked',
+      'permission_granted',
+      'custom'
+    ],
     default: 'custom'
   },
   isRead: {

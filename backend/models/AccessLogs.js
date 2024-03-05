@@ -3,8 +3,13 @@ const mongoose = require('mongoose');
 const accessLogsSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+    ref: 'User',
+    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+  },
+  dummyUserId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'DummyUser',
+    required: function() { return !this.userId; } // Required if userId is not provided
   },
   actionType: {
     type: String,

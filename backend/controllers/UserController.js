@@ -1,4 +1,7 @@
 const User = require('../models/UserModel');
+const UserSubscription = require('../models/UserSubscription');
+const Subscription = require('../models/Subscription');
+
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
@@ -42,7 +45,7 @@ function isLockedOut(userId) {
 
 exports.registerUser = async (req, res) => {
     try {
-        const { firstName, lastName,age,gender,username, email, password, recovery_email } = req.body;
+        const { firstName, lastName, age, gender, username, email, password, recovery_email } = req.body;
 
         // Check if user already exists
         const existingUser = await User.findOne({ email });
@@ -53,7 +56,7 @@ exports.registerUser = async (req, res) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Create user but don't save yet, as we need to verify OTP first
+        // Create new user document
         const newUser = new User({
             firstName,
             lastName,
@@ -63,7 +66,6 @@ exports.registerUser = async (req, res) => {
             email,
             password: hashedPassword,
             recovery_email,
-            
         });
 
         // Generate OTP and send email
@@ -77,15 +79,25 @@ exports.registerUser = async (req, res) => {
         otpStorage.set(email, otp);
         setTimeout(() => otpStorage.delete(email), 60000);
 
-        // Save the newUser to a session or a temporary store
         // Assuming you are using sessions
         req.session.tempUser = newUser;
+
+        // Find the "BasicLocker" subscription plan
+        const basicLockerPlan = await Subscription.findOne({ planName: "BasicLocker" });
+        if (!basicLockerPlan) {
+            console.error("BasicLocker plan not found.");
+            return res.status(500).send({ message: 'BasicLocker plan not found.' });
+        }
+
+        // Save the plan ID for later use after OTP verification
+        req.session.basicLockerPlanId = basicLockerPlan._id;
 
         res.status(200).send({ message: 'OTP sent to email.', email: email });
     } catch (error) {
         res.status(500).send({ message: 'Registration failed.', error: error.message });
     }
 };
+
 
 exports.verifyOtp = async (req, res) => {
     try {
@@ -111,6 +123,19 @@ exports.verifyOtp = async (req, res) => {
         // OTP is correct, save the user
         const newUser = req.session.tempUser;
         await newUser.save();
+
+        // Inside your verifyOtp function, after newUser.save();
+        const userSubscription = new UserSubscription({
+        userId: newUser._id,
+        subscriptionId: req.session.basicLockerPlanId,
+        startDate: new Date(),
+        isActive: true,
+        });
+        await userSubscription.save();
+
+        // Don't forget to clean up the session
+        delete req.session.basicLockerPlanId;
+
 
         // Generate JWT token after successful registration and OTP verification
         const token = jwt.sign(

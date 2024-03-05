@@ -36,6 +36,13 @@ const lockerSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Document'
   }],
+  permissions: [{
+    dummyUserId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DummyUser'
+    },
+    allowedActions: [String] // e.g., ['upload', 'delete', 'download']
+  }],
   
   createdAt: {
     type: Date,
