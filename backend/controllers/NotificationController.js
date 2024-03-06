@@ -169,6 +169,8 @@ exports.notifyPermissionGranted = async (premiumUserId, guestUserId, permission)
 
 module.exports = {
     notifyDocumentUpload,
+    notifyDocumentDeletion,
+    notifyDocumentDownload,
     notifyPremiumPurchase,
     notifyDocumentSharing,
     notifyGuestUserLinking,

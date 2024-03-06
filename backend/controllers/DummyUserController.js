@@ -220,3 +220,14 @@ exports.unlinkDummyUserAccount = async (req, res) => {
     res.status(200).json({ message: 'Account unlinked successfully.' });
 };
 
+
+module.exports={
+    registerDummyUser,
+    verifyDummyUserOtp,
+    toggleThemeDummyUser,
+    updateDummyUserInfo,
+    changeDummyUserPassword,
+    unlinkDummyUserAccount
+
+
+}

@@ -82,3 +82,8 @@ exports.grantPermissionsToDummyUser = async (req, res) => {
       res.status(500).json({ message: 'Failed to update permissions.', error: error.message });
     }
   };
+
+  module.exports={
+    createLocker,
+    grantPermissionsToDummyUser
+  }

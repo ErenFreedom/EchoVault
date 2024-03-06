@@ -63,3 +63,10 @@ exports.checkSessionExpiration = async (req, res) => {
         res.status(500).json({ message: "Error checking session expiration", error: error.toString() });
     }
 };
+
+
+module.exports={
+    createUserSession,
+    updateSessionActivity,
+    checkSessionExpiration
+}

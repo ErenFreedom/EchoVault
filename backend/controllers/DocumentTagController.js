@@ -78,3 +78,11 @@ exports.associateTagWithDocument = async (req, res) => {
     res.status(500).json({ message: "Error associating tag with document", error: error.toString() });
   }
 };
+
+
+module.exports={
+  createTag,
+  updateTag,
+  deleteTag,
+  associateTagWithDocument
+}

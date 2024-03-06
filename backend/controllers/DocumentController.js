@@ -83,3 +83,9 @@ exports.deleteDocument = async (req, res) => {
     }
   };
   
+
+module.exports={
+  uploadDocument,
+  deleteDocument,
+  downloadDocument
+}

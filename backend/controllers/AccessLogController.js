@@ -45,3 +45,9 @@ exports.fetchLogsByTimeFrame = async (req, res) => {
         res.status(500).json({ message: "Error fetching logs by time frame", error: error.message });
     }
 };
+
+module.exports={
+    fetchLogsByUserId,
+    fetchLogsByActionType,
+    fetchLogsByTimeFrame
+}

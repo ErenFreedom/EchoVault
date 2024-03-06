@@ -46,3 +46,7 @@ exports.shareDocument = async (req, res) => {
         res.status(500).json({ message: 'An error occurred while sharing the document.', error: error.message });
     }
 };
+
+module.exports={
+    shareDocument
+}

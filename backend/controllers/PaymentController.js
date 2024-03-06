@@ -90,3 +90,9 @@ exports.upgradeToPremium = async (req, res) => {
         res.status(500).json({ message: "Error upgrading to Premium.", error: error.toString() });
     }
 };
+
+
+module.exports={
+    createPaymentIntent,
+    upgradeToPremium
+}

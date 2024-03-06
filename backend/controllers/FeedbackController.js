@@ -42,3 +42,8 @@ exports.submitFeedback = async (req, res) => {
         res.status(500).json({ message: "Error submitting feedback", error: error.toString() });
     }
 };
+
+
+module.exports={
+    submitFeedback
+}

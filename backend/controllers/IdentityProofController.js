@@ -55,3 +55,8 @@ exports.listIdentityProofs = async (req, res) => {
 };
 
 // Export additional controller methods as needed
+
+module.exports={
+    addIdentityProof,
+    listIdentityProofs
+}

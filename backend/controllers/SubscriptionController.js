@@ -113,3 +113,8 @@ exports.upgradeToPremium = async (req, res) => {
         res.status(500).send({ message: 'Upgrade to premium failed.', error: error.message });
     }
 };
+
+
+module.exports={
+    upgradeToPremium
+}
