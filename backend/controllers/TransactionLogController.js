@@ -56,7 +56,7 @@ exports.getUserTransactionLogs = async (req, res) => {
     }
 };
 
-
+    
 module.exports={
     createTransactionLog,
     updateTransactionStatus,
