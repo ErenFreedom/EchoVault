@@ -1,5 +1,5 @@
 const IdentityProofs = require('../models/IdentityProofs');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 
 exports.addIdentityProof = async (req, res) => {

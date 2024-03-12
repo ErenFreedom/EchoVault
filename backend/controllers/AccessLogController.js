@@ -1,5 +1,5 @@
 // Import necessary models
-const AccessLog = require('../models/AccessLog');
+const AccessLog = require('../models/AccessLogs');
 
 // Function to fetch logs for a specific user (normal or dummy)
 exports.fetchLogsByUserId = async (req, res) => {
@@ -49,5 +49,5 @@ exports.fetchLogsByTimeFrame = async (req, res) => {
 module.exports={
     fetchLogsByUserId,
     fetchLogsByActionType,
-    fetchLogsByTimeFrame
+    fetchLogsByTimeFrame,
 }

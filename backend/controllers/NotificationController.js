@@ -1,5 +1,5 @@
 const Notification = require('../models/Notification');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 
 // Utility function to check if a user is premium

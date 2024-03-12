@@ -1,19 +1,26 @@
 const express = require('express');
-const connectDB = require('./config/database'); // Adjust path as necessary
-// Load environment variables
-
-// Connect to database
-connectDB();
-
+const cors = require('cors');
+const helmet = require('helmet');
+const connectDB = require('./config/database');
+const errorHandler = require('./middleware/errorMiddleware');
 const app = express();
 
-// Middleware
-app.use(express.json()); // For parsing application/json
+// Environment variables setup
+require('dotenv').config();
 
-// Routes
-// Assuming you have an index file in your routes directory that exports all your routes
-const routes = require('./routes');
-app.use('/api', routes); // Prefix all routes with /api
+// Database Connection
+connectDB();
 
-// Export the app for use in server.js
+// Middlewares
+app.use(helmet()); // Helps secure your app by setting various HTTP headers
+app.use(cors()); // Enables CORS with various options
+app.use(express.json()); // Parse JSON bodies
+
+// API routes
+const routes = require('./routes/index'); // Make sure to have an index.js that collects all routes
+app.use('/api', routes);
+
+// Error handling middleware
+app.use(errorHandler);
+
 module.exports = app;

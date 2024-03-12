@@ -1,5 +1,5 @@
 const Feedback = require('../models/Feedback');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 
 // Function to submit feedback

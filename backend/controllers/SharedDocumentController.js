@@ -1,5 +1,5 @@
 const Document = require('../models/Document');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 const SharedDocument = require('../models/SharedDocument');
 
 // Middleware or utility function to check if a user is premium

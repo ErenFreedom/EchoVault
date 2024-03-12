@@ -1,5 +1,5 @@
 const TransactionLogs = require('../models/TransactionLogs');
-const User = require('../models/User');
+const User = require('../models/UserModel');
 
 // Record a new transaction attempt
 exports.createTransactionLog = async (userId, transactionAmount) => {
