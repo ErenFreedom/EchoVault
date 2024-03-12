@@ -1,26 +1,33 @@
 const express = require('express');
 const router = express.Router();
-const { createTransactionLog, updateTransactionStatus, getUserTransactionLogs } = require('../controllers/TransactionLogController');
+const {
+    createTransactionLog,
+    updateTransactionStatus,
+    getUserTransactionLogs
+} = require('../controllers/TransactionLogController');
+const authMiddleware = require('../middleware/authMiddleware');
+const { ensureIsNormalUser } = require('../middleware/userTypeMiddleware');
+const errorHandler = require('../middleware/errorMiddleware');
 
-// Middleware for authentication, to ensure only authenticated users can access these routes
-const { authenticateUser } = require('../middlewares/authMiddleware');
+// Middleware to ensure only authenticated normal users can access these routes
+const authenticateAndEnsureNormalUser = [authMiddleware, ensureIsNormalUser];
 
-// Route to create a new transaction log
-// Assuming this is called when a new transaction is initiated
-router.post('/create', authenticateUser, async (req, res) => {
-    const { userId, transactionAmount } = req.body;
+// Route to create a new transaction log for upgrading to premium
+router.post('/create', authenticateAndEnsureNormalUser, async (req, res, next) => {
     try {
-        const transactionLogId = await createTransactionLog(userId, transactionAmount);
+        const { transactionAmount } = req.body; // Assuming transactionAmount is passed in request
+        // userId is extracted from authenticated session
+        const transactionLogId = await createTransactionLog(req.user._id, transactionAmount);
         res.status(201).json({ message: "Transaction log created successfully", transactionLogId });
     } catch (error) {
-        res.status(500).json({ message: "Error creating transaction log", error: error.toString() });
+        next(error); // Forward error to error handling middleware
     }
 });
 
 // Route to update the status of a transaction log
-router.post('/update-status', authenticateUser, async (req, res) => {
-    const { transactionId, status, additionalInfo } = req.body;
+router.post('/update-status', authenticateAndEnsureNormalUser, async (req, res, next) => {
     try {
+        const { transactionId, status, additionalInfo } = req.body;
         const success = await updateTransactionStatus(transactionId, status, additionalInfo);
         if (success) {
             res.status(200).json({ message: "Transaction status updated successfully" });
@@ -28,20 +35,21 @@ router.post('/update-status', authenticateUser, async (req, res) => {
             res.status(404).json({ message: "Transaction log not found" });
         }
     } catch (error) {
-        res.status(500).json({ message: "Error updating transaction status", error: error.toString() });
+        next(error); // Forward error to error handling middleware
     }
 });
 
-// Route to get all transaction logs for a user
-router.get('/user-transactions', authenticateUser, async (req, res) => {
-    const userId = req.user._id; // Extract the user ID from the authenticated user
+// Route to get all transaction logs for the authenticated user
+router.get('/user-transactions', authenticateAndEnsureNormalUser, async (req, res, next) => {
     try {
-        const transactions = await getUserTransactionLogs({ user_id: userId });
+        const transactions = await getUserTransactionLogs(req.user._id);
         res.status(200).json(transactions);
     } catch (error) {
-        res.status(500).json({ message: "Error fetching transaction logs", error: error.toString() });
+        next(error); // Forward error to error handling middleware
     }
 });
 
-// Export the router
+// Use the error handling middleware for this router
+router.use(errorHandler);
+
 module.exports = router;

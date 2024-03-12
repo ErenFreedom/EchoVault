@@ -5,19 +5,23 @@ const {
     fetchLogsByActionType,
     fetchLogsByTimeFrame
 } = require('../controllers/AccessLogController');
+const authMiddleware = require('../middleware/authMiddleware');
+const { ensureIsNormalUser, ensureIsPremiumUser, ensureIsDummyUser } = require('../middleware/userTypeMiddleware');
 
-// Middleware for authentication to ensure only authorized users can access these routes
-const { authenticateUser } = require('../middlewares/authMiddleware');
+// General middleware to authenticate all routes in this file
+router.use(authMiddleware);
 
-// Route to fetch logs for a specific user (normal or dummy)
-router.get('/by-user/:userId', authenticateUser, fetchLogsByUserId);
-router.get('/by-dummy-user/:dummyUserId', authenticateUser, fetchLogsByUserId); // If you decide to differentiate routes for normal and dummy users
+// Route to fetch logs for a specific normal or premium user
+router.get('/by-user/:userId', ensureIsNormalUser, fetchLogsByUserId);
+router.get('/by-premium-user/:userId', ensureIsPremiumUser, fetchLogsByUserId);
 
-// Route to fetch logs by action type
-router.get('/by-action-type/:actionType', authenticateUser, fetchLogsByActionType);
+// This route is specifically for dummy users, applying additional checks if needed
+router.get('/by-dummy-user/:dummyUserId', ensureIsDummyUser, fetchLogsByUserId);
 
-// Route to fetch logs within a specific time frame
-router.get('/by-time-frame', authenticateUser, fetchLogsByTimeFrame);
+// Routes to fetch logs by action type, accessible by normal and premium users
+router.get('/by-action-type/:actionType', ensureIsNormalUser, fetchLogsByActionType);
 
-// Export the router
+// Routes to fetch logs within a specific time frame, accessible by normal and premium users
+router.get('/by-time-frame', ensureIsNormalUser, fetchLogsByTimeFrame);
+
 module.exports = router;
