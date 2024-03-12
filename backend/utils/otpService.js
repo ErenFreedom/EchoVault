@@ -1,38 +1,51 @@
 const nodemailer = require('nodemailer');
+const { google } = require('google-auth-library');
 
-// Function to generate a 6-digit OTP
-exports.generateOtp = () => {
-    const otp = Math.floor(100000 + Math.random() * 900000); // Generates a 6-digit random number
-    return otp.toString();
+// Client ID and Client Secret from the downloaded JSON
+const CLIENT_ID = 'your-client-id';
+const CLIENT_SECRET = 'your-client-secret';
+const REDIRECT_URI = 'https://developers.google.com/oauthplayground';
+const REFRESH_TOKEN = 'your-refresh-token-obtained-from-oauth-playground';
+
+const oAuth2Client = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
+
+const generateOtp = () => {
+    // Generate a 6 digit numeric OTP
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    return otp;
 };
 
-// Function to send OTP via email
-exports.sendOtpEmail = async (email, otp) => {
+const sendOtpEmail = async (email, otp) => {
     try {
-        // Create reusable transporter object using the default SMTP transport
-        let transporter = nodemailer.createTransport({
-            host: "smtp.example.com", // Your SMTP host
-            port: 587, // SMTP port
-            secure: false, // true for 465, false for other ports
+        const accessToken = await oAuth2Client.getAccessToken();
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
             auth: {
-                user: "your_email@example.com", // Your email
-                pass: "your_email_password", // Your email password
+                type: 'OAuth2',
+                user: 'your-email@gmail.com',
+                clientId: CLIENT_ID,
+                clientSecret: CLIENT_SECRET,
+                refreshToken: REFRESH_TOKEN,
+                accessToken: accessToken.token,
             },
         });
 
-        // Send mail with defined transport object
-        let info = await transporter.sendMail({
-            from: '"Your Name or Company" <your_email@example.com>', // Sender address
-            to: email, // List of receivers
-            subject: "Your OTP", // Subject line
-            text: `Your OTP is: ${otp}`, // Plain text body
-            html: `<b>Your OTP is: ${otp}</b>`, // HTML body
-        });
+        const mailOptions = {
+            from: 'YOUR NAME <your-email@gmail.com>',
+            to: email,
+            subject: 'Your OTP',
+            text: `Your OTP is: ${otp}`,
+            html: `<p>Your OTP is: <b>${otp}</b></p>`, // You can style it to look better
+        };
 
-        console.log("Message sent: %s", info.messageId);
-        return true; // Indicate success
+        const result = await transporter.sendMail(mailOptions);
+        return result;
     } catch (error) {
-        console.error("Error sending OTP email:", error);
-        return false; // Indicate failure
+        console.error('Error sending OTP email', error);
+        throw new Error('Error sending OTP email');
     }
 };
+
+module.exports = { generateOtp, sendOtpEmail };
