@@ -1,5 +1,5 @@
 const Document = require('../models/Document');
-const Locker = require('../models/Locker');
+const Locker = require('../models/Lockers');
 const { checkPermissionForDummy } = require('../utils/permissions'); // Utility to check permissions
 
 exports.uploadDocument = async (req, res) => {
@@ -84,8 +84,3 @@ exports.deleteDocument = async (req, res) => {
   };
   
 
-module.exports={
-  uploadDocument,
-  deleteDocument,
-  downloadDocument
-}

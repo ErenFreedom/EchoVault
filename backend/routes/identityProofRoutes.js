@@ -1,19 +1,18 @@
 const express = require('express');
+const multer = require('multer');
 const router = express.Router();
-const { addIdentityProof, listIdentityProofs } = require('../controllers/IdentityProofController');
-const { upload } = require('../middlewares/fileUploadMiddleware'); // Adjust the import path as necessary
-const authMiddleware = require('../middleware/authMiddleware');
-const { validateIdentityProofUpload } = require('../middleware/validationMiddleware'); // Assuming you have validation for identity proof data
-const errorHandler = require('../middleware/errorMiddleware');
-const permissionsMiddleware = require('../middleware/permissionsMiddleware');
+const identityProofController = require('../controllers/IdentityProofController');
 
-// Route to add a new identity proof, with file upload, data validation, and permissions check
-router.post('/add', authMiddleware, upload.array('documents'), validateIdentityProofUpload, permissionsMiddleware.checkIdentityProofUploadPermission, addIdentityProof);
+// Configure multer or your file upload middleware
+const upload = multer({ dest: 'uploads/' });
 
-// Route to list identity proofs for a user or dummy user, ensuring the request is authenticated
-router.get('/list', authMiddleware, listIdentityProofs);
+// Middleware placeholders (for future implementation)
+// const authMiddleware = require('../middleware/authMiddleware');
 
-// Apply error handling middleware globally to all routes in this router
-router.use(errorHandler);
+// Route to add an identity proof, including file uploads
+router.post('/add', /* authMiddleware, */ upload.array('documents'), identityProofController.addIdentityProof);
+
+// Route to list identity proofs for a user or dummy user
+router.get('/list', /* authMiddleware, */ identityProofController.listIdentityProofs);
 
 module.exports = router;

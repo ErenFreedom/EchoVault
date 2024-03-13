@@ -46,8 +46,3 @@ exports.fetchLogsByTimeFrame = async (req, res) => {
     }
 };
 
-module.exports={
-    fetchLogsByUserId,
-    fetchLogsByActionType,
-    fetchLogsByTimeFrame,
-}

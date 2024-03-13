@@ -147,7 +147,3 @@ exports.verifyOtpForLogin = async (req, res) => {
     });
 };
 
-module.exports={
-    login,
-    verifyOtpForLogin
-}

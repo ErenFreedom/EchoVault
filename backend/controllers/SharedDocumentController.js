@@ -47,6 +47,4 @@ exports.shareDocument = async (req, res) => {
     }
 };
 
-module.exports={
-    shareDocument
-}
+

@@ -43,6 +43,23 @@ const accessLogsSchema = new mongoose.Schema({
   timestamps: { createdAt: 'timestamp', updatedAt: false } // Only log the creation time
 });
 
+
+
+// Virtual property to identify the type of user
+accessLogsSchema.virtual('userType').get(function() {
+  return this.userId ? 'Normal User' : 'Dummy User';
+});
+
+// Static method to find logs by normal user
+accessLogsSchema.statics.findByUserId = function(userId) {
+  return this.find({ userId: userId });
+};
+
+// Static method to find logs by dummy user
+accessLogsSchema.statics.findByDummyUserId = function(dummyUserId) {
+  return this.find({ dummyUserId: dummyUserId });
+};
+
 const AccessLog = mongoose.model('AccessLog', accessLogsSchema);
 
 module.exports = AccessLog;

@@ -65,8 +65,3 @@ exports.checkSessionExpiration = async (req, res) => {
 };
 
 
-module.exports={
-    createUserSession,
-    updateSessionActivity,
-    checkSessionExpiration
-}

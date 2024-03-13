@@ -115,6 +115,3 @@ exports.upgradeToPremium = async (req, res) => {
 };
 
 
-module.exports={
-    upgradeToPremium
-}

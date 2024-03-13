@@ -92,7 +92,3 @@ exports.upgradeToPremium = async (req, res) => {
 };
 
 
-module.exports={
-    createPaymentIntent,
-    upgradeToPremium
-}

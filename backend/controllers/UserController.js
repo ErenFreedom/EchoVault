@@ -348,12 +348,3 @@ exports.deleteAccount = async (req, res) => {
 };
 
 
-module.exports={
-    registerUser,
-    verifyOtp,
-    updateProfile,
-    toggleTheme,
-    updateUserInfo,
-    changePassword,
-    deleteAccount,
-}

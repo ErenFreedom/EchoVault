@@ -1,6 +1,9 @@
 const multer = require('multer');
 const path = require('path');
-const { User, DummyUser, Locker } = require('../models'); // Import necessary models
+const UserModel = require('../models/UserModel');
+const DummyUser = require('../models/DummyUser');
+const Lockers = require('../models/Lockers');
+ // Import necessary models
 
 // Set up storage options for multer
 const storage = multer.diskStorage({
@@ -35,13 +38,13 @@ const checkUploadPermission = async (req, res, next) => {
     const userId = req.user._id;
   
     try {
-      const locker = await Locker.findById(lockerId);
+      const locker = await Lockers.findById(lockerId);
       if (!locker) {
         return res.status(404).json({ message: 'Locker not found.' });
       }
   
       // Assuming `User` schema has an `isPremium` field
-      const user = await User.findById(userId);
+      const user = await UserModel.findById(userId);
       const isOwner = user && locker.userId.equals(userId);
       const isPremium = user && user.isPremium;
   

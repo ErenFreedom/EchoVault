@@ -221,13 +221,3 @@ exports.unlinkDummyUserAccount = async (req, res) => {
 };
 
 
-module.exports={
-    registerDummyUser,
-    verifyDummyUserOtp,
-    toggleThemeDummyUser,
-    updateDummyUserInfo,
-    changeDummyUserPassword,
-    unlinkDummyUserAccount
-
-
-}

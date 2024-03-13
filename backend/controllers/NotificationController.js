@@ -167,12 +167,4 @@ exports.notifyPermissionGranted = async (premiumUserId, guestUserId, permission)
 
 // Additional notification functions can be implemented following similar checks and patterns.
 
-module.exports = {
-    notifyDocumentUpload,
-    notifyDocumentDeletion,
-    notifyDocumentDownload,
-    notifyPremiumPurchase,
-    notifyDocumentSharing,
-    notifyGuestUserLinking,
-    notifyPermissionGranted,
-};
+

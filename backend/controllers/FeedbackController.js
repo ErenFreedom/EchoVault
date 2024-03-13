@@ -44,6 +44,3 @@ exports.submitFeedback = async (req, res) => {
 };
 
 
-module.exports={
-    submitFeedback
-}

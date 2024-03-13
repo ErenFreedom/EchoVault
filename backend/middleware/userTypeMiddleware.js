@@ -1,43 +1,41 @@
-const User = require('../models/User'); // Adjust with your User model path
-const DummyUser = require('../models/DummyUser'); // Adjust with your DummyUser model path
+const UserSubscription = require('../models/UserSubscription');
+const Subscription = require('../models/Subscription');
 
-// Middleware to ensure the user is at least a normal user
-const ensureIsNormalOrHigher = async (req, res, next) => {
-  const userId = req.user.id; // Assuming req.user.id is set by previous authMiddleware
-
-  try {
-    const user = await User.findById(userId);
-    if (user) { // If the user exists in the User collection, proceed
-      req.userDetails = user; // Optional: Attach user details to req for further use
-      return next();
-    }
-    // If not found in User, check if it's a DummyUser
-    const dummyUser = await DummyUser.findById(userId);
-    if (dummyUser) {
-      return res.status(403).json({ message: "Access denied. Feature not available for guest users." });
-    }
-    return res.status(404).json({ message: "User not found." });
-  } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.toString() });
+// Middleware to check if the user is a normal user
+const ensureIsNormalUser = async (req, res, next) => {
+  if (req.userType === 'User') {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access denied. Not a normal user." });
   }
 };
 
-// Middleware to ensure the user is a premium user
-const ensureIsPremium = async (req, res, next) => {
-  const userId = req.user.id; // Assuming req.user.id is set by previous authMiddleware
+// Middleware to check if the user is a premium user
+const ensureIsPremiumUser = async (req, res, next) => {
   try {
-    const user = await User.findById(userId);
-    if (user && user.isPremium) { // Check if user is premium
-      req.userDetails = user; // Optional: Attach user details to req for further use
+    const subscription = await UserSubscription.findOne({
+      userId: req.user._id,
+      isActive: true,
+    }).populate('subscriptionId');
+
+    if (subscription && subscription.subscriptionId.planName === "PremiumLocker") {
       return next();
+    } else {
+      return res.status(403).json({ message: "Access denied. Not a premium user." });
     }
-    return res.status(403).json({ message: "Access denied. Only premium users are allowed." });
   } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.toString() });
+    console.error(error);
+    return res.status(500).json({ message: "Failed to verify premium user status." });
   }
 };
 
-module.exports = {
-  ensureIsNormalOrHigher,
-  ensureIsPremium
+// Middleware to check if the user is a dummy user
+const ensureIsDummyUser = async (req, res, next) => {
+  if (req.userType === 'DummyUser') {
+    return next();
+  } else {
+    return res.status(403).json({ message: "Access denied. Not a dummy user." });
+  }
 };
+
+module.exports = { ensureIsNormalUser, ensureIsPremiumUser, ensureIsDummyUser };

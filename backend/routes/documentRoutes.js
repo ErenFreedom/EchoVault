@@ -1,28 +1,18 @@
 const express = require('express');
 const router = express.Router();
-const documentController = require('../controllers/documentController');
-const authMiddleware = require('../middleware/authMiddleware'); // Updated path for consistency
-const fileUploadMiddleware = require('../middleware/fileUploadMiddleware').upload; // Destructure the upload middleware if it's exported with other middlewares
-const permissionsMiddleware = require('../middleware/permissionsMiddleware');
-const rateLimitMiddleware = require('../middleware/rateLimitMiddleware');
-const corsMiddleware = require('../middleware/corsMiddleware');
-const sessionManagementMiddleware = require('../middleware/sessionManagementMiddleware');
-const { validateDocumentUpload } = require('../middleware/validationMiddleware'); // Assuming you have specific validation for document upload
-const loggerMiddleware = require('../middleware/loggerMiddleware');
+const documentController = require('../controllers/DocumentController');
 
-// Apply CORS policies for document routes
-router.use(corsMiddleware);
+// Middleware placeholders (for future implementation)
+// const authMiddleware = require('../middleware/authMiddleware');
+// You would also need file upload middleware if you're handling file uploads directly.
 
-// Route to handle document upload with file upload and permission check
-router.post('/upload', authMiddleware, fileUploadMiddleware, permissionsMiddleware.checkUploadPermission, validateDocumentUpload, sessionManagementMiddleware, documentController.uploadDocument);
+// Route to upload a document to a locker
+router.post('/upload', /* authMiddleware, */ documentController.uploadDocument);
 
-// Route to handle document deletion with permission check
-router.delete('/delete/:documentId', authMiddleware, permissionsMiddleware.checkDeletePermission, sessionManagementMiddleware, rateLimitMiddleware.generalRateLimit, documentController.deleteDocument);
+// Route to delete a specific document
+router.delete('/delete/:documentId', /* authMiddleware, */ documentController.deleteDocument);
 
-// Route to handle document download with permission check
-router.get('/download/:documentId', authMiddleware, permissionsMiddleware.checkDownloadPermission, sessionManagementMiddleware, documentController.downloadDocument);
-
-// Log all document-related actions
-router.use(loggerMiddleware);
+// Route to download a specific document
+router.get('/download/:documentId', /* authMiddleware, */ documentController.downloadDocument);
 
 module.exports = router;

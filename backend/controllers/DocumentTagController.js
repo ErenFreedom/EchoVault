@@ -80,9 +80,3 @@ exports.associateTagWithDocument = async (req, res) => {
 };
 
 
-module.exports={
-  createTag,
-  updateTag,
-  deleteTag,
-  associateTagWithDocument
-}

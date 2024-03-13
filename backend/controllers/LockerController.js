@@ -1,4 +1,4 @@
-const Locker = require('../models/Locker');
+const Locker = require('../models/Lockers');
 const User = require('../models/UserModel'); // Adjust based on your actual User model's name
 const DummyUser = require('../models/DummyUser');
 
@@ -83,7 +83,4 @@ exports.grantPermissionsToDummyUser = async (req, res) => {
     }
   };
 
-  module.exports={
-    createLocker,
-    grantPermissionsToDummyUser
-  }
+  

@@ -1,21 +1,17 @@
 const express = require('express');
 const router = express.Router();
-const { createUserSession, updateSessionActivity, checkSessionExpiration } = require('../controllers/UserSessionController');
+const userSessionController = require('../controllers/UserSessionController');
 
-// Middleware to verify authentication
-const authMiddleware = require('../middleware/authMiddleware');
-const sessionManagementMiddleware = require('../middleware/sessionManagementMiddleware'); // Assuming you've created middleware for managing sessions
+// Middleware placeholders (for future implementation)
+// const authMiddleware = require('../middleware/authMiddleware');
 
-// Route to start a new user session
-// Assumes all authenticated users can create a session
-router.post('/create', authMiddleware, sessionManagementMiddleware.createSessionValidator, createUserSession);
+// Route to create a new user session
+router.post('/create', /* authMiddleware, */ userSessionController.createUserSession);
 
 // Route to update session activity
-// Assumes that this is to keep the user's session alive, so all authenticated users can perform this action
-router.patch('/update-activity', authMiddleware, sessionManagementMiddleware.updateSessionValidator, updateSessionActivity);
+router.patch('/update-activity', /* authMiddleware, */ userSessionController.updateSessionActivity);
 
-// Route to check session expiration
-// Assumes this check could be part of session management to inform users about their session status
-router.get('/check-expiration', authMiddleware, checkSessionExpiration);
+// Route to check for session expiration
+router.post('/check-expiration', /* authMiddleware, */ userSessionController.checkSessionExpiration);
 
 module.exports = router;
