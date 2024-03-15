@@ -1,7 +1,7 @@
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const User = require('../models/UserModel');
 const UserSubscription = require('../models/UserSubscription');
-const Subscription = require('../models/Subscription');
+const Subscription = require('../models/Susbscription');
 
 // Function to create a Stripe PaymentIntent
 exports.createPaymentIntent = async (req, res) => {

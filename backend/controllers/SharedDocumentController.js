@@ -1,6 +1,6 @@
 const Document = require('../models/Document');
 const User = require('../models/UserModel');
-const SharedDocument = require('../models/SharedDocument');
+const SharedDocument = require('../models/SharedDocuments');
 
 // Middleware or utility function to check if a user is premium
 const isUserPremium = async (userId) => {

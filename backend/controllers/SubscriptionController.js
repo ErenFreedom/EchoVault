@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Subscription = require('../models/Subscription'); // Adjust the path according to your project structure
 
-mongoose.connect('mongodb://localhost:27017/yourDatabaseName', {
+mongoose.connect('mongodb://localhost:27017/LockerDB', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -115,3 +115,4 @@ exports.upgradeToPremium = async (req, res) => {
 };
 
 
+module.exports={createBasicLockerPlan}

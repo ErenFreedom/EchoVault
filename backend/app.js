@@ -1,28 +1,40 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const connectDB = require('./config/database');
-// If errorHandler middleware could potentially cause issues or depends on not yet tested parts, consider commenting it out as well
 const errorHandler = require('./middleware/errorMiddleware');
+const userRoutes = require('./routes/userRoutes');
+const session = require('express-session');
+const connectDB = require('./config/database'); // Import the database connection function
 
 const app = express();
 
-// Environment variables setup
 require('dotenv').config();
 
-// Database Connection
-connectDB();
+// Connect to MongoDB
+connectDB().then(() => {
+  console.log('MongoDB Connected...');
+}).catch((error) => {
+  console.error('Database connection failed:', error);
+  process.exit(1); // Optionally exit the process if unable to connect
+});
 
-// Essential Middlewares
-app.use(helmet()); // Security-related headers
-app.use(cors()); // CORS policy
-app.use(express.json()); // Parse JSON bodies
+// Middleware setup
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { secure: 'auto' } // Set to 'auto' for automatic handling based on request protocol
+}));
 
-// API routes setup
-const routes = require('./routes/index'); // Assuming index.js correctly imports and exports your routes
-app.use('/api', routes);
-
-// Error handling middleware - keep if it's basic and shouldn't interfere with initial tests
+// Routes setup
+app.get('/', (req, res) => {
+  res.send('Server is running!');
+});
+app.use('/api/users', userRoutes);
+// Add more routes as needed
 app.use(errorHandler);
 
 module.exports = app;

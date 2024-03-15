@@ -47,6 +47,11 @@ exports.registerUser = async (req, res) => {
     try {
         const { firstName, lastName, age, gender, username, email, password, recovery_email } = req.body;
 
+        // Check if registered email is the same as recovery email
+        if (email === recovery_email) {
+            return res.status(400).send({ message: 'Registered email cannot be the same as recovery email.' });
+        }
+
         // Check if user already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
@@ -99,16 +104,20 @@ exports.registerUser = async (req, res) => {
 };
 
 
+
 exports.verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
 
-        const storedOtp = otpStorage.get(email);
+        // Convert both to strings to ensure consistent comparison
+        const inputOtp = String(otp);
+        const storedOtp = String(otpStorage.get(email));
+
         if (!storedOtp) {
             return res.status(400).send({ message: 'OTP has expired or was not sent.' });
         }
 
-        if (otp !== storedOtp) {
+        if (inputOtp !== storedOtp) {
             // Increment attempt count and check if it exceeds the limit
             const attempts = (req.session.attempts || 0) + 1;
             req.session.attempts = attempts;
@@ -120,39 +129,38 @@ exports.verifyOtp = async (req, res) => {
             return res.status(400).send({ message: 'Incorrect OTP.', attemptsLeft: 3 - attempts });
         }
 
-        // OTP is correct, save the user
+        // OTP is correct, proceed to save the user
         const newUser = req.session.tempUser;
         await newUser.save();
 
-        // Inside your verifyOtp function, after newUser.save();
+        // Associate the basicLockerPlan with the new user after successful OTP verification
         const userSubscription = new UserSubscription({
-        userId: newUser._id,
-        subscriptionId: req.session.basicLockerPlanId,
-        startDate: new Date(),
-        isActive: true,
+            userId: newUser._id,
+            subscriptionId: req.session.basicLockerPlanId,
+            startDate: new Date(),
+            isActive: true,
         });
         await userSubscription.save();
 
-        // Don't forget to clean up the session
+        // Clean up the session
         delete req.session.basicLockerPlanId;
+        delete req.session.tempUser;
+        delete req.session.attempts;
 
-
-        // Generate JWT token after successful registration and OTP verification
+        // Generate JWT token for the user
         const token = jwt.sign(
             { userId: newUser._id, email: newUser.email },
             process.env.JWT_SECRET,
             { expiresIn: '1h' } // Token expires in 1 hour
         );
 
-        // Clear the OTP and attempts from the storage and session
+        // Clear the OTP from the storage
         otpStorage.delete(email);
-        delete req.session.tempUser;
-        delete req.session.attempts;
 
-        // Log the user in by sending JWT token
+        // Respond with the JWT token
         res.status(201).send({
             message: 'User registered and verified successfully.',
-            token: token // Send the JWT token to the client
+            token: token, // Send the JWT token to the client
         });
     } catch (error) {
         res.status(500).send({ message: 'OTP verification failed.', error: error.message });
