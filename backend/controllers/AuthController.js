@@ -1,3 +1,4 @@
+require('dotenv').config();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
@@ -10,6 +11,7 @@ const LOGIN_LOCKOUT_TIME = 3600000; // 1 hour in milliseconds
 const OTP_EXPIRATION_MS = 60000; // 1 minute for OTP expiration
 const loginAttemptsStore = new Map();
 const JWT_SECRET = process.env.JWT_SECRET;
+
 
 
 
@@ -57,34 +59,47 @@ function isLoginLockedOut(email) {
 
 function generateAndSendOtp(email) {
     const otp = generateOtp();
-    const otpRecord = { otp, attempts: 0, expiry: Date.now() + OTP_EXPIRATION_MS };
+    const otpRecord = { otp, attempts: 0, expiry: Date.now() + 60000 }; // 1 minute for OTP expiration
     otpDetails.set(email, otpRecord);
+
+    console.log(`OTP generated for ${email}: `, otp);
+    console.log(`OTP record: `, otpRecord);
+
     sendOtpEmail(email, otp);
-    return otpRecord;
 }
+
 
 function verifyOtp(email, inputOtp) {
     const otpRecord = otpDetails.get(email);
     if (!otpRecord || Date.now() > otpRecord.expiry) {
         otpDetails.delete(email);
+        console.log("OTP expired or not found for email:", email);
         return { verified: false, reason: "OTP expired or not found" };
     }
-    if (inputOtp !== otpRecord.otp) {
+
+    console.log("OTP to verify:", inputOtp);
+    console.log("Stored OTP:", otpRecord.otp);
+
+    if (inputOtp.toString() !== otpRecord.otp.toString()) {
         otpRecord.attempts++;
-        if (otpRecord.attempts >= OTP_ATTEMPTS_LIMIT) {
+        if (otpRecord.attempts >= 3) { // Assuming a maximum of 3 OTP attempts
             otpDetails.delete(email);
+            console.log("Exceeded maximum OTP attempts for email:", email);
             return { verified: false, reason: "Exceeded maximum OTP attempts" };
         }
         otpDetails.set(email, otpRecord);
+        console.log("Incorrect OTP for email:", email);
         return { verified: false, reason: "Incorrect OTP" };
     }
+
     otpDetails.delete(email);
+    console.log("OTP verified successfully for email:", email);
     return { verified: true };
 }
 const otpDetails = new Map(); // Store OTP details for verification
 
 exports.login = async (req, res) => {
-    const { identifier, password } = req.body; // Use 'identifier' to allow both email and username login
+    const { identifier, password } = req.body;
 
     // Check if the login is currently locked out
     if (isLoginLockedOut(identifier)) {
@@ -95,6 +110,11 @@ exports.login = async (req, res) => {
         const { user, userType } = await findUserByEmailOrUsername(identifier);
         if (!user) {
             return res.status(404).json({ message: "User not found." });
+        }
+
+        // Check if user is already logged in
+        if (user.loggedIn) {
+            return res.status(400).json({ message: "User already logged in. Please log out before attempting to log in again." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -110,8 +130,13 @@ exports.login = async (req, res) => {
         // Reset login attempts on successful login
         handleLoginAttempt(identifier, true);
 
-        // Send OTP to user's email
+        // Proceed to send OTP to user's email
         generateAndSendOtp(user.email);
+
+        // Optionally, mark the user as in the process of logging in (but not yet logged in)
+        // Note: Make sure to clear this flag on successful OTP verification or on logout
+        user.loggedIn = true;
+        await user.save();
 
         res.status(200).json({ message: "OTP sent to your email. Please verify to complete login." });
     } catch (error) {
@@ -122,28 +147,62 @@ exports.login = async (req, res) => {
 
 exports.verifyOtpForLogin = async (req, res) => {
     const { identifier, otp } = req.body;
-    
+
+    console.log(`Verifying OTP for identifier: ${identifier}, OTP: ${otp}`);
+
     const { user, userType } = await findUserByEmailOrUsername(identifier);
     if (!user) {
+        console.log("User not found.");
         return res.status(404).json({ message: "User not found." });
     }
 
+    // Verify the OTP
     const otpVerificationResult = verifyOtp(user.email, otp);
+    console.log(`OTP Verification Result:`, otpVerificationResult);
+
     if (!otpVerificationResult.verified) {
         return res.status(400).json({ message: otpVerificationResult.reason });
     }
 
-    // OTP verification succeeded, proceed to generate JWT
-    const accessToken = jwt.sign({ userId: user._id, userType: userType }, JWT_SECRET, { expiresIn: '15m' }); // Access token
-    const refreshToken = jwt.sign({ userId: user._id, userType: userType }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' }); // Refresh token
+    // Here's where you include the userId in the token payload
+    const accessToken = jwt.sign(
+        { userId: user._id.toString(), userType: userType },
+        process.env.JWT_SECRET,
+        { expiresIn: '15m' }  // Adjust expiresIn as per your requirement
+    );
 
-    // Here, you might want to update the User or DummyUser model to store the refreshToken
+    const refreshToken = jwt.sign(
+        { userId: user._id.toString(), userType: userType },
+        process.env.REFRESH_TOKEN_SECRET,
+        { expiresIn: '7d' }  // Adjust expiresIn as per your requirement
+    );
+
+    // Optionally update user to reflect logged-in status
+    user.isLoggedIn = true; // Assuming you have a field to indicate this
+    await user.save();
+
+    console.log(`Login successful for user: ${user.email}`);
 
     res.json({
         message: "Login successful. Welcome!",
         accessToken: accessToken,
         refreshToken: refreshToken,
-        userType: userType // Inform the client about the user type
+        userType: userType
     });
 };
 
+exports.logout = async (req, res) => {
+    try {
+        // Assuming req.user is populated by your authentication middleware
+        const userId = req.user._id;
+
+        // Optional: Invalidate the user's refresh token if you're storing and managing these server-side.
+        // This example assumes you have a method to mark a refresh token as invalidated.
+        // await invalidateUserRefreshToken(userId);
+
+        res.json({ message: "Logout successful." });
+    } catch (error) {
+        console.error('Error during logout:', error);
+        res.status(500).json({ message: "An error occurred during the logout process." });
+    }
+};

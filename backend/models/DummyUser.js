@@ -82,7 +82,11 @@ const dummyUserSchema = new mongoose.Schema({
   refreshToken: { // New field for storing refresh token
     type: String,
     default: ""
-  }
+  },
+  loggedIn: {
+    type: Boolean,
+    default: false,
+}
 }, {
   timestamps: true,
 });

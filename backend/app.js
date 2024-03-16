@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const errorHandler = require('./middleware/errorMiddleware');
 const userRoutes = require('./routes/userRoutes');
 const session = require('express-session');
+const authRoutes = require('./routes/authRoutes');
 const connectDB = require('./config/database'); // Import the database connection function
 
 const app = express();
@@ -33,7 +34,8 @@ app.use(session({
 app.get('/', (req, res) => {
   res.send('Server is running!');
 });
-app.use('/api/users', userRoutes);
+// 
+app.use('/api/auth', authRoutes);
 // Add more routes as needed
 app.use(errorHandler);
 

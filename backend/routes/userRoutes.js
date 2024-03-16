@@ -1,32 +1,21 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/UserController');
+const authMiddleware = require('../middleware/authMiddleware'); // Make sure this path matches the location of your middleware
 
-// Middleware placeholders (for future implementation)
-// const authMiddleware = require('../middleware/authMiddleware');
-
-// Route for user registration
+// Route for user registration doesn't require authentication
 router.post('/register', userController.registerUser);
 
-// Route for OTP verification (for both registration and account deletion)
+// Route for OTP verification can be before authentication for registration
+// Consider if you need authMiddleware for other OTP verification scenarios like account deletion
 router.post('/verify-otp', userController.verifyOtp);
 
-// Route for updating user profile information
-router.patch('/update-profile', /* authMiddleware, */ userController.updateProfile);
-
-// Route for toggling the user theme
-router.patch('/toggle-theme', /* authMiddleware, */ userController.toggleTheme);
-
-// Route for updating user information
-router.patch('/update-info', /* authMiddleware, */ userController.updateUserInfo);
-
-// Route for changing user password
-router.patch('/change-password', /* authMiddleware, */ userController.changePassword);
-
-// Route for sending an OTP for account deletion verification
-router.post('/send-deletion-otp', /* authMiddleware, */ userController.sendDeletionOtp);
-
-// Route for deleting the account
-router.delete('/delete-account', /* authMiddleware, */ userController.deleteAccount);
+// Following routes require the user to be logged in
+router.patch('/update-profile', authMiddleware, userController.updateProfile);
+router.patch('/toggle-theme', authMiddleware, userController.toggleTheme);
+router.patch('/update-info', authMiddleware, userController.updateUserInfo);
+router.patch('/change-password', authMiddleware, userController.changePassword);
+router.post('/send-deletion-otp', authMiddleware, userController.sendDeletionOtp);
+router.delete('/delete-account', authMiddleware, userController.deleteAccount);
 
 module.exports = router;
