@@ -3,12 +3,12 @@ const mongoose = require('mongoose');
 const documentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: function() { return !this.dummyUserId; }, // Required if dummyUserId is not provided
+    required: function() { return !this.dummyUserId; },
     ref: 'User'
   },
   dummyUserId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: function() { return !this.userId; }, // Required if userId is not provided
+    required: function() { return !this.userId; },
     ref: 'DummyUser'
   },
   lockerId: {
@@ -36,10 +36,7 @@ const documentSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  encryptionKey: {
-    type: String,
-    required: true
-  },
+  // Removed the encryptionKey from being required in the document model
   uploadDate: {
     type: Date,
     default: Date.now
@@ -50,21 +47,18 @@ const documentSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  toJSON: { virtuals: true }, // Ensure virtuals are included when document is converted to JSON
-  toObject: { virtuals: true } // Ensure virtuals are included when document is converted to a JavaScript object
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
 });
 
-// Virtual property to identify the document owner type
 documentSchema.virtual('ownerType').get(function() {
   return this.userId ? 'Admin User' : 'Dummy User';
 });
 
-// Static method to fetch documents by admin user ID
 documentSchema.statics.findByAdminUserId = function(adminUserId, callback) {
   return this.find({ userId: adminUserId }, callback);
 };
 
-// Static method to fetch documents by dummy user ID
 documentSchema.statics.findByDummyUserId = function(dummyUserId, callback) {
   return this.find({ dummyUserId: dummyUserId }, callback);
 };

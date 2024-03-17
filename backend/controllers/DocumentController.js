@@ -1,10 +1,33 @@
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
 const Document = require('../models/Document');
-const Locker = require('../models/Lockers');
-const { checkPermissionForDummy } = require('../utils/permissions'); // Utility to check permissions
+const Locker = require('../models/Lockers'); // Ensure correct model name and path
+const { checkPermissionForDummy } = require('../utils/permissions');
+
+
+
+
+async function encryptFile(filePath, encryptionKey) {
+  const iv = crypto.randomBytes(16);
+  const cipher = crypto.createCipheriv('aes-256-cbc', Buffer.from(encryptionKey, 'hex'), iv);
+  const input = fs.createReadStream(filePath);
+  const encryptedFileName = path.basename(filePath) + '.enc';
+  const encryptedFilePath = path.join(path.dirname(filePath), encryptedFileName);
+  const output = fs.createWriteStream(encryptedFilePath);
+
+  return new Promise((resolve, reject) => {
+    input.pipe(cipher).pipe(output).on('finish', () => {
+      resolve(encryptedFilePath); // Returns the path of the encrypted file
+    }).on('error', reject);
+  });
+}
 
 exports.uploadDocument = async (req, res) => {
-  const { lockerId, documentData } = req.body; // Assume documentData contains all necessary document fields
-  const userId = req.user._id; // Extracted from JWT or session
+  const { lockerId, title, documentType } = req.body;
+  const file = req.file;
+  const userId = req.user._id;
+  const encryptionKey = process.env.ENCRYPTION_KEY;
 
   try {
     const locker = await Locker.findById(lockerId);
@@ -12,16 +35,39 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Locker not found.' });
     }
 
-    // Check if the user is the locker owner or has upload permission
     const isOwner = locker.userId.equals(userId);
     const hasPermission = isOwner || await checkPermissionForDummy(userId, lockerId, 'upload');
-
     if (!hasPermission) {
       return res.status(403).json({ message: 'You do not have permission to upload documents to this locker.' });
     }
 
-    const newDocument = new Document({ ...documentData, userId, lockerId });
+    if (!file) {
+      return res.status(400).send({ message: 'No file uploaded.' });
+    }
+
+    // Check if the document already exists in the locker
+    const existingDocument = await Document.findOne({ lockerId, fileName: file.originalname });
+    if (existingDocument) {
+      // Optionally, you could also compare file hashes or content if you want to be thorough
+      return res.status(409).json({ message: 'A document with the same name already exists in this locker.' });
+    }
+
+    // Encrypt the file and create a new document as before
+    const encryptedFilePath = await encryptFile(file.path, encryptionKey);
+    const newDocument = new Document({
+      userId,
+      lockerId,
+      documentType,
+      title,
+      fileName: file.originalname,
+      filePath: encryptedFilePath,
+    });
+
     await newDocument.save();
+
+    // Add the new document to the locker and save
+    locker.documents.push(newDocument._id);
+    await locker.save();
 
     res.status(201).json({ message: 'Document uploaded successfully.', document: newDocument });
   } catch (error) {
@@ -29,6 +75,7 @@ exports.uploadDocument = async (req, res) => {
     res.status(500).json({ message: 'Failed to upload document.', error: error.message });
   }
 };
+
 
 exports.deleteDocument = async (req, res) => {
     const { documentId } = req.params;

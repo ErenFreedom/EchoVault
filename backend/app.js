@@ -5,6 +5,7 @@ const errorHandler = require('./middleware/errorMiddleware');
 const userRoutes = require('./routes/userRoutes');
 const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
+const documentRoutes = require('./routes/documentRoutes');
 const connectDB = require('./config/database'); // Import the database connection function
 
 const app = express();
@@ -36,6 +37,7 @@ app.get('/', (req, res) => {
 });
 // 
 app.use('/api/auth', authRoutes);
+app.use('/api/documents', documentRoutes);
 // Add more routes as needed
 app.use(errorHandler);
 
