@@ -1,11 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
+
 const helmet = require('helmet');
 const errorHandler = require('./middleware/errorMiddleware');
 const userRoutes = require('./routes/userRoutes');
 const session = require('express-session');
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const lockerRoutes = require('./routes/lockerRoutes');
+const dummyUserRoutes = require('./routes/dummyUserRoutes'); 
 const connectDB = require('./config/database'); // Import the database connection function
 
 const app = express();
@@ -36,8 +41,13 @@ app.get('/', (req, res) => {
   res.send('Server is running!');
 });
 // 
+app.use('/api/users', userRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api/documents', documentRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/lockers', lockerRoutes);
+app.use('/api/dummy-users', dummyUserRoutes);
 // Add more routes as needed
 app.use(errorHandler);
 

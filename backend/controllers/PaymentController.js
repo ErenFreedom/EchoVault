@@ -1,9 +1,8 @@
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 const User = require('../models/UserModel');
 const UserSubscription = require('../models/UserSubscription');
-const Subscription = require('../models/Susbscription');
+const Subscription = require('../models/Subscription');
 
-// Function to create a Stripe PaymentIntent
+// Simulated function to create a "payment intent"
 exports.createPaymentIntent = async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
@@ -16,40 +15,27 @@ exports.createPaymentIntent = async (req, res) => {
             return res.status(403).json({ message: "User is already a premium member." });
         }
 
-        // Assuming "PremiumLocker" is the subscription plan you want users to purchase
+        // Assuming "PremiumLocker" is the subscription plan you want users to simulate purchasing
         const premiumPlan = await Subscription.findOne({ planName: "PremiumLocker" });
         if (!premiumPlan) {
             return res.status(404).json({ message: "Premium plan not found." });
         }
 
-        // Create a PaymentIntent with the order amount and currency
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: premiumPlan.price * 100, // Stripe expects the amount in cents
-            currency: 'usd',
-            metadata: { userId: user._id.toString() },
-        });
-
-        res.json({ clientSecret: paymentIntent.client_secret });
+        // Simulate creating a PaymentIntent by sending a fake client secret
+        res.json({ message: "Fake payment intent created. Proceed to 'payment'.", clientSecret: "simulatedClientSecret" });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "An error occurred while creating payment intent.", error: error.message });
+        console.error("Error simulating payment intent creation:", error);
+        res.status(500).json({ message: "An error occurred.", error: error.message });
     }
 };
 
-// Function to upgrade user to premium after successful payment
+// Function to simulate upgrading user to premium after "successful payment"
 exports.upgradeToPremium = async (req, res) => {
+    const userId = req.user._id;
+
     try {
-        // Retrieve the user ID from the request; ensure authentication and authorization
-        const userId = req.user._id; // Use the authenticated user's ID
-
-        // Fetch the premium subscription plan details
-        const premiumSubscription = await Subscription.findOne({ planName: "PremiumLocker" });
-        if (!premiumSubscription) {
-            return res.status(404).json({ message: "Premium subscription plan not found." });
-        }
-
-        // Upgrade the user to premium
         const user = await User.findById(userId);
+
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -61,34 +47,25 @@ exports.upgradeToPremium = async (req, res) => {
         user.isPremium = true;
         await user.save();
 
-        // Create or update the user's subscription details
-        const endDate = new Date(); // Calculate the end date based on the subscription duration
-        endDate.setMonth(endDate.getMonth() + premiumSubscription.duration);
-
+        // Assuming here we would update or create a subscription record for the user
         let userSubscription = await UserSubscription.findOne({ userId: userId });
-        if (userSubscription) {
-            // Update existing subscription if exists
-            userSubscription.subscriptionId = premiumSubscription._id;
-            userSubscription.startDate = new Date();
-            userSubscription.endDate = endDate;
-            userSubscription.isActive = true;
-        } else {
-            // Create new subscription
+
+        if (!userSubscription) {
             userSubscription = new UserSubscription({
                 userId: userId,
-                subscriptionId: premiumSubscription._id,
-                startDate: new Date(),
-                endDate: endDate,
-                isActive: true
+                isActive: true,
+                // Add additional fields as necessary, e.g., startDate, endDate, subscriptionId
             });
+        } else {
+            // Update the existing subscription as necessary
+            userSubscription.isActive = true;
         }
+
         await userSubscription.save();
 
         res.json({ message: "User upgraded to Premium successfully." });
     } catch (error) {
-        console.error(error);
+        console.error("Error upgrading to Premium:", error);
         res.status(500).json({ message: "Error upgrading to Premium.", error: error.toString() });
     }
 };
-
-

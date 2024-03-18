@@ -4,41 +4,42 @@ const DummyUser = require('../models/DummyUser');
 
 // Function to create a new locker
 exports.createLocker = async (req, res) => {
-    const { userId, lockerName, lockerType } = req.body;
+  const { lockerName, lockerType } = req.body;
+  const userId = req.user._id; // Extracting userId from authenticated user session/token
 
-    try {
-        // Check if the user is premium
-        const user = await User.findById(userId);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found.' });
-        }
+  try {
+      // Check if the user is premium
+      const user = await User.findById(userId);
+      if (!user) {
+          return res.status(404).json({ message: 'User not found.' });
+      }
 
-        if (!user.isPremium) {
-            return res.status(403).json({ message: 'Only premium users can create custom lockers.' });
-        }
+      if (!user.isPremium) {
+          return res.status(403).json({ message: 'Only premium users can create custom lockers.' });
+      }
 
-        // Check for existing locker with the same name
-        const existingLocker = await Locker.findOne({ lockerName, userId });
-        if (existingLocker) {
-            return res.status(400).json({ message: 'A locker with this name already exists.' });
-        }
+      // Check for existing locker with the same name
+      const existingLocker = await Locker.findOne({ lockerName, userId });
+      if (existingLocker) {
+          return res.status(400).json({ message: 'A locker with this name already exists.' });
+      }
 
-        // Create the new locker
-        const locker = new Locker({
-            lockerName,
-            lockerType,
-            userId: userId, // Assigning the locker to the user
-            // dummyUserIds will be empty initially. Assign dummy users to the locker in a separate functionality
-        });
+      // Create the new locker
+      const locker = new Locker({
+          lockerName,
+          lockerType,
+          userId: userId, // Assigning the locker to the user
+      });
 
-        await locker.save();
+      await locker.save();
 
-        res.status(201).json({ message: 'Locker created successfully.', locker: locker });
-    } catch (error) {
-        console.error('Error creating locker: ', error);
-        res.status(500).json({ message: 'Error creating locker.', error: error.message });
-    }
+      res.status(201).json({ message: 'Locker created successfully.', locker: locker });
+  } catch (error) {
+      console.error('Error creating locker: ', error);
+      res.status(500).json({ message: 'Error creating locker.', error: error.message });
+  }
 };
+
 
 
 exports.grantPermissionsToDummyUser = async (req, res) => {
