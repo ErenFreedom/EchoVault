@@ -1,9 +1,13 @@
 const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 const bcrypt = require('bcryptjs');
+const nodemailer = require('nodemailer');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
+require('dotenv').config();
+const jwt = require('jsonwebtoken');
 const otpStorage = new Map(); // For simplicity, consider using a more persistent storage solution
 const lockoutStorage = new Map();
+
 const LOCKOUT_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 const MAX_ATTEMPTS = 3;
 
@@ -36,66 +40,116 @@ function recordFailedAttempt(userEmail) {
     return false; // No lockout, just recording the attempt
 }
 
-exports.registerDummyUser = async (req, res) => {
-    const { firstName, lastName, age, gender, username, email, recoveryEmail, password, premiumUsername } = req.body;
+const sendVerificationEmail = async (email, token) => {
+    const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+            user: process.env.EMAIL_USERNAME,
+            pass: process.env.EMAIL_PASSWORD,
+        },
+    });
+
+    // Correctly point to your backend
+    const verificationUrl = `http://localhost:3001/api/dummy-users/confirm-registration?token=${token}`;
+
+    const mailOptions = {
+        from: `"Your Service Name" <${process.env.EMAIL_USERNAME}>`,
+        to: email,
+        subject: 'Confirm Your Registration',
+        html: `<p>Please confirm your registration by clicking on the link below:</p><a href="${verificationUrl}">Confirm Registration</a>`,
+    };
 
     try {
+        await transporter.sendMail(mailOptions);
+        console.log('Verification email sent successfully.');
+        return true;
+    } catch (error) {
+        console.error('Error sending verification email:', error);
+        return false;
+    }
+};
+
+
+
+// Import jsonwebtoken at the top of your controller file
+
+
+exports.registerDummyUser = async (req, res) => {
+    const { firstName, lastName, age, gender, username, email, recoveryEmail, password, premiumUsername, phoneNumber } = req.body;
+
+    if (checkLockout(email)) {
+        return res.status(429).json({ message: "Too many failed registration attempts. Please try again later." });
+    }
+
+    try {
+        // Find the premium user by username to get their email
         const premiumUser = await User.findOne({ username: premiumUsername, isPremium: true });
         if (!premiumUser) {
-            return res.status(400).json({ message: `Cannot add to this account: ${premiumUsername} is not a premium account.` });
+            throw new Error(`Premium account ${premiumUsername} not found.`);
         }
 
+        // Check if a dummy user with the provided email already exists
+        const existingDummyUser = await DummyUser.findOne({ email: email });
+        if (existingDummyUser) {
+            throw new Error("Dummy user already exists.");
+        }
+
+        // Proceed with creating the registration token
         const hashedPassword = await bcrypt.hash(password, 10);
+        const registrationToken = jwt.sign({
+            firstName, lastName, age, gender, username, email, recoveryEmail, phoneNumber, password: hashedPassword, linkedPremiumUserId: premiumUser._id
+        }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        const otp = generateOtp();
-        const otpExpiration = Date.now() + 60000; // OTP expires after 60 seconds
+        // Send the verification email to the premium user's email instead of the dummy user's email
+        const emailSent = await sendVerificationEmail(premiumUser.email, registrationToken); // Use premiumUser.email
+        if (!emailSent) throw new Error("Failed to send verification email.");
 
-        await sendOtpEmail(premiumUser.email, otp);
-
-        req.session.tempDummyUser = {
-            firstName,
-            lastName,
-            age,
-            gender,
-            username,
-            email,
-            recoveryEmail,
-            password: hashedPassword,
-            linkedPremiumUserId: premiumUser._id
-        };
-        req.session.otpInfo = { otp, otpExpiration };
-
-        res.status(200).json({ message: 'OTP sent to the premium user\'s email. Please verify to complete registration.' });
+        res.status(200).json({ message: 'Verification email sent. Please check your inbox to complete registration.' });
     } catch (error) {
-        console.error('Error registering dummy user:', error);
-        res.status(500).json({ message: "An error occurred while registering the dummy user.", error: error.message });
+        recordFailedAttempt(email); // Consider whether to record attempts based on dummy or premium user's email
+        console.error('Error during registration:', error);
+        res.status(500).json({ message: "An error occurred during registration.", error: error.toString() });
+    }
+};
+
+
+exports.confirmRegistration = async (req, res) => {
+    const { token } = req.query;
+
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+        const existingDummyUser = await DummyUser.findOne({ email: decoded.email });
+        if (existingDummyUser) {
+            return res.status(400).json({ message: "This dummy user has already been registered." });
+        }
+
+        const dummyUser = new DummyUser({
+            firstName: decoded.firstName,
+            lastName: decoded.lastName,
+            age: decoded.age,
+            gender: decoded.gender,
+            username: decoded.username,
+            email: decoded.email,
+            recovery_email: decoded.recoveryEmail, // Ensure this matches the schema field name
+            phoneNumber: decoded.phoneNumber,
+            password: decoded.password,
+            linkedTo: decoded.linkedPremiumUserId // Make sure this is correctly named as per your schema
+        });
+
+        await dummyUser.save();
+
+        res.status(200).json({ message: "Dummy user registered successfully." });
+    } catch (error) {
+        console.error('Error confirming registration:', error);
+        res.status(500).json({ message: "Failed to confirm registration.", error: error.toString() });
     }
 };
 
 
 
-exports.verifyDummyUserOtp = async (req, res) => {
-    const { otp } = req.body;
 
-    if (!req.session.otpInfo || Date.now() > req.session.otpInfo.otpExpiration) {
-        return res.status(400).json({ message: 'Invalid or expired OTP.' });
-    }
 
-    if (otp !== req.session.otpInfo.otp) {
-        return res.status(400).json({ message: 'Invalid OTP.' });
-    }
-
-    const dummyUserData = req.session.tempDummyUser;
-    const dummyUser = new DummyUser({ ...dummyUserData, password: dummyUserData.password });
-    await dummyUser.save();
-
-    // Optionally link dummyUser with premiumUser here if needed.
-
-    delete req.session.tempDummyUser;
-    delete req.session.otpInfo;
-
-    res.status(201).json({ message: 'Dummy user registered successfully and linked to the premium account.', userId: dummyUser._id });
-};
 
 
 exports.toggleThemeDummyUser = async (req, res) => {

@@ -36,6 +36,8 @@ app.use(session({
   cookie: { secure: 'auto' } // Set to 'auto' for automatic handling based on request protocol
 }));
 
+
+
 // Routes setup
 app.get('/', (req, res) => {
   res.send('Server is running!');

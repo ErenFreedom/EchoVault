@@ -14,23 +14,16 @@ const lockerSchema = new mongoose.Schema({
       'Medical', 
       'Finance', 
       'Education', 
-      'Job-Related', 
-      'Identity Card', 
       'Property', 
       'Travel', 
       'Legal', 
-      'Custom' // Custom type for premium users
+      'Custom' // Allow for custom locker types for premium users
     ],
-    default: 'Custom'
   },
-  userId: {
+  userId: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'UserModel', // Reference to the owner (admin) user
+    ref: 'User', // Assume your User model is named 'User'
     required: true
-  },
-  dummyUserIds: [{ // New field for referencing DummyUser IDs
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'DummyUser' // Reference to DummyUser who have access
   }],
   documents: [{
     type: mongoose.Schema.Types.ObjectId,
@@ -43,7 +36,6 @@ const lockerSchema = new mongoose.Schema({
     },
     allowedActions: [String] // e.g., ['upload', 'delete', 'download']
   }],
-  
   createdAt: {
     type: Date,
     default: Date.now
@@ -56,7 +48,7 @@ const lockerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index to prevent users from creating multiple lockers with the same name
+// Unique index to prevent duplicate lockers of the same name for a user
 lockerSchema.index({ lockerName: 1, userId: 1 }, { unique: true });
 
 const Locker = mongoose.model('Locker', lockerSchema);
