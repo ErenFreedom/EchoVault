@@ -1,5 +1,19 @@
 const mongoose = require('mongoose');
 
+// Define a sub-schema for permissions associated with a locker
+const permissionSchema = new mongoose.Schema({
+  lockerId: {
+    type: mongoose.Schema.Types.ObjectId,
+    required: true,
+    ref: 'Locker' // Adjust this to the name of your Locker model if you have one
+  },
+  permissions: [{
+    type: String,
+    enum: ['upload', 'delete', 'view'], // Specify the permissions you need
+  }]
+}, { _id: false }); // Prevent mongoose from automatically adding an _id field to these sub-documents
+
+// Main DummyUser schema
 const dummyUserSchema = new mongoose.Schema({
   firstName: {
     type: String,
@@ -67,28 +81,25 @@ const dummyUserSchema = new mongoose.Schema({
   occupationStatus: {
     type: String,
     enum: ['working', 'student', 'unemployed', 'other'],
-    default: 'other'
+    default: 'other',
   },
-  permissions: {
-    type: [String],
-    enum: ['upload', 'delete', 'view'], // Add any other permissions as necessary
-    default: []
-  },
+  // Integrated permissions structure as an array of permissionSchema
+  permissions: [permissionSchema],
   linkedTo: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    required: true,
   },
-  refreshToken: { // New field for storing refresh token
+  refreshToken: {
     type: String,
-    default: ""
+    default: "",
   },
   loggedIn: {
     type: Boolean,
     default: false,
-}
+  }
 }, {
-  timestamps: true,
+  timestamps: true, // Adds createdAt and updatedAt timestamps
 });
 
 const DummyUser = mongoose.model('DummyUser', dummyUserSchema);

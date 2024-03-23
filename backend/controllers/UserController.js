@@ -108,23 +108,34 @@ exports.registerUser = async (req, res) => {
 exports.verifyOtp = async (req, res) => {
     try {
         const { email, otp } = req.body;
+        console.log(`Attempting to verify OTP for email: ${email} with OTP: ${otp}`);
+
         const storedOtp = otpStorage.get(email);
+        console.log(`Stored OTP for ${email}:`, storedOtp);
 
         if (!storedOtp || otp !== storedOtp.toString()) {
+            console.log(`OTP verification failed for ${email}. Input OTP: ${otp}, Stored OTP: ${storedOtp}`);
             // Handle incorrect or expired OTP...
             return res.status(400).send({ message: 'OTP is incorrect or has expired.' });
         }
+        console.log(`OTP verification succeeded for ${email}. Proceeding with user registration.`);
+
 
         const tempUser = req.session.tempUser;
+
         if (!tempUser) {
+            console.log("Session data missing for OTP verification. Current session:", req.session);
             return res.status(400).send({ message: "User session data not found." });
         }
+        console.log("Temp user session data found:", tempUser);
+
 
         // Recreate the mongoose document (model instance) from the session's stored data
         const newUser = new User(tempUser);
 
         // Now attempt to save it
         await newUser.save();
+        console.log(`New user ${newUser.email} registered successfully.`);
 
         // Associate the BasicLockerPlan with the new user
         const basicLockerPlan = await Subscription.findOne({ planName: "BasicLocker" });
@@ -144,6 +155,7 @@ exports.verifyOtp = async (req, res) => {
         delete req.session.tempUser;
         delete req.session.attempts; // if you are tracking attempts in session
         otpStorage.delete(email); // Clear the OTP
+        console.log(`Session and OTP storage cleaned up for ${email}.`);
 
         // Generate JWT token for the user
         const token = jwt.sign(

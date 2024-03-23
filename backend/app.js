@@ -11,6 +11,7 @@ const documentRoutes = require('./routes/documentRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const lockerRoutes = require('./routes/lockerRoutes');
 const dummyUserRoutes = require('./routes/dummyUserRoutes'); 
+const permissionsRoutes = require('./routes/permissionRoutes');
 const connectDB = require('./config/database'); // Import the database connection function
 
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/documents', documentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/lockers', lockerRoutes);
 app.use('/api/dummy-users', dummyUserRoutes);
+app.use('/api', permissionsRoutes);
 // Add more routes as needed
 app.use(errorHandler);
 
