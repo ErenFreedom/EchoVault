@@ -1,0 +1,33 @@
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem 2rem; /* Adjust padding as needed */
+  align-items: center;
+  background-color: #fff; /* Or any color you prefer */
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow */
+}
+
+.header h1 {
+  margin: 0; /* Removes default margin */
+  font-size: 1.5rem; /* Adjust font size as needed */
+}
+
+.header .nav-button {
+  margin-right: 1rem;
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  background-color: #f0f0f0;
+  border-radius: 4px;
+  color: black;
+  border: none; /* Remove default border */
+  cursor: pointer;
+}
+
+.header .nav-button:last-child {
+  margin-right: 0;
+}
+
+/* Add this to ensure the buttons are on the far right */
+.header div {
+  display: flex;
+}
