@@ -82,31 +82,38 @@ exports.registerDummyUser = async (req, res) => {
     }
 
     try {
-        // Find the premium user by username to get their email
+        // Check if the email or username is already used by a premium/normal user
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            return res.status(400).json({ message: "Email or username already in use by a premium/normal user." });
+        }
+
+        // Check if the email or username is already used by another dummy user
+        const existingDummyUser = await DummyUser.findOne({ $or: [{ email }, { username }] });
+        if (existingDummyUser) {
+            return res.status(400).json({ message: "Email or username already in use by another dummy user." });
+        }
+
+        // Find the premium user by username to link the dummy user to
         const premiumUser = await User.findOne({ username: premiumUsername, isPremium: true });
         if (!premiumUser) {
-            throw new Error(`Premium account ${premiumUsername} not found.`);
+            return res.status(400).json({ message: `Premium account ${premiumUsername} not found.` });
         }
 
-        // Check if a dummy user with the provided email already exists
-        const existingDummyUser = await DummyUser.findOne({ email: email });
-        if (existingDummyUser) {
-            throw new Error("Dummy user already exists.");
-        }
-
-        // Proceed with creating the registration token
+        // Proceed with creating the dummy user and sending a verification email
         const hashedPassword = await bcrypt.hash(password, 10);
         const registrationToken = jwt.sign({
             firstName, lastName, age, gender, username, email, recoveryEmail, phoneNumber, password: hashedPassword, linkedPremiumUserId: premiumUser._id
         }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        // Send the verification email to the premium user's email instead of the dummy user's email
-        const emailSent = await sendVerificationEmail(premiumUser.email, registrationToken); // Use premiumUser.email
-        if (!emailSent) throw new Error("Failed to send verification email.");
+        const emailSent = await sendVerificationEmail(premiumUser.email, registrationToken);
+        if (!emailSent) {
+            return res.status(500).json({ message: "Failed to send verification email." });
+        }
 
         res.status(200).json({ message: 'Verification email sent. Please check your inbox to complete registration.' });
     } catch (error) {
-        recordFailedAttempt(email); // Consider whether to record attempts based on dummy or premium user's email
+        recordFailedAttempt(email);
         console.error('Error during registration:', error);
         res.status(500).json({ message: "An error occurred during registration.", error: error.toString() });
     }

@@ -1,4 +1,6 @@
 const User = require('../models/UserModel');
+const DummyUser = require('../models/DummyUser'); // Adjust the path as necessary
+
 const UserSubscription = require('../models/UserSubscription');
 const Subscription = require('../models/Subscription');
 
@@ -52,16 +54,27 @@ exports.registerUser = async (req, res) => {
             return res.status(400).send({ message: 'Registered email cannot be the same as recovery email.' });
         }
 
-        // Check if user already exists
-        const existingUser = await User.findOne({ email });
+        // Check if the username or email already exists in User collection
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
-            return res.status(400).send({ message: 'Email already in use.' });
+            return res.status(400).send({ message: 'Username or email already in use by a premium/normal user.' });
         }
 
-        // Hash the password
-        const hashedPassword = await bcrypt.hash(password, 10);
+        // Check if the username or email already exists in DummyUser collection
+        const existingDummyUser = await DummyUser.findOne({ $or: [{ email }, { username }] });
+        if (existingDummyUser) {
+            return res.status(400).send({ message: 'Username or email already in use by a dummy user.' });
+        }
 
-        // Create new user document
+        // Check if recovery email already exists in both User and DummyUser collections
+        const existingRecoveryEmail = await User.findOne({ recovery_email });
+        const existingDummyRecoveryEmail = await DummyUser.findOne({ recovery_email });
+        if (existingRecoveryEmail || existingDummyRecoveryEmail) {
+            return res.status(400).send({ message: 'Recovery email already in use.' });
+        }
+
+        // Hash the password and create a new user document
+        const hashedPassword = await bcrypt.hash(password, 10);
         const newUser = new User({
             firstName,
             lastName,
@@ -80,28 +93,20 @@ exports.registerUser = async (req, res) => {
             return res.status(500).send({ message: 'Failed to send OTP email.' });
         }
 
-        // Store OTP in temporary storage with a 1-minute expiration
+        // Store OTP in temporary storage
         otpStorage.set(email, otp);
-        setTimeout(() => otpStorage.delete(email), 60000);
+        setTimeout(() => otpStorage.delete(email), 60000); // Adjust as per your expiry policy
 
-        // Assuming you are using sessions
+        // Store the new user in session for later OTP verification
         req.session.tempUser = newUser;
-
-        // Find the "BasicLocker" subscription plan
-        const basicLockerPlan = await Subscription.findOne({ planName: "BasicLocker" });
-        if (!basicLockerPlan) {
-            console.error("BasicLocker plan not found.");
-            return res.status(500).send({ message: 'BasicLocker plan not found.' });
-        }
-
-        // Save the plan ID for later use after OTP verification
-        req.session.basicLockerPlanId = basicLockerPlan._id;
 
         res.status(200).send({ message: 'OTP sent to email.', email: email });
     } catch (error) {
-        res.status(500).send({ message: 'Registration failed.', error: error.message });
+        console.error('Registration failed:', error);
+        res.status(500).send({ message: 'Registration failed.', error: error.toString() });
     }
 };
+
 
 
 
@@ -182,7 +187,7 @@ exports.updateProfile = async (req, res) => {
         const userId = req.user._id;
         const updates = req.body;
 
-        // Fields that the user is allowed to update
+        
         const allowedUpdates = ['phoneNumber', 'address', 'dateOfBirth', 'profilePicture', 'occupationStatus'];
         const isValidOperation = Object.keys(updates).every((update) => allowedUpdates.includes(update));
 
@@ -190,13 +195,13 @@ exports.updateProfile = async (req, res) => {
             return res.status(400).send({ message: 'Invalid updates!' });
         }
 
-        // Find the user by ID and update
+        
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).send({ message: 'User not found' });
         }
 
-        // Update each field with the new values
+        
         Object.keys(updates).forEach((update) => {
             user[update] = updates[update];
         });
