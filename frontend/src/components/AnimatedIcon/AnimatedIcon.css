@@ -1,0 +1,27 @@
+@keyframes flip {
+  0% {
+    transform: rotateY(0deg);
+  }
+  100% {
+    transform: rotateY(360deg);
+  }
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+.animated-icon {
+  position: absolute;
+  top: 30%; /* Vertically center the icon */
+  left: 70%; /* Since 60% is taken by left-content, start at 70% to center in the 40% space */
+  transform: translateX(-50%); /* Centers the icon in the 40% space */
+  width: 500px; /* Adjust the size as needed */
+  animation: flip 5s linear infinite, bounce 1.5s ease-in-out infinite;
+  z-index: 3;
+}

@@ -1,12 +1,13 @@
 .dynamic-text {
-    font-size: 2rem;
-    color: #007bff;
-    margin: 20px 0;
-    animation: fadeIn 2s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-20px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-size: 3.5rem;
+  color: #2c3e50;
+  margin: 20px 0;
+  animation: fadeIn 2s ease-in-out;
+  z-index: 3;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

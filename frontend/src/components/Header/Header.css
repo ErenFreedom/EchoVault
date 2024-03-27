@@ -1,33 +1,75 @@
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  z-index: 1000; /* Keeps the header above other content */
+}
+
+.header-container {
   display: flex;
   justify-content: space-between;
-  padding: 1rem 2rem; /* Adjust padding as needed */
   align-items: center;
-  background-color: #fff; /* Or any color you prefer */
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Optional: adds a subtle shadow */
+  max-width: 1650px; /* Adjust as necessary */
+  padding: 0 4rem; /* Adjust padding as necessary */
+  width: 100%;
+}
+
+.brand-container {
+  display: flex;
+  align-items: center;
+}
+
+.header-icon {
+  height: 50px; /* Adjust as necessary for your logo */
+  margin-right: 10px; /* Space between the logo and the text */
 }
 
 .header h1 {
-  margin: 0; /* Removes default margin */
-  font-size: 1.5rem; /* Adjust font size as needed */
+  margin: 0;
+  font-size: 1.5rem; /* Adjust as necessary for your design */
+}
+
+.header-buttons {
+  display: flex;
 }
 
 .header .nav-button {
   margin-right: 1rem;
-  padding: 0.5rem 1rem;
+  padding: 0.8rem 1.5rem; /* Increased padding for larger buttons */
   text-decoration: none;
-  background-color: #f0f0f0;
-  border-radius: 4px;
-  color: black;
-  border: none; /* Remove default border */
+  background-color: #5C7AEA; /* Blue color for the log in button */
+  color: #fff; /* White text color */
+  border: 1px solid transparent; /* Transparent border */
+  border-radius: 20px; /* Increased border-radius for curly buttons */
   cursor: pointer;
+  transition: all 0.3s; /* Smooth transition for effects */
+  font-weight: 500; /* Slightly bolder font */
+  font-size: 1rem; /* Larger font size for readability */
+  letter-spacing: 0.05rem; /* Modern letter spacing */
 }
 
 .header .nav-button:last-child {
   margin-right: 0;
 }
 
-/* Add this to ensure the buttons are on the far right */
-.header div {
-  display: flex;
+.header .nav-button:hover {
+  background-color: #4e6cef; /* A darker shade of blue on hover */
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* Adds a shadow on hover */
+  transform: translateY(-2px); /* Slight move up on hover */
+}
+
+/* Additional styling for the 'Register' button to make it stand out more */
+.header .nav-button.register-button {
+  background-color:  #5C7AEA; /* Warm color for the register button */
+  color: #fff; /* White text color */
+}
+
+.header .nav-button.register-button:hover {
+  background-color: #4e6cef; /* A darker shade on hover */
 }

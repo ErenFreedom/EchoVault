@@ -1,17 +1,31 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import DynamicText from '../../components/DynamicText/DynamicText';
+import AnimatedIcon from '../../components/AnimatedIcon/AnimatedIcon';
+import Footer from '../../components/Footer/Footer';
 import './Landing.css';
 
 const Landing = () => {
+  let navigate = useNavigate();
+
+  const handleLearnMoreClick = () => {
+    navigate('/login'); // Navigate to the Login page when Learn More is clicked
+  };
+
+  
+
   return (
     <div className="landing-page">
       <Header />
-      <div className="landing-content">
+      <div className="left-content">
         <DynamicText />
-        <p>More information about EchoVault could go here.</p>
-        <button className="learn-more">Learn More</button>
+        <p className="additional-info">More information about EchoVault could go here.</p>
+        <button className="learn-more" onClick={handleLearnMoreClick}>Learn More</button>
+        {/* Add the Sign Up button */}
+        <AnimatedIcon />
       </div>
+      <Footer /> {/* This is the Footer component */}
     </div>
   );
 };

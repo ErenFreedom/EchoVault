@@ -2,9 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './DynamicText.css'; // Make sure to create DynamicText.css in the same folder
 
 const textContent = [
-  "All Verified documents in one place",
-  "Access and share your documents anytime anywhere",
-  "You can insert some info of your own regarding this project",
+  "Secure your documents with ease, access them from anywhere, anytime",
+  "Your privacy, our priority – to keep your digital assets safe and sound",
+  "Effortless organization, ironclad security – your personal documents vault",
 ];
 
 const DynamicText = () => {

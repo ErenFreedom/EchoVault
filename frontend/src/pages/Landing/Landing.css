@@ -1,34 +1,59 @@
 .landing-page {
-    font-family: 'Arial', sans-serif;
-    color: #333;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: #f8f8f8;
-  }
-  
-  .landing-content {
-    padding: 2rem;
-    text-align: center;
-    max-width: 600px;
-    margin: auto;
-  }
-  
-  .learn-more {
-    padding: 10px 20px;
-    margin-top: 20px;
-    border: none;
-    border-radius: 5px;
-    background-color: #007bff;
-    color: white;
-    font-size: 16px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-  
-  .learn-more:hover {
-    background-color: #0056b3;
-  }
-  
+  font-family: 'Arial', sans-serif;
+  color: #333;
+  min-height: 100vh;
+  background: #f8f8f8;
+  position: relative;
+  display: flex;
+}
+
+.left-content {
+  background-color: #a7d9dc;
+  width: 60%; /* Changed from 50% to 60% */
+  min-height: calc(100vh - 70px); /* Adjust for the height of your header */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start; /* Aligns content to the left */
+  justify-content: center;
+  padding: 0 50px; /* Padding on the left and right */
+  box-sizing: border-box;
+  z-index: 2;
+}
+/* DynamicText styles */
+.dynamic-text { /* Assuming this is your dynamic text class */
+  text-align: left; /* Align text to the left */
+  width: 100%; /* Use full width of parent */
+  /* Add other styles specific to DynamicText here */
+}
+
+.additional-info {
+  text-align: left; /* Align text to the left */
+  margin-top: 20px; /* Add some space above the paragraph */
+  color: #333;
+  font-size: 1rem;
+}
+
+.learn-more {
+  padding: 15px 30px; /* Increased padding for a larger button */
+  margin-top: 20px; /* Space above the button */
+  border: none;
+  border-radius: 30px; /* Increased border-radius for a rounder (curlier) look */
+  background-color: #ff6b6b; /* Muted coral color for the button */
+  color: #fff; /* White text color to maintain contrast */
+  font-size: 18px; /* Slightly larger font size */
+  font-weight: bold; /* Makes the text bold */
+  cursor: pointer;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  text-align: center; /* Center the text within the button */
+  display: inline-block; /* Allows the button to have padding and margin properly */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  user-select: none; /* Prevents text selection */
+}
+
+.learn-more:hover {
+  background-color: #e55a38; /* A slightly darker shade for hover state */
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Increased shadow for hover effect */
+  transform: translateY(-2px); /* Lifts the button a bit on hover */
+}
+
+/* Rest of the styles */
