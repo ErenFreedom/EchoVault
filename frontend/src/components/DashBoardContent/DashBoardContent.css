@@ -1,0 +1,112 @@
+/* DashBoardContent.css */
+.dashboard-content {
+    padding: 2rem;
+}
+
+.recently-used-lockers,
+.available-lockers {
+    margin-bottom: 2rem;
+}
+
+.lockers-grid {
+    display: flex;
+    justify-content: flex-start; /* Aligns items to the start of the container */
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.locker-card {
+    position: relative; /* This allows for absolute positioning inside the card */
+    flex: 0 0 calc(33.333% - 1rem); /* No grow, no shrink, and set the basis for the width */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: #fff;
+    transition: transform 0.3s ease-in-out;
+    /* Use padding-top to enforce a square shape */
+    padding-top: calc(33.333% - 1rem); /* This should be the same as width for a square */
+}
+
+
+
+.locker-card:hover {
+    transform: translateY(-5px);
+}
+
+.locker-image {
+    position: absolute; /* Absolute position within the card */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%; /* Set height equal to the card's width to maintain a square */
+    object-fit: cover; /* Ensures the image covers the area without stretching */
+}
+
+.locker-details {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 1rem;
+    box-sizing: border-box;
+    background-color: rgba(255, 255, 255, 0.85); /* Semi-transparent white background */
+    color: #333; /* Darker text for better readability */
+    border-top-left-radius: 8px; /* Rounded corners at the top-left */
+    border-top-right-radius: 8px; /* Rounded corners at the top-right */
+    text-align: center; /* Center the text */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.locker-details h3 {
+    margin: 0.5rem 0;
+    font-size: 1.5em; /* Increase the font size */
+    color: #000; /* Change the color to black */
+    font-weight: bold; /* Make the title bold */
+}
+
+.locker-details p {
+    margin: 0; /* Remove default margins */
+    padding: 0.25rem 0; /* Add some vertical padding */
+}
+
+.locker-button {
+    background-color: #FF6A5C; /* A modern, vibrant pink-red color */
+    color: #FFFFFF; /* White text */
+    border: none; /* No border for a modern look */
+    padding: 12px 24px; /* Comfortable padding */
+    font-size: 1em; /* Adjust the font size as needed */
+    border-radius: 30px; /* Fully rounded ends for the button */
+    display: block; /* Display block to enable margin auto for centering */
+    margin: 10px auto; /* Center the button horizontally */
+    cursor: pointer; /* Change the cursor on hover */
+    text-align: center; /* Ensure text is centered within the button */
+    width: fit-content; /* The width should fit the content */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* A subtle shadow for depth */
+    transition: background-color 0.3s ease-in-out; /* Smooth transition for hover effects */
+    margin-top: 0.5rem;
+}
+
+.locker-button:hover {
+    background-color: #E6554D; /* A slightly darker shade for the hover effect */
+}
+
+.create-more-lockers {
+    /* The styles should match the other .locker-card styles for consistency */
+    background-color: #f0f0f0;
+    cursor: pointer;
+    /* ...other styles... */
+}
+
+@media (max-width: 768px) {
+    .locker-card {
+        flex: 0 0 calc(50% - 1rem);
+        height: calc(50% - 1rem);
+    }
+    
+    .locker-image {
+        height: calc((50% - 1rem) - 60px); /* Adjusted for 2 items per row on smaller screens */
+    }
+}

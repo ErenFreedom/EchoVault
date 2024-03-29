@@ -1,0 +1,87 @@
+/* DBoardHeader.css */
+.dboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #333;
+    color: white;
+    padding: 16px 20px; /* Increase padding to expand header vertically */
+    font-size: 22px;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.logo-container {
+    display: flex;
+    align-items: center;
+    /* Increase margin if logo and nav links seem too close */
+    margin-right: 30px; 
+}
+
+.header-icon {
+    margin-right: 30px; /* Adjust if more space is needed */
+}
+
+.nav-links a {
+    color: white;
+    text-decoration: none;
+    padding: 10px; /* Adds padding to increase spacing and clickable area */
+    margin: 0 10px; /* Adjust margins to space out the nav items */
+}
+
+.nav-links .dropdown {
+    position: relative;
+    display: inline-block;
+    
+}
+
+.nav-links .dropbtn {
+    font-size: 22px;
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+}
+
+.nav-links .dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.nav-links .dropdown-content a {
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+}
+
+.nav-links .dropdown-content a:hover {
+    background-color: #f1f1f1;
+}
+
+.nav-links .dropdown:hover .dropdown-content {
+    display: block;
+}
+
+/* Add this rule to change the styling when the dropdown is active */
+.nav-links .dropdown-content {
+    display: block;
+}
+
+.notification-bell {
+    margin-right: 20px; /* Adjust the space as needed */
+    display: inline-flex; /* Use flex to center the icon vertically */
+    align-items: center; /* Center vertically */
+    justify-content: center; /* Center horizontally */
+}
+
+.notification-bell .fa-bell {
+    font-size: 1.5rem; /* Adjust the size as needed */
+    color: white; /* Set the color */
+    cursor: pointer;
+}

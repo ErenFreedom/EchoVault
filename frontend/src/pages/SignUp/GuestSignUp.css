@@ -1,0 +1,8 @@
+/* Initially, this file can be the same as SignUp.css */
+@import './SignUp.css';
+
+/* If you have specific styles for guest registration, add them here. For example: */
+.guest-signup-container h2 {
+  /* Different style for the guest user heading, if needed */
+  color: #e0f2f1;
+}

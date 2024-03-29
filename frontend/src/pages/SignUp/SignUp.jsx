@@ -1,158 +1,114 @@
 import React, { useState } from 'react';
-import './SignUp.css'; // Make sure the CSS file is in the same directory
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+import './SignUp.css';
 
 const SignUp = () => {
-  // State to store input values
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    age: '',
-    gender: 'male', // default to 'male' or you can leave it empty to enforce selection
+    age: '', // ensure this is a string for controlled component
+    gender: 'male', // Default value
     username: '',
     email: '',
     password: '',
-    recovery_email: ''
+    recoveryEmail: '',
   });
 
-  // Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value
-    });
-  };
-
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    console.log(formData);
-    
-    // Send data to the backend using fetch or another HTTP library
-    const response = await fetch('http://localhost:3001/api/users/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(formData),
-      credentials: 'include', // if you're handling cookies
-    });
-
-    const data = await response.json();
-    if (response.ok) {
-      console.log('Registration successful', data);
-      // Handle success
+    if (name === 'age') {
+      // If the age is outside the range, don't update the state
+      const ageValue = Math.max(1, Math.min(200, Number(value)));
+      setFormData({ ...formData, age: ageValue.toString() });
     } else {
-      console.error('Registration failed', data);
-      // Handle errors
+      setFormData({ ...formData, [name]: value });
     }
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    // Submit form logic here, make sure to hash password before sending
+    // Your form submission handling logic...
+  };
+
   return (
-    <div className="signup-container">
-      <h1>Welcome to EchoVault</h1>
-      <h2>Sign up</h2>
-      <form className="signup-form" onSubmit={handleSubmit}>
-        <label>
-          First Name:
+    <div className="page-background"> {/* This div applies the full-page green background */}
+      <div className="signup-container"> {/* This div is the centered white form container */}
+        <h1>Welcome to EchoVault</h1>
+        <h2>Sign up</h2>
+        <form className="signup-form" onSubmit={handleSubmit}>
           <input
             name="firstName"
+            placeholder="First Name"
             value={formData.firstName}
             onChange={handleChange}
-            placeholder="John"
             required
           />
-        </label>
-        <label>
-          Last Name:
           <input
             name="lastName"
+            placeholder="Last Name"
             value={formData.lastName}
             onChange={handleChange}
-            placeholder="Doe"
             required
           />
-        </label>
-        <label>
-          Age:
           <input
             name="age"
+            type="number"
+            placeholder="Age"
             value={formData.age}
             onChange={handleChange}
-            type="number"
-            placeholder="30"
+            min="1"
+            max="200"
             required
           />
-        </label>
-        <div className="gender-select">
-          <label>
-            Male
-            <input
-              type="radio"
-              name="gender"
-              value="male"
-              checked={formData.gender === 'male'}
-              onChange={handleChange}
-            />
-          </label>
-          <label>
-            Female
-            <input
-              type="radio"
-              name="gender"
-              value="female"
-              checked={formData.gender === 'female'}
-              onChange={handleChange}
-            />
-          </label>
-        </div>
-        <label>
-          Username:
+          <select
+            name="gender"
+            value={formData.gender}
+            onChange={handleChange}
+            required
+          >
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
           <input
             name="username"
+            placeholder="Username"
             value={formData.username}
             onChange={handleChange}
-            placeholder="john_doe"
             required
           />
-        </label>
-        <label>
-          E-Mail:
           <input
             name="email"
+            type="email"
+            placeholder="E-Mail"
             value={formData.email}
             onChange={handleChange}
-            type="email"
-            placeholder="freedomyeager12@gmail.com"
             required
           />
-        </label>
-        <label>
-          Password:
           <input
             name="password"
+            type="password"
+            placeholder="Password"
             value={formData.password}
             onChange={handleChange}
-            type="password"
-            placeholder="Your Password"
             required
           />
-        </label>
-        <label>
-          Recovery Email:
           <input
-            name="recovery_email"
-            value={formData.recovery_email}
-            onChange={handleChange}
+            name="recoveryEmail"
             type="email"
-            placeholder="recovery@example.com"
+            placeholder="Recovery Email"
+            value={formData.recoveryEmail}
+            onChange={handleChange}
             required
           />
-        </label>
-        <button type="submit">Sign Up</button>
-      </form>
+          <button type="submit" className="signup-button">Sign Up</button>
+          <Link to="/register-guest" className="guest-register-link">Register as guest user</Link>
+        </form>
+      </div>
     </div>
   );
 };
+
 
 export default SignUp;

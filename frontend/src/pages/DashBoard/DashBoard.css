@@ -1,0 +1,22 @@
+.dashboard-page {
+    background-color: white;
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
+.dashboard {
+    font-family: 'Arial', sans-serif;
+    background-color: white; /* This will already be set by .dashboard-page on body */
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-content {
+    flex-grow: 1;
+    width: 100%;
+    padding: 1rem; /* Add padding if content should not stretch to the edge */
+}

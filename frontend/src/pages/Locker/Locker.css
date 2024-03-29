@@ -1,0 +1,47 @@
+/* Locker.css */
+
+.locker-page {
+    padding: 2rem;
+  }
+  
+  .locker-name {
+    font-size: 3rem; /* Larger font size for locker name */
+    font-weight: bold; /* Bold font weight */
+    margin-bottom: 2rem; /* Space below the locker name */
+    text-align: center; /* Center the locker name */
+    text-transform: uppercase; /* Uppercase locker name */
+  }
+  
+  /* Section styles for recently uploaded and documents */
+  section {
+    text-align: left; /* Align text to the left for sections */
+    margin-bottom: 1.5rem;
+  }
+  
+  section h2 {
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .documents-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: flex-start; /* Align cards to the start */
+  }
+  
+  .document-card {
+    width: calc(33.333% - 1rem);
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Responsive design adjustments */
+  @media (max-width: 768px) {
+    .document-card {
+      width: calc(50% - 1rem);
+    }
+  }
+  

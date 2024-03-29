@@ -1,82 +1,83 @@
+/* Login.css */
 @keyframes moveBackground {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  
-  body, html {
-    height: 100%;
-    margin: 0;
-    background: linear-gradient(135deg, #015a66 0%, #017d88 50%, #015a66 100%);
-    background-size: 200% 200%;
-    animation: moveBackground 10s ease infinite;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-family: 'Helvetica', sans-serif;
-  }
-  
-  /* Style the login container */
-  .login-container {
-    width: 100%;
-    max-width: 360px;
-    margin: auto;
-    padding: 40px;
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2); /* Slightly stronger shadow for contrast */
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-  }
-  
-  /* Style the form and the elements within */
-  .login-form {
-    display: flex;
-    flex-direction: column;
-    gap: 15px; /* Creates space between form inputs */
-  }
-  
-  .login-form input {
-    padding: 15px;
-    border: 1px solid #ccc;
-    border-radius: 20px; /* Gives the inputs a rounded appearance */
-    font-size: 16px;
-  }
-  
-  .login-button {
-    background-color: #FF6B6B;
-    color: #fff;
-    border: none;
-    border-radius: 20px;
-    padding: 15px;
-    font-size: 18px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .login-button:hover {
-    background-color: #E55A38;
-  }
-  
-  /* Style the signup link below the form */
-  .signup-link {
-    margin-top: 20px;
-  }
-  
-  .signup-link a {
-    color: #007bff;
-    text-decoration: none;
-  }
-  
-  .signup-link a:hover {
-    text-decoration: underline;
-  }
-  
-  /* Additional global styles */
-  html {
-    /* Ensures the gradient covers the whole page */
-    background-attachment: fixed;
-  }
-  
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.login-background {
+height: 100vh;
+display: flex;
+justify-content: center;
+align-items: center;
+background: linear-gradient(135deg, #015a66 0%, #017d88 50%, #015a66 100%);
+background-size: 200% 200%;
+animation: moveBackground 10s ease infinite;
+font-family: 'Helvetica', sans-serif;
+}
+
+/* Style the login container */
+.login-container {
+width: 100%;
+max-width: 360px;
+margin: auto;
+padding: 40px;
+background-color: #fff;
+border-radius: 10px;
+box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.2);
+text-align: center;
+display: flex;
+flex-direction: column;
+justify-content: center;
+}
+
+/* Style the form and the elements within */
+.login-form {
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+
+.login-form input {
+padding: 15px;
+border: 1px solid #ccc;
+border-radius: 20px;
+font-size: 16px;
+}
+
+.login-button {
+background-color: #FF6B6B;
+color: #fff;
+border: none;
+border-radius: 20px;
+padding: 15px;
+font-size: 18px;
+cursor: pointer;
+transition: background-color 0.3s;
+}
+
+.login-button:hover {
+background-color: #E55A38;
+}
+
+/* Style the signup link below the form */
+.signup-link {
+margin-top: 20px;
+}
+
+.signup-link a {
+color: #007bff;
+text-decoration: none;
+}
+
+.signup-link a:hover {
+text-decoration: underline;
+}
+
+/* The styles below were global before, if you still want them globally, include them in index.css */
+/* Otherwise, you can remove them or include them in a more specific component */
+/*
+html {
+background-attachment: fixed;
+}
+*/
