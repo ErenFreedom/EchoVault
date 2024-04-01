@@ -51,7 +51,7 @@ const DashBoardContent = ({ userName, isPremium }) => {
                                     className="locker-button"
                                     onClick={() => navigateToLocker(locker.name)}
                                 >
-                                    Know More
+                                    Access Documents
                                 </button>
                             </div>
                         </div>

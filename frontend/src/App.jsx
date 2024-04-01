@@ -6,7 +6,9 @@ import SignUp from './pages/SignUp/SignUp';
 import GuestSignUp from './pages/SignUp/GuestSignUp';
 import Dashboard from './pages/DashBoard/DashBoard';
 import PremiumDashBoard from './pages/DashBoard/PremiumDashBoard';
-import Locker from './pages/Locker/Locker'; // Import the Locker component
+import GuestDashBoard from './pages/DashBoard/GuestDashBoard'; // Import the Guest Dashboard component
+import Locker from './pages/Locker/Locker';
+import ProfilePage from './pages/ProfilePage/ProfilePage';
 
 const App = () => {
   return (
@@ -18,8 +20,10 @@ const App = () => {
         <Route path="/register-guest" element={<GuestSignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/premium-dashboard" element={<PremiumDashBoard />} />
-        {/* Add a route for the Locker. Use URL parameters to pass the locker name */}
+        <Route path="/guest-dashboard" element={<GuestDashBoard />} /> {/* Guest User Dashboard route */}
         <Route path="/locker/:lockerName" element={<Locker />} />
+        <Route path="/profile" element={<ProfilePage />} />
+        {/* Add any additional routes here */}
       </Routes>
     </Router>
   );

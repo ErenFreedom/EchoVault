@@ -1,0 +1,6 @@
+/* GuestDashBoard.css */
+@import '../../components/Header/DBoardHeader.css';
+@import '../../components/DashBoardContent/DashBoardContent.css';
+@import './DashBoard.css'; /* Importing the general dashboard styles */
+
+/* Add any guest-specific overrides or additional styles below */

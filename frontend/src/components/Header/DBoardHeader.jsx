@@ -1,18 +1,32 @@
 // DBoardHeader.jsx
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
+import { Link } from 'react-router-dom';
+
 import './DBoardHeader.css';
 
-const DBoardHeader = ({ isPremium }) => {
-    const [dropdownOpen, setDropdownOpen] = useState(false);
+const DBoardHeader = ({ isPremium, isGuest, linkedToUsername }) => {
+    const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+    const [guestDropdownOpen, setGuestDropdownOpen] = useState(false);
 
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
+    // Toggle account dropdown
+    const toggleAccountDropdown = () => {
+        setAccountDropdownOpen(!accountDropdownOpen);
+        if (guestDropdownOpen) {
+            setGuestDropdownOpen(false);
+        }
     };
 
-    // Dummy function to handle dropdown action - replace with your actual function
+    // Toggle guest accounts dropdown
+    const toggleGuestDropdown = () => {
+        setGuestDropdownOpen(!guestDropdownOpen);
+        if (accountDropdownOpen) {
+            setAccountDropdownOpen(false);
+        }
+    };
+
     const handleDropdownAction = (action) => {
-        console.log(action);
+        console.log(`Action selected: ${action}`);
         // Perform the action here
     };
 
@@ -34,14 +48,25 @@ const DBoardHeader = ({ isPremium }) => {
                         <i className="fas fa-bell"></i>
                     </div>
                     <a href="/home">Home</a>
-                    {isPremium ? (
-                        <div className="dropdown">
-                            <button className="dropbtn" onClick={toggleDropdown}>
+                    {isGuest ? (
+                       <div className="dropdown">
+                          <button className="dropbtn" onClick={toggleGuestDropdown}>
+                          Linked To {linkedToUsername}
+                          <i className="fas fa-caret-down"></i> {/* You can add a down arrow icon */}
+                        </button>
+                        {guestDropdownOpen && (
+                    <div className="dropdown-content">
+                             {/* Dropdown items will go here. For now, it's just a placeholder */}
+                    </div>
+                                 )}
+                    </div>
+                    ) : isPremium ? (
+                        <div className={`dropdown ${guestDropdownOpen ? "show" : ""}`}>
+                            <button className="dropbtn" onClick={toggleGuestDropdown}>
                                 Guest Accounts Linked
                             </button>
-                            {dropdownOpen && (
+                            {guestDropdownOpen && (
                                 <div className="dropdown-content">
-                                    {/* Use buttons instead of anchor tags for actions */}
                                     <button onClick={() => handleDropdownAction('guest1')}>Guest Account 1</button>
                                     <button onClick={() => handleDropdownAction('guest2')}>Guest Account 2</button>
                                     {/* ... more dropdown items ... */}
@@ -51,14 +76,14 @@ const DBoardHeader = ({ isPremium }) => {
                     ) : (
                         <a href="/upgrade">Upgrade To Premium</a>
                     )}
-                    <div className="dropdown">
-                        <button className="dropbtn" onClick={toggleDropdown}>
+                    <div className={`dropdown ${accountDropdownOpen ? "show" : ""}`}>
+                        <button className="dropbtn" onClick={toggleAccountDropdown}>
                             Your Account
                         </button>
-                        {dropdownOpen && (
+                        {accountDropdownOpen && (
                             <div className="dropdown-content">
-                                <a href="/profile">My Profile</a>
-                                <a href="/change-password">Change Password</a>
+                                <Link to="/profile" className="dropdown-item dropdown-link">My Profile</Link>
+                                <button onClick={() => handleDropdownAction('change-password')}>Change Password</button>
                                 <button onClick={() => handleDropdownAction('logout')}>Logout</button>
                                 <button onClick={() => handleDropdownAction('delete-account')}>Delete Account</button>
                             </div>

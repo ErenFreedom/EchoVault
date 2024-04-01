@@ -21,8 +21,16 @@ const Locker = () => {
 
   return (
     <div className="locker-page">
-      {/* Convert the locker name to title case and replace hyphens with spaces */}
-      <h1 className="locker-name">{lockerName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Locker'}</h1>
+      <div className="locker-header">
+        <h1 className="locker-name">
+          {lockerName.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + ' Locker'}
+        </h1>
+        <div className="locker-actions">
+          <button className="locker-button upload">Upload</button>
+          <button className="locker-button delete">Delete</button>
+          <button className="locker-button share">Download</button>
+        </div>
+      </div>
       
       <section className="recently-uploaded">
         <h2>Recently Uploaded</h2>

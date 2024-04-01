@@ -21,17 +21,18 @@
     margin-right: 30px; /* Adjust if more space is needed */
 }
 
-.nav-links a {
+.nav-links a, .nav-links button {
     color: white;
     text-decoration: none;
     padding: 10px; /* Adds padding to increase spacing and clickable area */
     margin: 0 10px; /* Adjust margins to space out the nav items */
+    background: none; /* Ensures that buttons don't have a background */
+    border: none; /* Ensures that buttons don't have a border */
 }
 
 .nav-links .dropdown {
     position: relative;
     display: inline-block;
-    
 }
 
 .nav-links .dropbtn {
@@ -45,7 +46,7 @@
 }
 
 .nav-links .dropdown-content {
-    display: none;
+    display: none; /* Hidden by default */
     position: absolute;
     background-color: #f9f9f9;
     min-width: 160px;
@@ -53,23 +54,38 @@
     z-index: 1;
 }
 
-.nav-links .dropdown-content a {
+
+.nav-links .dropdown-content button {
     color: black;
     padding: 12px 16px;
-    text-decoration: none;
-    display: block;
+    text-align: left;
+    width: 100%; /* Make the buttons full width */
+    box-sizing: border-box;
+    background: none;
+    border: none;
+    cursor: pointer;
 }
-
-.nav-links .dropdown-content a:hover {
+.nav-links .dropdown-content .dropdown-link {
+    display: block;
+    width: 100%;
+    padding: 12px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    color: black;
+    text-decoration: none;
+    box-sizing: border-box;
+}
+.nav-links .dropdown-content .dropdown-link:hover {
     background-color: #f1f1f1;
 }
 
-.nav-links .dropdown:hover .dropdown-content {
-    display: block;
+.nav-links .dropdown-content button:hover {
+    background-color: #f1f1f1;
 }
 
-/* Add this rule to change the styling when the dropdown is active */
-.nav-links .dropdown-content {
+/* Display the dropdown content when it's supposed to be shown */
+.nav-links .dropdown.show .dropdown-content {
     display: block;
 }
 
@@ -85,3 +101,20 @@
     color: white; /* Set the color */
     cursor: pointer;
 }
+
+/* Add to DBoardHeader.css */
+/* DBoardHeader.css */
+/* Additions to DBoardHeader.css */
+
+.linked-to-info {
+    display: inline-flex; /* Aligns this div inline with other flex items */
+    align-items: center; /* Centers vertically to match other nav items */
+    justify-content: center; /* Centers content horizontally within the div */
+    margin: 0 10px; /* Match the margin of other nav elements */
+    padding: 10px; /* Match the padding of other nav elements */
+    font-size: 22px; /* Match the font size of other nav elements */
+    text-decoration: none; /* Ensures it doesn't look like a link */
+    cursor: default; /* Changes the cursor to default as it's not clickable */
+}
+
+
