@@ -6,9 +6,10 @@ import SignUp from './pages/SignUp/SignUp';
 import GuestSignUp from './pages/SignUp/GuestSignUp';
 import Dashboard from './pages/DashBoard/DashBoard';
 import PremiumDashBoard from './pages/DashBoard/PremiumDashBoard';
-import GuestDashBoard from './pages/DashBoard/GuestDashBoard'; // Import the Guest Dashboard component
+import GuestDashBoard from './pages/DashBoard/GuestDashBoard';
 import Locker from './pages/Locker/Locker';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
+import OtpPage from './pages/otpPage/otpPage'; // Import the OtpPage
 
 const App = () => {
   return (
@@ -20,9 +21,11 @@ const App = () => {
         <Route path="/register-guest" element={<GuestSignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/premium-dashboard" element={<PremiumDashBoard />} />
-        <Route path="/guest-dashboard" element={<GuestDashBoard />} /> {/* Guest User Dashboard route */}
+        <Route path="/guest-dashboard" element={<GuestDashBoard />} />
         <Route path="/locker/:lockerName" element={<Locker />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/otp-verification" element={<OtpPage />} /> {/* OtpPage route */}
+
         {/* Add any additional routes here */}
       </Routes>
     </Router>
