@@ -6,11 +6,6 @@ const userSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  middleName: {
-    type: String,
-    trim: true,
-    default: "",
-  },
   lastName: {
     type: String,
     required: true,
@@ -20,21 +15,9 @@ const userSchema = new mongoose.Schema({
     type: Number,
     min: 0,
   },
-  phoneNumber: {
-    type: String,
-    trim: true,
-    default: "",
-  },
   gender: {
     type: String,
     enum: ['male', 'female', 'others'],
-  },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String,
   },
   email: {
     type: String,
@@ -58,31 +41,16 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  dateOfBirth: {
-    type: Date,
-  },
-  profilePicture: {
-    type: String,
-    default: "",
-  },
-  occupationStatus: {
-    type: String,
-    enum: ['working', 'student', 'unemployed', 'other'],
-    default: 'other'
-  },
   isPremium: {
     type: Boolean,
     default: false
   },
-  
-  refreshToken: {
-    type: String,
-    default: ""
-  },
-  
-
+  verified: {
+    type: Boolean,
+    default: false // Tracks if the user's email has been verified
+  }
 }, {
-  timestamps: true,
+  timestamps: true, // Keeps track of user creation and update times
 });
 
 const User = mongoose.model('User', userSchema);

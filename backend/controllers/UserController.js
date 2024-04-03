@@ -1,16 +1,19 @@
 const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser'); // Adjust the path as necessary
-
+const OTP = require('../models/otpModel'); // Adjust the path as needed
+const TempUser = require('../models/TempUser');
 const UserSubscription = require('../models/UserSubscription');
 const Subscription = require('../models/Subscription');
-
+const sendVerificationEmail = require('../utils/sendVerificationEmail');
+const Locker = require('../models/Lockers');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { v4: uuidv4 } = require('uuid');
+
+
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
-const otpStorage = new Map(); // This would ideally be replaced with a more persistent storage solution
 
 let failedAttemptsStore = {};
-
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 
@@ -49,58 +52,39 @@ exports.registerUser = async (req, res) => {
     try {
         const { firstName, lastName, age, gender, username, email, password, recovery_email } = req.body;
 
-        // Check if registered email is the same as recovery email
-        if (email === recovery_email) {
-            return res.status(400).send({ message: 'Registered email cannot be the same as recovery email.' });
-        }
-
-        // Check if the username or email already exists in User collection
+        // Check if the email or username already exists in both User and TempUser collections
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            return res.status(400).send({ message: 'Username or email already in use by a premium/normal user.' });
+        const existingTempUser = await TempUser.findOne({ email });
+        if (existingUser || existingTempUser) {
+            return res.status(400).send({ message: 'Email or username already in use.' });
         }
 
-        // Check if the username or email already exists in DummyUser collection
-        const existingDummyUser = await DummyUser.findOne({ $or: [{ email }, { username }] });
-        if (existingDummyUser) {
-            return res.status(400).send({ message: 'Username or email already in use by a dummy user.' });
-        }
-
-        // Check if recovery email already exists in both User and DummyUser collections
-        const existingRecoveryEmail = await User.findOne({ recovery_email });
-        const existingDummyRecoveryEmail = await DummyUser.findOne({ recovery_email });
-        if (existingRecoveryEmail || existingDummyRecoveryEmail) {
-            return res.status(400).send({ message: 'Recovery email already in use.' });
-        }
-
-        // Hash the password and create a new user document
+        // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
-        const newUser = new User({
+
+        // Generate OTP
+        const otp = generateOtp();
+
+        // Attempt to send the OTP to the user's email
+        const emailSent = await sendOtpEmail(email, otp);
+        if (!emailSent) {
+            return res.status(500).send({ message: 'Failed to send OTP for email verification.' });
+        }
+
+        // Store user details along with the OTP in TempUser collection
+        await TempUser.create({
             firstName,
             lastName,
             age,
             gender,
             username,
             email,
-            password: hashedPassword,
+            password: hashedPassword, // Store the hashed password
             recovery_email,
+            otp
         });
 
-        // Generate OTP and send email
-        const otp = generateOtp();
-        const otpSent = await sendOtpEmail(email, otp);
-        if (!otpSent) {
-            return res.status(500).send({ message: 'Failed to send OTP email.' });
-        }
-
-        // Store OTP in temporary storage
-        otpStorage.set(email, otp);
-        setTimeout(() => otpStorage.delete(email), 60000); // Adjust as per your expiry policy
-
-        // Store the new user in session for later OTP verification
-        req.session.tempUser = newUser;
-
-        res.status(200).send({ message: 'OTP sent to email.', email: email });
+        res.status(200).send({ message: 'Please check your email to verify your account with the OTP sent.' });
     } catch (error) {
         console.error('Registration failed:', error);
         res.status(500).send({ message: 'Registration failed.', error: error.toString() });
@@ -108,78 +92,179 @@ exports.registerUser = async (req, res) => {
 };
 
 
-
-
 exports.verifyOtp = async (req, res) => {
+    const { email, otp } = req.body;
+
     try {
-        const { email, otp } = req.body;
-        console.log(`Attempting to verify OTP for email: ${email} with OTP: ${otp}`);
-
-        const storedOtp = otpStorage.get(email);
-        console.log(`Stored OTP for ${email}:`, storedOtp);
-
-        if (!storedOtp || otp !== storedOtp.toString()) {
-            console.log(`OTP verification failed for ${email}. Input OTP: ${otp}, Stored OTP: ${storedOtp}`);
-            // Handle incorrect or expired OTP...
+        // Validate OTP against the TempUser collection
+        const tempUserRecord = await TempUser.findOne({ email, otp });
+        if (!tempUserRecord) {
             return res.status(400).send({ message: 'OTP is incorrect or has expired.' });
         }
-        console.log(`OTP verification succeeded for ${email}. Proceeding with user registration.`);
 
+        // Now, move the user from TempUser to User collection
+        const { firstName, lastName, age, gender, username, recovery_email, password } = tempUserRecord;
+        const newUser = await User.create({
+            firstName,
+            lastName,
+            age,
+            gender,
+            username,
+            email,
+            password, // Ensure the password is already hashed
+            recovery_email,
+            verified: true // Mark the user as verified
+        });
 
-        const tempUser = req.session.tempUser;
-
-        if (!tempUser) {
-            console.log("Session data missing for OTP verification. Current session:", req.session);
-            return res.status(400).send({ message: "User session data not found." });
-        }
-        console.log("Temp user session data found:", tempUser);
-
-
-        // Recreate the mongoose document (model instance) from the session's stored data
-        const newUser = new User(tempUser);
-
-        // Now attempt to save it
-        await newUser.save();
-        console.log(`New user ${newUser.email} registered successfully.`);
-
-        // Associate the BasicLockerPlan with the new user
-        const basicLockerPlan = await Subscription.findOne({ planName: "BasicLocker" });
-        if (!basicLockerPlan) {
-            return res.status(500).send({ message: 'BasicLocker plan not found.' });
+        // Assign default subscription plan
+        const defaultSubscription = await Subscription.findOne({ planName: "BasicLocker" });
+        if (!defaultSubscription) {
+            return res.status(500).send({ message: 'Default subscription plan not found.' });
         }
 
-        const userSubscription = new UserSubscription({
+        await UserSubscription.create({
             userId: newUser._id,
-            subscriptionId: basicLockerPlan._id,
+            subscriptionId: defaultSubscription._id,
             startDate: new Date(),
             isActive: true
         });
-        await userSubscription.save();
 
-        // Clean up the session
-        delete req.session.tempUser;
-        delete req.session.attempts; // if you are tracking attempts in session
-        otpStorage.delete(email); // Clear the OTP
-        console.log(`Session and OTP storage cleaned up for ${email}.`);
+        // Assign default locker, if applicable
+        const defaultLocker = await Locker.findOne({ available: true }); // Simplified logic
+        if (defaultLocker) {
+            defaultLocker.userId = newUser._id;
+            defaultLocker.available = false;
+            await defaultLocker.save();
+        }
 
-        // Generate JWT token for the user
-        const token = jwt.sign(
-            { userId: newUser._id, email: newUser.email },
-            process.env.JWT_SECRET,
-            { expiresIn: '1h' }
-        );
+        // Clear the OTP record and TempUser record
+        await TempUser.deleteOne({ _id: tempUserRecord._id });
+        await OTP.deleteOne({ email, otp });
 
-        // Respond with JWT token
-        res.status(201).send({
-            message: 'User registered and verified successfully.',
-            token: token
-        });
-
+        res.status(201).send({ message: 'User verified successfully.' });
     } catch (error) {
-        console.error('OTP verification failed: ', error);
+        console.error('OTP verification failed:', error);
         res.status(500).send({ message: 'OTP verification failed.', error: error.toString() });
     }
 };
+
+
+exports.resendOtp = async (req, res) => {
+    const { email } = req.body;
+
+    try {
+        // Check if the user has initiated the registration process
+        const userExists = await User.findOne({ email });
+        if (!userExists) {
+            return res.status(404).send({ message: 'User not found. Please initiate the registration process.' });
+        }
+
+        // Generate a new OTP
+        const otp = generateOtp();
+
+        // Send the OTP via email
+        const emailSent = await sendOtpEmail(email, otp);
+        if (!emailSent) {
+            // Handle failure (e.g., due to email service issues)
+            return res.status(500).send({ message: 'Failed to send OTP email.' });
+        }
+
+        // Update the existing OTP record or create a new one
+        const otpRecord = await OTP.findOne({ email });
+        if (otpRecord) {
+            otpRecord.otp = otp;
+            await otpRecord.save();
+        } else {
+            await OTP.create({ email, otp });
+        }
+
+        res.status(200).send({ message: 'OTP has been resent. Please check your email.' });
+    } catch (error) {
+        console.error('Error resending OTP:', error);
+        res.status(500).send({ message: 'Failed to resend OTP.', error: error.toString() });
+    }
+};
+// exports.verifyOtp = async (req, res) => {
+//     const { email, otp } = req.body;
+//     try {
+//         const otpRecord = await OTP.findOne({ email, otp });
+//         if (!otpRecord) {
+//             return res.status(400).send({ message: 'OTP is incorrect or has expired.' });
+//         }
+
+//         // Retrieve the temporary user data
+//         const tempUser = await TempUser.findOne({ email });
+//         if (!tempUser) {
+//             return res.status(404).send({ message: 'Temporary user data not found.' });
+//         }
+
+//         // Create a new user with the verified email and other registration data
+//         const newUser = await User.create({
+//             ...tempUser.toObject(),
+//             email // Ensure email is verified
+//         });
+
+//         console.log(`New user ${newUser.email} registered successfully.`);
+
+//         // Associate the BasicLockerPlan with the new user
+//         const basicLockerPlan = await Subscription.findOne({ planName: "BasicLocker" });
+//         if (!basicLockerPlan) {
+//             return res.status(500).send({ message: 'BasicLocker plan not found.' });
+//         }
+
+//         const userSubscription = await UserSubscription.create({
+//             userId: newUser._id,
+//             subscriptionId: basicLockerPlan._id,
+//             startDate: new Date(),
+//             isActive: true
+//         });
+
+//         console.log(`User subscription created: ${userSubscription._id}`);
+
+//         // Clear the OTP as it's no longer needed
+//         await tempUser.remove();
+//         await otpRecord.remove();
+
+//         // Generate JWT token for the user
+//         res.status(201).send({
+//             message: 'User registered and verified successfully.'
+//             // If using JWT: , authToken: authToken
+//         });
+
+//     } catch (error) {
+//         console.error('OTP verification failed: ', error);
+//         res.status(500).send({ message: 'OTP verification failed.', error: error.toString() });
+//     }
+// };
+
+// // ... other imports and setup ...
+
+// exports.resendOtp = async (req, res) => {
+//     const { email } = req.body;
+
+//     try {
+//         // Generate a new OTP
+//         const newOtp = generateOtp();
+
+//         // Attempt to send the new OTP to the user's email
+//         const otpSent = await sendOtpEmail(email, newOtp);
+//         if (!otpSent) {
+//             // If there was an error sending the email, don't update the database
+//             return res.status(500).send({ message: 'Failed to resend OTP email.' });
+//         }
+
+//         // If email was sent successfully, update or insert the new OTP in the database
+//         await OTP.findOneAndUpdate({ email }, { otp: newOtp }, { new: true, upsert: true });
+
+//         // Respond to the client indicating the new OTP was sent
+//         res.status(200).send({ message: 'New OTP sent to email.', email: email });
+//     } catch (error) {
+//         console.error('Error resending OTP:', error);
+//         res.status(500).send({ message: 'Error resending OTP.', error: error.toString() });
+//     }
+// };
+
+
 
 exports.updateProfile = async (req, res) => {
     try {

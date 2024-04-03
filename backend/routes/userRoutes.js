@@ -6,16 +6,16 @@ const authMiddleware = require('../middleware/authMiddleware'); // Make sure thi
 // Route for user registration doesn't require authentication
 router.post('/register', userController.registerUser);
 
-// Route for OTP verification can be before authentication for registration
-// Consider if you need authMiddleware for other OTP verification scenarios like account deletion
-router.post('/verify-otp', userController.verifyOtp);
+// Add routes for OTP-based email verification
+router.post('/verify-otp', userController.verifyOtp); // For verifying the OTP
+router.post('/resend-otp', userController.resendOtp); // For resending the OTP
 
 // Following routes require the user to be logged in
 router.patch('/update-profile', authMiddleware, userController.updateProfile);
 router.patch('/toggle-theme', authMiddleware, userController.toggleTheme);
 router.patch('/update-info', authMiddleware, userController.updateUserInfo);
 router.patch('/change-password', authMiddleware, userController.changePassword);
-router.post('/send-deletion-otp', authMiddleware, userController.sendDeletionOtp);
+router.post('/send-deletion-otp', authMiddleware, userController.sendDeletionOtp); // Assuming this is still relevant
 router.delete('/delete-account', authMiddleware, userController.deleteAccount);
 
 module.exports = router;
