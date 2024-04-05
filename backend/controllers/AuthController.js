@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
+const TempLogin = require('../models/TempLogin'); 
+const OTP = require('../models/otpModel'); // Update with the correct path
 
 const LOGIN_ATTEMPTS_LIMIT = 3;
 const OTP_ATTEMPTS_LIMIT = 3;
@@ -11,6 +13,7 @@ const LOGIN_LOCKOUT_TIME = 3600000; // 1 hour in milliseconds
 const OTP_EXPIRATION_MS = 60000; // 1 minute for OTP expiration
 const loginAttemptsStore = new Map();
 const JWT_SECRET = process.env.JWT_SECRET;
+
 
 
 
@@ -57,139 +60,147 @@ function isLoginLockedOut(email) {
     return false;
 }
 
-function generateAndSendOtp(email) {
-    const otp = generateOtp();
-    const otpRecord = { otp, attempts: 0, expiry: Date.now() + 60000 }; // 1 minute for OTP expiration
-    otpDetails.set(email, otpRecord);
+// Assuming sendOtpEmail correctly sends the email and logs any issues
+// Adjusted function to include userId in the TempLogin document
+// async function generateAndSendOtp(email, userId) {
+//     const otp = generateOtp();
+//     try {
+//         // Delete existing OTP record for the email, if any
+//         await TempLogin.findOneAndDelete({ email });
+//         // Save the new OTP record including userId
+//         await TempLogin.create({ email, userId, otp });
+//         // Send OTP via email
+//         await sendOtpEmail(email, otp);
+//     } catch (error) {
+//         console.error("Error generating or sending OTP:", error);
+//         throw new Error('Failed to send OTP.');
+//     }
+// }
 
-    console.log(`OTP generated for ${email}: `, otp);
-    console.log(`OTP record: `, otpRecord);
-
-    sendOtpEmail(email, otp);
-}
 
 
-function verifyOtp(email, inputOtp) {
-    const otpRecord = otpDetails.get(email);
-    if (!otpRecord || Date.now() > otpRecord.expiry) {
-        otpDetails.delete(email);
-        console.log("OTP expired or not found for email:", email);
-        return { verified: false, reason: "OTP expired or not found" };
-    }
 
-    console.log("OTP to verify:", inputOtp);
-    console.log("Stored OTP:", otpRecord.otp);
+// async function verifyOtpFromDB(email, inputOtp) {
+//     try {
+//         const otpRecord = await OTP.findOne({ email, otp: inputOtp });
+//         if (!otpRecord) {
+//             return { verified: false, reason: "OTP is incorrect or has expired." };
+//         }
+//         await otpRecord.remove(); // OTP is valid, remove it to prevent reuse
+//         return { verified: true };
+//     } catch (error) {
+//         console.error("Error during OTP verification:", error);
+//         return { verified: false, reason: "An error occurred during OTP verification." };
+//     }
+// }
 
-    if (inputOtp.toString() !== otpRecord.otp.toString()) {
-        otpRecord.attempts++;
-        if (otpRecord.attempts >= 3) { // Assuming a maximum of 3 OTP attempts
-            otpDetails.delete(email);
-            console.log("Exceeded maximum OTP attempts for email:", email);
-            return { verified: false, reason: "Exceeded maximum OTP attempts" };
-        }
-        otpDetails.set(email, otpRecord);
-        console.log("Incorrect OTP for email:", email);
-        return { verified: false, reason: "Incorrect OTP" };
-    }
+// async function verifyOtp(email, inputOtp) {
+//     try {
+//         const otpRecord = await OTP.findOne({ email: email, otp: inputOtp });
 
-    otpDetails.delete(email);
-    console.log("OTP verified successfully for email:", email);
-    return { verified: true };
-}
-const otpDetails = new Map(); // Store OTP details for verification
+//         if (!otpRecord) {
+//             return { verified: false, reason: "OTP is incorrect or has expired." };
+//         }
+
+//         // If the OTP record exists and matches, it's considered verified.
+//         // Optionally, delete the OTP record once verified to prevent reuse.
+//         await otpRecord.remove();
+
+//         return { verified: true };
+//     } catch (error) {
+//         console.error("Error during OTP verification: ", error);
+//         return { verified: false, reason: "An error occurred during OTP verification." };
+//     }
+// }
+
 
 exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
-    // Check if the login is currently locked out
-    if (isLoginLockedOut(identifier)) {
-        return res.status(429).json({ message: "Login attempt locked. Try again later." });
-    }
-
     try {
-        const { user, userType } = await findUserByEmailOrUsername(identifier);
+        const { user } = await findUserByEmailOrUsername(identifier);
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
 
-        // Check if user is already logged in
-        if (user.loggedIn) {
-            return res.status(400).json({ message: "User already logged in. Please log out before attempting to log in again." });
-        }
-
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
-            const loginAttempt = handleLoginAttempt(identifier);
-            if (loginAttempt.count >= LOGIN_ATTEMPTS_LIMIT) {
-                return res.status(429).json({ message: "Too many failed login attempts. Account locked for 1 hour." });
-            } else {
-                return res.status(401).json({ message: "Invalid credentials. Please try again.", attemptsLeft: LOGIN_ATTEMPTS_LIMIT - loginAttempt.count });
-            }
+            return res.status(401).json({ message: "Invalid credentials." });
         }
 
-        // Reset login attempts on successful login
-        handleLoginAttempt(identifier, true);
+        // Generate JWT Token with 'id' to match what authMiddleware expects
+        const token = jwt.sign(
+            { id: user._id }, // Change to 'id' instead of 'userId'
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } // Token expires in 1 hour
+        );
 
-        // Proceed to send OTP to user's email
-        generateAndSendOtp(user.email);
-
-        // Optionally, mark the user as in the process of logging in (but not yet logged in)
-        // Note: Make sure to clear this flag on successful OTP verification or on logout
-        user.loggedIn = true;
-        await user.save();
-
-        res.status(200).json({ message: "OTP sent to your email. Please verify to complete login." });
+        res.json({
+            message: "Login successful.",
+            token, // Send the token to the client
+            user: {
+                id: user._id, // Send user info without the password
+                email: user.email,
+                username: user.username // Include additional required user fields
+            }
+        });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "An error occurred during the login process." });
     }
 };
 
-exports.verifyOtpForLogin = async (req, res) => {
-    const { identifier, otp } = req.body;
 
-    console.log(`Verifying OTP for identifier: ${identifier}, OTP: ${otp}`);
 
-    const { user, userType } = await findUserByEmailOrUsername(identifier);
-    if (!user) {
-        console.log("User not found.");
-        return res.status(404).json({ message: "User not found." });
-    }
 
-    // Verify the OTP
-    const otpVerificationResult = verifyOtp(user.email, otp);
-    console.log(`OTP Verification Result:`, otpVerificationResult);
+// exports.verifyOtpForLogin = async (req, res) => {
+//     const { otp } = req.body;
+//     const tempLogin = await TempLogin.findOne({ otp: otp });
+//     if (!tempLogin) {
+//         return res.status(400).json({ message: "OTP is incorrect or has expired." });
+//     }
 
-    if (!otpVerificationResult.verified) {
-        return res.status(400).json({ message: otpVerificationResult.reason });
-    }
+//     const user = await User.findById(tempLogin.userId);
+//     if (!user) {
+//         return res.status(404).json({ message: "User not found." });
+//     }
 
-    // Here's where you include the userId in the token payload
-    const accessToken = jwt.sign(
-        { userId: user._id.toString(), userType: userType },
-        process.env.JWT_SECRET,
-        { expiresIn: '15m' }  // Adjust expiresIn as per your requirement
-    );
+//     // Generate tokens, log the user in, and clean up TempLogin
+//     const accessToken = generateAccessToken(user._id);
+//     const refreshToken = generateRefreshToken(user._id);
+//     await TempLogin.findByIdAndDelete(tempLogin._id);
 
-    const refreshToken = jwt.sign(
-        { userId: user._id.toString(), userType: userType },
-        process.env.REFRESH_TOKEN_SECRET,
-        { expiresIn: '7d' }  // Adjust expiresIn as per your requirement
-    );
+//     res.json({
+//         message: "OTP verified. Login successful.",
+//         accessToken,
+//         refreshToken,
+//         user: {
+//             id: user._id,
+//             email: user.email,
+//             // Include other user details as needed
+//         }
+//     });
+// };
 
-    // Optionally update user to reflect logged-in status
-    user.isLoggedIn = true; // Assuming you have a field to indicate this
-    await user.save();
 
-    console.log(`Login successful for user: ${user.email}`);
+// exports.resendOtp = async (req, res) => {
+//     const { email } = req.body;
 
-    res.json({
-        message: "Login successful. Welcome!",
-        accessToken: accessToken,
-        refreshToken: refreshToken,
-        userType: userType
-    });
-};
+//     try {
+//         const user = await User.findOne({ email });
+//         if (!user) return res.status(404).json({ message: "User not found." });
+
+//         // Generate a new OTP, replace the old one in TempLogin, and send it
+//         const newOtp = generateOtp();
+//         await TempLogin.findOneAndUpdate({ email }, { otp: newOtp }, { new: true });
+//         await sendOtpEmail(email, newOtp);
+
+//         res.json({ message: "OTP has been resent to your email." });
+//     } catch (error) {
+//         console.error("Resend OTP Error:", error);
+//         res.status(500).json({ message: "Failed to resend OTP." });
+//     }
+// };
 
 exports.logout = async (req, res) => {
     try {

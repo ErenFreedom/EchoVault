@@ -24,7 +24,7 @@ function isLoggedIn(req, res, next) {
 router.post('/login', isLoggedIn, authController.login);
 
 // Route for verifying OTP as part of the login process
-router.post('/verify-otp', authController.verifyOtpForLogin);
+// router.post('/verify-otp', authController.verifyOtpForLogin);
 
 router.post('/logout', authMiddleware, authController.logout);
 

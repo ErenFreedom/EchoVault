@@ -141,6 +141,8 @@ exports.verifyOtp = async (req, res) => {
         await TempUser.deleteOne({ _id: tempUserRecord._id });
         await OTP.deleteOne({ email, otp });
 
+        
+
         res.status(201).send({ message: 'User verified successfully.' });
     } catch (error) {
         console.error('OTP verification failed:', error);
