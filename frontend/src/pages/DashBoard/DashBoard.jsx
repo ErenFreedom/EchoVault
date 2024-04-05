@@ -1,22 +1,23 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './DashBoard.css';
 import DBoardHeader from '../../components/Header/DBoardHeader';
 import DashBoardContent from '../../components/DashBoardContent/DashBoardContent';
 
 const Dashboard = () => {
-    const [userData, setUserData] = useState(null); // State to hold user data
+    const [userData, setUserData] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         document.body.classList.add('dashboard-page');
 
-        // Fetch user data
         const fetchData = async () => {
             try {
-                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/user/data`, {
+                const token = sessionStorage.getItem('token'); // Adjusted to 'token' for consistency
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/data`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${sessionStorage.getItem('accessToken')}`,
-                        // Additional headers...
+                        'Authorization': `Bearer ${token}`,
                     },
                 });
 
@@ -25,10 +26,10 @@ const Dashboard = () => {
                 }
 
                 const data = await response.json();
-                setUserData(data); // Store the fetched data in state
+                setUserData(data);
             } catch (error) {
                 console.error(error.message);
-                // Handle errors (e.g., redirect to login page)
+                
             }
         };
 
@@ -37,9 +38,8 @@ const Dashboard = () => {
         return () => {
             document.body.classList.remove('dashboard-page');
         };
-    }, []);
+    }, [navigate]);
 
-    // If userData is not yet fetched, you can return loading indicator, etc.
     if (!userData) {
         return <div>Loading...</div>;
     }
@@ -47,7 +47,6 @@ const Dashboard = () => {
     return (
         <div className="dashboard">
             <DBoardHeader />
-            {/* Pass the fetched userData to DashBoardContent or use it here */}
             <DashBoardContent userName={userData.name} />
         </div>
     );

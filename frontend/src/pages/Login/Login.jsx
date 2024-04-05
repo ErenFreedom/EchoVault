@@ -1,50 +1,41 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './Login.css'; // Make sure the CSS path is correct
+import './Login.css';
 
 const Login = () => {
-    let navigate = useNavigate(); // This is used for navigation after login or OTP verification
+    let navigate = useNavigate();
 
     const [loginField, setLoginField] = useState('');
     const [password, setPassword] = useState('');
-    // You might also want to track whether the server requests an OTP after login
-    const [requiresOtp, setRequiresOtp] = useState(false);
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        
+
         const loginEndpoint = `${process.env.REACT_APP_BACKEND_URL}/api/auth/login`;
-        
+
         try {
             const response = await fetch(loginEndpoint, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ identifier: loginField, password }),
             });
 
             const data = await response.json();
 
             if (response.ok) {
-                // Here, based on the response, decide if navigating to /verify-otp or directly to /dashboard
-                if (data.requiresOtpVerification) {
-                    // If your backend indicates that OTP verification is required
-                    setRequiresOtp(true);
-                    sessionStorage.setItem('accessToken', data.accessToken); // Optionally store accessToken if required for OTP verification
-                    navigate('/verify-otp'); // Navigate to OTP verification page
-                } else {
-                    // If no OTP verification is required, navigate directly to the dashboard
-                    sessionStorage.setItem('accessToken', data.accessToken); // Store accessToken securely
-                    navigate('/dashboard'); // Navigate to the dashboard
-                }
+                // Assuming the token is named 'token' in the response
+                sessionStorage.setItem('token', data.token);
+
+                // Optionally, manage user's authentication state here
+                console.log("Attempting to navigate to dashboard");
+
+                navigate('/dashboard'); // Redirect to dashboard after successful login
             } else {
-                // Server responded with an error
-                alert(data.message); // Show error message
+                alert(data.message); // Display error message from server
             }
         } catch (error) {
-            // Network error or other issue
-            alert('Cannot connect to the server'); // Show network/connection error
+            console.error('Network error:', error);
+            alert('Cannot connect to the server');
         }
     };
 
