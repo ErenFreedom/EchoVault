@@ -45,7 +45,7 @@ const SignUp = () => {
       if (response.ok) {
         // Store the email in local storage for later OTP verification
         localStorage.setItem('emailForVerification', formData.email);
-        alert('Registration successful. Please verify your account with the OTP sent to your email.');
+        alert('Registration in process. Please verify your account with the OTP sent to your email.');
         navigate('/otp-verification'); // Navigate to the OTP verification page
       } else {
         console.error('Registration failed:', data.message);

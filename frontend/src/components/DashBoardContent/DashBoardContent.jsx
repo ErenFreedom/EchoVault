@@ -1,36 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './DashBoardContent.css';
-import useNavigateToLocker from '../../hooks/useNavigateToLocker'; // Import the custom hook
+import useNavigateToLocker from '../../hooks/useNavigateToLocker';
 
 const DashBoardContent = ({ userName, isPremium }) => {
-    const navigateToLocker = useNavigateToLocker(); // Initialize the custom hook
+    const [lockers, setLockers] = useState([]);
+    const navigateToLocker = useNavigateToLocker();
 
-    // Placeholder data for recently used lockers and available lockers
-    // const recentlyUsedLockers = [
-    //     // Add recently used locker data here
-    // ];
-    
-    const availableLockers = [
-        { name: 'Personal', description: 'Your personal documents', imgSrc: '/images/Personal.png' },
-        { name: 'Medical', description: 'Your healthcare records', imgSrc: '/images/Medical.png' },
-        { name: 'Finance', description: 'Your financial statements', imgSrc: '/images/Finance.png' },
-        { name: 'Education', description: 'Your educational certificates', imgSrc: '/images/Education.png' },
-        { name: 'Property', description: 'Your property deeds', imgSrc: '/images/Property.png' },
-        { name: 'Travel', description: 'Your travel documents', imgSrc: '/images/Travel.png' },
-        { name: 'Legal', description: 'Your legal papers', imgSrc: '/images/Legal.png' }
-        // Potentially more lockers...
-    ];
+    useEffect(() => {
+        const fetchLockers = async () => {
+            try {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/lockers/user-lockers`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`
+                    },
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.message || 'Error fetching lockers.');
+                setLockers(data); // Assuming the response contains an array of lockers
+            } catch (error) {
+                console.error('Error fetching user lockers:', error);
+            }
+        };
 
-    // Function to handle the creation of more lockers
-    // This could navigate to a form or trigger a modal for locker creation
-    const handleCreateMoreLockers = () => {
-        console.log("Create more lockers clicked");
+        fetchLockers();
+    }, [userName]); // Dependency array includes userName to refetch when it changes
+
+    const lockerImages = {
+        Personal: '/images/Personal.png',
+        Medical: '/images/Medical.png',
+        Finance: '/images/Finance.png',
+        Education: '/images/Education.png',
+        Property: '/images/Property.png',
+        Travel: '/images/Travel.png',
+        Legal: '/images/Legal.png'
+    };
+
+    const getLockerImage = (lockerType) => {
+        return lockerImages[lockerType] || '/images/default.png'; // Fallback to a default image
     };
 
     return (
         <div className="dashboard-content">
             <h1>Welcome {userName},</h1>
-            
+
+            {/* Sections for recently used lockers can go here if implemented */}
             <section className="recently-used-lockers">
                 <h2>Recently Used Lockers</h2>
                 <div className="lockers-grid">
@@ -41,28 +55,24 @@ const DashBoardContent = ({ userName, isPremium }) => {
             <section className="available-lockers">
                 <h2>Available Lockers</h2>
                 <div className="lockers-grid">
-                    {availableLockers.map((locker, index) => (
-                        <div className="locker-card" key={index}>
-                            <img src={locker.imgSrc} alt={`${locker.name} Locker`} className="locker-image" />
+                    {lockers.map((locker) => (
+                        <div className="locker-card" key={locker._id}>
+                            <img src={getLockerImage(locker.lockerType)} alt={`${locker.lockerName} Locker`} className="locker-image" />
                             <div className="locker-details">
-                                <h3>{locker.name} Locker</h3>
-                                <p>{locker.description}</p>
+                                <h3>{locker.lockerName}</h3>
+                               
                                 <button 
                                     className="locker-button"
-                                    onClick={() => navigateToLocker(locker.name)}
+                                    onClick={() => navigateToLocker(locker._id, locker.lockerName)}
                                 >
                                     Access Documents
                                 </button>
                             </div>
                         </div>
                     ))}
-                    {/* Conditional rendering of the 'Create More Lockers' card for premium users */}
                     {isPremium && (
-                        <div className="locker-card create-more-lockers" onClick={handleCreateMoreLockers}>
-                            <div className="locker-details">
-                                <div className="create-locker-plus">+</div>
-                                <p>Create more lockers</p>
-                            </div>
+                        <div className="locker-card create-more-lockers" >
+                            {/* ... */}
                         </div>
                     )}
                 </div>

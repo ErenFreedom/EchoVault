@@ -1,54 +1,44 @@
-/* Locker.css */
-
+/* Locker Page Layout */
 .locker-page {
-    padding: 2rem;
-  }
-  
-  .locker-name {
-    font-size: 3rem; /* Larger font size for locker name */
-    font-weight: bold; /* Bold font weight */
-    margin-bottom: 2rem; /* Space below the locker name */
-    text-align: center; /* Center the locker name */
-    text-transform: uppercase; /* Uppercase locker name */
-  }
-  
-  /* Section styles for recently uploaded and documents */
-  section {
-    text-align: left; /* Align text to the left for sections */
-    margin-bottom: 1.5rem;
-  }
-  
-  section h2 {
-    font-size: 1.8rem;
-    margin-bottom: 1rem;
-  }
-  
-  .documents-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    justify-content: flex-start; /* Align cards to the start */
-  }
-  
-  .document-card {
-    width: calc(33.333% - 1rem);
-    padding: 1rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Responsive design adjustments */
-  @media (max-width: 768px) {
-    .document-card {
-      width: calc(50% - 1rem);
-    }
-  }
-  
-  /* Locker.css */
+  padding: 2rem;
+}
 
-/* Existing styles... */
+.locker-name {
+  font-size: 3rem; /* Larger font size for locker name */
+  font-weight: bold; /* Bold font weight */
+  margin-bottom: 2rem; /* Space below the locker name */
+  text-align: center; /* Center the locker name */
+  text-transform: uppercase; /* Uppercase locker name */
+}
 
+/* Section styles for recently uploaded and all documents */
+section {
+  text-align: left; /* Align text to the left for sections */
+  margin-bottom: 1.5rem;
+}
+
+section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+/* Document Grid and Cards */
+.documents-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: flex-start; /* Align cards to the start */
+}
+
+.document-card {
+  width: calc(33.333% - 1rem); /* Three cards per row */
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Locker Actions and Buttons */
 .locker-header {
   display: flex;
   justify-content: space-between; /* Aligns items on the same line with space between */
@@ -77,9 +67,7 @@
   background-color: #e6554d; /* Slightly darker shade on hover */
 }
 
-/* ... Your existing styles ... */
-
-/* Responsive design adjustments */
+/* Responsive Design Adjustments */
 @media (max-width: 768px) {
   .locker-header {
     flex-direction: column; /* Stacks items vertically on smaller screens */
@@ -96,6 +84,75 @@
   .locker-name {
     text-align: left; /* Aligns the locker name to the left on smaller screens */
   }
+
+  .document-card {
+    width: calc(50% - 1rem); /* Adjusts to two cards per row on smaller screens */
+  }
 }
 
-/* ... Your existing styles ... */
+
+/* Locker.css */
+/* ... rest of your styles */
+
+.document-icon {
+  font-size: 3rem; /* Large size for icons */
+}
+
+.document-icon.pdf {
+  color: #E53E3E; /* Color for PDF icons */
+}
+
+.document-icon.image {
+  color: #38B2AC; /* Color for image icons */
+}
+
+.document-icon.other {
+  color: #718096; /* Color for other file types */
+}
+
+.document-thumbnail-placeholder {
+  width: 100%;
+  height: 100px; /* Fixed height for placeholder */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f0f0; /* Placeholder background color */
+}
+
+.document-title {
+  font-size: 1rem; /* Font size for document title */
+  overflow: hidden; /* Hide overflow */
+  white-space: nowrap; /* No wrapping */
+  text-overflow: ellipsis; /* Add ellipsis for overflow */
+  margin-top: 0.5rem; /* Space between icon and title */
+  text-align: center; /* Center the title */
+}
+
+/* Ensure document card is positioned relatively to contain absolutely positioned buttons */
+.document-card {
+  position: relative;
+  /* ... other styles ... */
+}
+
+/* Positioning the delete and download buttons */
+.document-card .locker-button.delete,
+.document-card .locker-button.download {
+  position: absolute;
+  bottom: 10px;
+}
+
+/* Delete button positioned a bit to the left of the download button */
+.document-card .locker-button.delete {
+  right: 70px; /* Adjust the spacing based on your design */
+}
+
+/* Download button right at the edge of the card */
+.document-card .locker-button.download {
+  right: 10px;
+}
+
+/* Icons inside the buttons for delete and download */
+.document-card .locker-button .fa-trash,
+.document-card .locker-button .fa-download {
+  margin-right: 5px;
+}

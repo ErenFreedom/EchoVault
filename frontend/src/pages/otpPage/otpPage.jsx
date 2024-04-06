@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import './otpPage.css'; // Make sure the path to your CSS is correct
 
 const OtpPage = () => {
@@ -57,8 +60,17 @@ const OtpPage = () => {
             if (response.headers.get('content-type')?.includes('application/json')) {
                 const data = await response.json();
                 if (response.ok) {
+                    toast.success('Successfully Registered', {
+                        position: "top-center",
+                        autoClose: 5000,
+                        hideProgressBar: false,
+                        closeOnClick: true,
+                        pauseOnHover: true,
+                        draggable: true,
+                        progress: undefined,
+                    });
                     // Navigate to dashboard or next step after successful OTP verification
-                    navigate('/dashboard'); // Adjust as per your route setup
+                    navigate('/login'); // Adjust as per your route setup
                     localStorage.removeItem('emailForVerification'); // Clean up
                 } else {
                     throw new Error(data.message || 'Error verifying OTP');
@@ -73,25 +85,29 @@ const OtpPage = () => {
     };
     
     return (
-        <div className="otp-page">
-            <form onSubmit={handleSubmit} className="otp-form">
-                <input
-                    type="text"
-                    placeholder="Enter OTP"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                />
-                <button type="submit" disabled={timer <= 0}>Verify OTP</button>
-            </form>
-            {timer > 0 ? (
-                <p>Resend OTP in {timer} seconds</p>
-            ) : (
-                <button onClick={resendOtp}>Resend OTP</button>
-            )}
-            {timer <= 0 && <p>OTP expired. Please resend OTP.</p>}
-        </div>
+        <>
+            <ToastContainer position="top-center" autoClose={5000} />
+            <div className="otp-page">
+                <form onSubmit={handleSubmit} className="otp-form">
+                    <input
+                        type="text"
+                        placeholder="Enter OTP"
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value)}
+                        required
+                    />
+                    <button type="submit" disabled={timer <= 0}>Verify OTP</button>
+                </form>
+                {timer > 0 ? (
+                    <p>Resend OTP in {timer} seconds</p>
+                ) : (
+                    <button onClick={resendOtp}>Resend OTP</button>
+                )}
+                {timer <= 0 && <p>OTP expired. Please resend OTP.</p>}
+            </div>
+        </>
     );
+    
 };
 
 export default OtpPage;

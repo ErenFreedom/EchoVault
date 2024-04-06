@@ -10,6 +10,8 @@ import GuestDashBoard from './pages/DashBoard/GuestDashBoard';
 import Locker from './pages/Locker/Locker';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import OtpPage from './pages/otpPage/otpPage'; // Import the OtpPage
+import ChangePassword from './pages/changePassword/changePassword';
+
 
 const App = () => {
   return (
@@ -22,9 +24,11 @@ const App = () => {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/premium-dashboard" element={<PremiumDashBoard />} />
         <Route path="/guest-dashboard" element={<GuestDashBoard />} />
-        <Route path="/locker/:lockerName" element={<Locker />} />
+        <Route path="/locker/:lockerId/:lockerName" element={<Locker />} />
+
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/otp-verification" element={<OtpPage />} /> {/* OtpPage route */}
+        <Route path="/change-password" element={<ChangePassword />} />
 
         {/* Add any additional routes here */}
       </Routes>
