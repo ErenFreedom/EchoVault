@@ -40,6 +40,19 @@ exports.createLocker = async (req, res) => {
   }
 };
 
+// lockerController.js
+
+exports.getUserLockers = async (req, res) => {
+  try {
+      // Assuming req.user.id contains the logged-in user's ID
+      const userId = req.user._id;
+      const lockers = await Locker.find({ userId }).lean();
+      res.json(lockers);
+  } catch (error) {
+      console.error('Error fetching user lockers:', error);
+      res.status(500).json({ message: 'Failed to fetch user lockers', error: error.message });
+  }
+};
 
 
 exports.grantPermissionsToDummyUser = async (req, res) => {

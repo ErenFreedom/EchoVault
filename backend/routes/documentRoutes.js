@@ -1,30 +1,52 @@
 const express = require('express');
 const multer = require('multer');
-const router = express.Router();
 const documentController = require('../controllers/DocumentController');
-const authMiddleware = require('../middleware/authMiddleware'); // Ensure the path is correct
+const Document = require('../models/Document'); // Adjust the path as necessary
 
-// Set up storage engine
+const path = require('path');
+// Set up storage engine for file uploads
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
-    cb(null, 'uploads/') // Ensure this path exists or is configured according to your needs
+    cb(null, 'uploads/') // Make sure this directory exists
   },
   filename: function(req, file, cb) {
-    // Naming convention for the uploaded files
-    // You might want to include timestamps or user identifiers for uniqueness
-    cb(null, file.fieldname + '-' + Date.now() + '.' + file.originalname.split('.').pop())
+    // Naming convention to avoid conflicts
+    cb(null, `${file.fieldname}-${Date.now()}.${file.originalname.split('.').pop()}`)
   }
 });
 
 const upload = multer({ storage: storage });
 
-// Route to upload a document to a locker
-router.post('/upload', authMiddleware, upload.single('document'), documentController.uploadDocument);
+const router = express.Router();
+
+// Route to upload a document to a specific locker
+router.post('/locker/:lockerId/upload', upload.single('document'), documentController.uploadDocument);
+
+// Route to get all documents for a specific locker
+router.get('/locker/:lockerId/documents', documentController.getDocumentsForLocker);
+
+
+
+router.get('/documents/:documentId/preview', async (req, res) => {
+  const { documentId } = req.params;
+  try {
+    // Assuming Document model is already imported in documentRoutes.js
+    const document = await Document.findById(documentId);
+    if (!document) {
+      return res.status(404).send('Document not found');
+    }
+    const filePath = path.join(__dirname, '..', 'uploads', document.filePath);
+    res.sendFile(filePath);
+  } catch (error) {
+    console.error('Error serving document:', error);
+    res.status(500).send('Error serving document');
+  }
+});
 
 // Route to delete a specific document
-router.delete('/delete/:documentId', authMiddleware, documentController.deleteDocument);
+router.delete('/document/:documentId', documentController.deleteDocument);
 
 // Route to download a specific document
-router.get('/download/:documentId', authMiddleware, documentController.downloadDocument);
+router.get('/document/:documentId/download', documentController.downloadDocument);
 
 module.exports = router;

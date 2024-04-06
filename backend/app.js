@@ -53,11 +53,12 @@ app.get('/', (req, res) => res.send('Server is running!'));
 app.use('/api/users', userRoutes); // Ensure this is correctly linked to your user-related functionalities
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
-app.use('/api/documents', documentRoutes);
+app.use('/api', documentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/lockers', lockerRoutes);
 app.use('/api/dummy-users', dummyUserRoutes);
 app.use('/api', permissionsRoutes); // Make sure permissions handling is correctly implemented
+
 
 app.use(errorHandler); // Global error handling
 

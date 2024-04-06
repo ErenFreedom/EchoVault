@@ -4,6 +4,7 @@ const lockerController = require('../controllers/LockerController');
 const authMiddleware = require('../middleware/authMiddleware'); // Ensure this path is correct
 const isPremiumMiddleware = require('../middleware/isPremiumMiddleware'); // Ensure this path is correct
 
+router.get('/user-lockers', authMiddleware, lockerController.getUserLockers);
 // Route to create a new locker, ensuring the user is logged in and a premium member
 router.post('/create', authMiddleware, isPremiumMiddleware, lockerController.createLocker);
 

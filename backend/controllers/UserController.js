@@ -12,39 +12,42 @@ const { v4: uuidv4 } = require('uuid');
 
 
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
-
+let passwordChangeAttemptsStore = new Map();
 let failedAttemptsStore = {};
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
-
+const failedOtpAttemptsStore = new Map(); // Store failed OTP attempts
+const OTP_EXPIRATION_TIME = 30 * 1000; // 30 seconds in milliseconds
 // Helper function to record failed attempts
-function recordFailedAttempt(userId) {
-    if (!failedAttemptsStore[userId]) {
-        failedAttemptsStore[userId] = { count: 1, timestamp: Date.now() };
-    } else {
-        failedAttemptsStore[userId].count += 1;
-    }
+function recordFailedAttempt(email) {
+    const attempts = passwordChangeAttemptsStore.get(email) || { count: 0, timestamp: Date.now() };
+    attempts.count++;
+    passwordChangeAttemptsStore.set(email, attempts);
 
-    // Check if exceeded max attempts and set lockout timestamp
-    if (failedAttemptsStore[userId].count >= MAX_FAILED_ATTEMPTS) {
-        failedAttemptsStore[userId].lockoutTimestamp = Date.now();
+    // Check if the account should be locked
+    if (attempts.count >= MAX_FAILED_PASSWORD_CHANGE_ATTEMPTS && (Date.now() - attempts.timestamp) < PASSWORD_CHANGE_LOCKOUT_TIME_MS) {
+        return true; // Account is locked
+    } else if ((Date.now() - attempts.timestamp) >= PASSWORD_CHANGE_LOCKOUT_TIME_MS) {
+        // Reset the attempts after the lockout time has passed
+        attempts.count = 1;
+        attempts.timestamp = Date.now();
+        passwordChangeAttemptsStore.set(email, attempts);
     }
+    return false; // Account is not locked
 }
 
-// Helper function to check lockout status
-function isLockedOut(userId) {
-    const record = failedAttemptsStore[userId];
-    if (record && record.lockoutTimestamp) {
-        const timeSinceLockout = Date.now() - record.lockoutTimestamp;
-        if (timeSinceLockout < LOCKOUT_TIME_MS) {
-            // Still locked out
-            return true;
-        } else {
-            // Lockout period has expired, reset record
-            delete failedAttemptsStore[userId];
-        }
+function clearFailedAttempts(email) {
+    if (passwordChangeAttemptsStore.has(email)) {
+        passwordChangeAttemptsStore.delete(email); // Clear the failed attempt record
     }
-    return false;
+}
+// Helper function to check lockout status
+function isLockedOut(email) {
+    const attempts = passwordChangeAttemptsStore.get(email);
+    if (!attempts) return false; // No attempts recorded means not locked
+
+    // Determine if the account is still within the lockout time window
+    return (attempts.count >= MAX_FAILED_PASSWORD_CHANGE_ATTEMPTS) && ((Date.now() - attempts.timestamp) < PASSWORD_CHANGE_LOCKOUT_TIME_MS);
 }
 
 
@@ -130,12 +133,24 @@ exports.verifyOtp = async (req, res) => {
         });
 
         // Assign default locker, if applicable
-        const defaultLocker = await Locker.findOne({ available: true }); // Simplified logic
-        if (defaultLocker) {
-            defaultLocker.userId = newUser._id;
-            defaultLocker.available = false;
-            await defaultLocker.save();
-        }
+        const lockerTypes = [
+            'Personal',
+            'Medical',
+            'Finance',
+            'Education',
+            'Property',
+            'Travel',
+            'Legal',
+        ];
+
+        const userLockers = lockerTypes.map(lockerType => ({
+            lockerName: `${lockerType} Locker`,
+            lockerType,
+            userId: newUser._id, // Assign the locker to the new user
+        }));
+
+        // Create lockers for the new user
+        await Locker.insertMany(userLockers);
 
         // Clear the OTP record and TempUser record
         await TempUser.deleteOne({ _id: tempUserRecord._id });
@@ -312,7 +327,17 @@ exports.toggleTheme = async (req, res) => {
 // Update user information
 exports.updateUserInfo = async (req, res) => {
     const { currentPassword, updates } = req.body;
-    const user = await User.findById(req.user._id);
+    // Ensure that req.user is populated correctly by your auth middleware
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Unauthorized: User not found." });
+    }
+
+    const userId = req.user.id; // Retrieved from the decoded JWT token
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
 
     // Check for account lockout first
     if (isLockedOut(user._id.toString())) {
@@ -333,12 +358,14 @@ exports.updateUserInfo = async (req, res) => {
     // Reset attempts on successful operation
     delete failedAttemptsStore[user._id.toString()];
 
-    // Allowed fields to update
-    const allowedUpdates = ['firstName', 'lastName', 'age', 'gender', 'username', 'email', 'recovery_email'];
-    const updateFields = Object.keys(updates).filter(field => allowedUpdates.includes(field));
+    // Allowed fields to update, excluding 'email'
+    const allowedUpdates = ['firstName', 'lastName', 'age', 'gender', 'username', 'recovery_email'];
+    const updateFields = Object.keys(updates).filter(field => allowedUpdates.includes(field) && updates[field] !== undefined);
 
     // Apply the updates
-    updateFields.forEach(field => user[field] = updates[field]);
+    updateFields.forEach(field => {
+        user[field] = updates[field];
+    });
     await user.save();
 
     res.status(200).json({ message: 'User information updated successfully.' });
@@ -348,51 +375,46 @@ exports.updateUserInfo = async (req, res) => {
 // Change user password
 exports.changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
-    const user = await User.findById(req.user._id);
 
-    if (isLockedOut(user._id.toString())) {
+    // Ensure that req.user is populated correctly by your auth middleware
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Unauthorized: User not found." });
+    }
+
+    const userId = req.user.id; // Retrieved from the decoded JWT token
+    const user = await User.findById(userId);
+
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
+    }
+
+    // Assume a similar mechanism for password change attempts as for OTP
+    if (failedOtpAttemptsStore.get(user.email) && recordFailedOtpAttempt(user.email)) {
         return res.status(429).json({ message: 'Account is temporarily locked due to multiple failed attempts. Please try again later.' });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-        recordFailedAttempt(user._id.toString());
-        if (isLockedOut(user._id.toString())) {
-            return res.status(429).json({ message: 'Account is now locked due to multiple failed attempts. Please try again later.' });
-        }
+        // Record a failed attempt. Assuming a function similar to recordFailedOtpAttempt could be used.
+        // Ensure there's logic to record failed password change attempts
+        recordFailedAttempt(user.email); // Adjust according to how you handle failed attempts
+
         return res.status(401).json({ message: 'Current password is incorrect.' });
     }
 
-    // Reset attempts on successful password change
-    delete failedAttemptsStore[user._id.toString()];
+    // If we've got here, the current password is correct, and the account isn't locked out, so proceed.
+    user.password = await bcrypt.hash(newPassword, 10); // Hash the new password
+    await user.save(); // Save the updated user object to the database
 
-    // Proceed with changing the password
-    user.password = await bcrypt.hash(newPassword, 10);
-    await user.save();
-    res.status(200).json({ message: 'Password changed successfully.' });
+    // Optionally, clear any failed attempt records for this user
+    clearFailedAttempts(user.email); // This function needs to be defined to clear the record
+
+    res.json({ message: 'Password changed successfully.' });
 };
 
-const failedOtpAttemptsStore = new Map(); // Store failed OTP attempts
-const OTP_EXPIRATION_TIME = 30 * 1000; // 30 seconds in milliseconds
-const LOCKOUT_TIME = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
+
 
 // Helper function to record a failed OTP attempt and check for lockout
-function recordFailedOtpAttempt(email) {
-    const attempts = failedOtpAttemptsStore.get(email) || { count: 0, timestamp: Date.now() };
-    attempts.count++;
-    failedOtpAttemptsStore.set(email, attempts);
-
-    // Check if attempts exceed limit and lockout time hasn't passed
-    if (attempts.count >= 3 && (Date.now() - attempts.timestamp) < LOCKOUT_TIME) {
-        return true; // Account is locked out
-    } else if ((Date.now() - attempts.timestamp) >= LOCKOUT_TIME) {
-        // Reset attempts after lockout time passes
-        attempts.count = 1;
-        attempts.timestamp = Date.now();
-        failedOtpAttemptsStore.set(email, attempts);
-    }
-    return false; // Account is not locked out
-}
 
 // Helper function to check if the account is currently locked out
 function isOtpLockedOut(email) {
@@ -423,35 +445,26 @@ exports.sendDeletionOtp = async (req, res) => {
 
 // Delete account
 exports.deleteAccount = async (req, res) => {
-    const { otp } = req.body;
-    const userEmail = req.user.email;
-
-    if (isOtpLockedOut(userEmail)) {
-        return res.status(429).json({ message: 'Account is temporarily locked due to multiple failed OTP attempts. Please try again later.' });
+    const { currentPassword } = req.body;
+    
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ message: "Unauthorized: No user ID provided." });
+    }
+    
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+        return res.status(404).json({ message: 'User not found.' });
     }
 
-    const otpRecord = otpStore.get(userEmail);
-    if (!otpRecord) {
-        return res.status(400).json({ message: 'No OTP sent or OTP has expired.' });
+    // Check if the current password matches
+    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    if (!isMatch) {
+        return res.status(401).json({ message: 'Current password is incorrect.' });
     }
 
-    const timeElapsed = Date.now() - otpRecord.timestamp;
-    if (timeElapsed > OTP_EXPIRATION_TIME) {
-        otpStore.delete(userEmail); // Remove expired OTP
-        return res.status(400).json({ message: 'OTP has expired.' });
-    }
-
-    if (otp !== otpRecord.otp) {
-        if (recordFailedOtpAttempt(userEmail)) {
-            return res.status(429).json({ message: 'Account locked due to multiple failed OTP attempts.' });
-        }
-        return res.status(400).json({ message: 'Invalid OTP.' });
-    }
-
-    // OTP is valid, proceed with account deletion
-    await User.deleteOne({ _id: req.user._id });
-    otpStore.delete(userEmail); // Clean up OTP
-    failedOtpAttemptsStore.delete(userEmail); // Reset failed attempts
+    // Delete the user account
+    await User.deleteOne({ _id: user._id });
 
     res.status(200).json({ message: 'Account deleted successfully.' });
 };

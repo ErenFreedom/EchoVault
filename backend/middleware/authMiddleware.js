@@ -1,4 +1,3 @@
-// In authMiddleware.js
 const jwt = require('jsonwebtoken');
 const User = require('../models/UserModel');
 
@@ -13,15 +12,14 @@ const authMiddleware = async (req, res, next) => {
     const token = authHeader.split(' ')[1];
     try {
         const decoded = jwt.verify(token, JWT_SECRET);
-        // The change is here: we use decoded.id instead of decoded.userId
-        const user = await User.findById(decoded.id); 
+        const user = await User.findById(decoded.id).select('-password'); // Excluding the password from the user object
         if (!user) {
             return res.status(404).json({ message: 'User not found.' });
         }
-        req.user = { id: user._id }; // Attach the user ID to the req.user object
+        req.user = user; // Attach the entire user object
         next();
     } catch (error) {
-        return res.status(401).json({ message: 'Invalid or expired token.' });
+        return res.status(401).json({ message: 'Invalid or expired token.', error: error.message });
     }
 };
 

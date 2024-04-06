@@ -3,13 +3,13 @@ const mongoose = require('mongoose');
 const documentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: function() { return !this.dummyUserId; },
-    ref: 'User'
+    ref: 'User',
+    required: false // Now it's explicitly set as not required
   },
   dummyUserId: {
     type: mongoose.Schema.Types.ObjectId,
-    required: function() { return !this.userId; },
-    ref: 'DummyUser'
+    ref: 'DummyUser',
+    required: false // Also not required
   },
   lockerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -18,32 +18,36 @@ const documentSchema = new mongoose.Schema({
   },
   documentType: {
     type: String,
-    required: true,
+    required: false, // Not required anymore
     trim: true
   },
   title: {
     type: String,
-    required: true,
+    required: false, // Not required anymore
     trim: true
   },
   fileName: {
     type: String,
-    required: true,
+    required: true, // Keep required for file identification
     trim: true
   },
   filePath: {
     type: String,
-    required: true,
+    required: true, // Keep required to locate the file
     trim: true
   },
-  // Removed the encryptionKey from being required in the document model
+  thumbnailPath: {
+    type: String,
+    required: false, // Thumbnails may not exist for all document types
+  },
   uploadDate: {
     type: Date,
     default: Date.now
   },
   metaData: {
     type: Map,
-    of: String
+    of: String,
+    required: false // MetaData can be optional
   }
 }, {
   timestamps: true,
@@ -51,7 +55,9 @@ const documentSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
+// The virtuals can remain as is if they're useful for your application logic
 documentSchema.virtual('ownerType').get(function() {
+  // This will simply return 'Admin User' if userId is present, else 'Dummy User'
   return this.userId ? 'Admin User' : 'Dummy User';
 });
 
