@@ -118,7 +118,7 @@ exports.login = async (req, res) => {
     const { identifier, password } = req.body;
 
     try {
-        const { user } = await findUserByEmailOrUsername(identifier);
+        const { user, userType } = await findUserByEmailOrUsername(identifier);
         if (!user) {
             return res.status(404).json({ message: "User not found." });
         }
@@ -130,7 +130,7 @@ exports.login = async (req, res) => {
 
         // Generate JWT Token with 'id' to match what authMiddleware expects
         const token = jwt.sign(
-            { id: user._id }, // Change to 'id' instead of 'userId'
+            { id: user._id }, // Use 'id' to match the expected field in authMiddleware
             process.env.JWT_SECRET,
             { expiresIn: '1h' } // Token expires in 1 hour
         );
@@ -141,7 +141,9 @@ exports.login = async (req, res) => {
             user: {
                 id: user._id, // Send user info without the password
                 email: user.email,
-                username: user.username // Include additional required user fields
+                username: user.username,
+                isPremium: user.isPremium, // Include the isPremium status
+                userType // Include userType if necessary
             }
         });
     } catch (error) {
@@ -149,7 +151,6 @@ exports.login = async (req, res) => {
         res.status(500).json({ message: "An error occurred during the login process." });
     }
 };
-
 
 
 

@@ -1,7 +1,9 @@
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
+const User = require('../models/UserModel');
 const Document = require('../models/Document');
+const bcrypt = require('bcryptjs');
 const Locker = require('../models/Lockers'); // Ensure correct model name and path
 const { checkPermissionForDummy } = require('../utils/permissions');
 
@@ -164,40 +166,37 @@ exports.deleteDocument = async (req, res) => {
 
 exports.downloadDocument = async (req, res) => {
   const { documentId } = req.params;
-  const userId = req.user._id;
+  const password = req.headers['x-document-password'];
+
+  if (!req.user) {
+    return res.status(401).json({ message: 'Authentication required.' });
+  }
+
+  // Verify user password
+  const user = await User.findById(req.user.id);
+  if (!user) {
+    return res.status(404).json({ message: "User not found." });
+  }
+
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: 'Invalid password.' });
+  }
 
   try {
-    // Ensure document and related locker information are properly loaded
-    const document = await Document.findById(documentId).populate({
-      path: 'lockerId',
-      select: 'userId dummyUserIds', // Only load necessary fields to check permissions
-    });
-
-    if (!document || !document.lockerId) {
-      return res.status(404).json({ message: 'Document or associated locker not found.' });
+    const document = await Document.findById(documentId);
+    if (!document) {
+      return res.status(404).json({ message: 'Document not found.' });
     }
 
-    const locker = document.lockerId;
+    // Adjust filePath to remove leading slash if present
+    const filePath = path.resolve(__dirname, '..', document.filePath.startsWith('/') ? document.filePath.substring(1) : document.filePath);
 
-    // Check if the current user is the owner of the locker
-    const isOwner = locker.userId.toString() === userId.toString();
-
-    // Check if the current user is a dummy user with access to the locker
-    const hasAccessAsDummy = locker.dummyUserIds.some(dummyId => dummyId.toString() === userId.toString());
-
-    if (!isOwner && !hasAccessAsDummy) {
-      return res.status(403).json({ message: 'You do not have permission to download this document.' });
-    }
-
-    // Assuming document.filePath is the path to the document relative to the server root
-    const filePath = path.resolve(__dirname, '..', 'uploads', document.filePath);
-
-    // Verify the file exists before attempting to send it
-    if (!fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath)) {
+      res.download(filePath, document.fileName);
+    } else {
       return res.status(404).json({ message: 'File not found.' });
     }
-
-    res.sendFile(filePath);
   } catch (error) {
     console.error('Error downloading document:', error);
     res.status(500).json({ message: 'Failed to download document.', error: error.message });

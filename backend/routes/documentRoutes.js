@@ -2,8 +2,12 @@ const express = require('express');
 const multer = require('multer');
 const documentController = require('../controllers/DocumentController');
 const Document = require('../models/Document'); // Adjust the path as necessary
-
+const User = require('../models/UserModel'); // Adjust path as necessary
+const bcrypt = require('bcryptjs');
+const fs = require('fs'); // Add this line to import the fs module
 const path = require('path');
+const authMiddleware = require('../middleware/authMiddleware'); // Path might need adjustment
+
 // Set up storage engine for file uploads
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -35,7 +39,8 @@ router.get('/documents/:documentId/preview', async (req, res) => {
     if (!document) {
       return res.status(404).send('Document not found');
     }
-    const filePath = path.join(__dirname, '..', 'uploads', document.filePath);
+    const filePath = path.join(__dirname, '..', document.filePath);
+
     res.sendFile(filePath);
   } catch (error) {
     console.error('Error serving document:', error);
@@ -47,6 +52,12 @@ router.get('/documents/:documentId/preview', async (req, res) => {
 router.delete('/document/:documentId', documentController.deleteDocument);
 
 // Route to download a specific document
-router.get('/document/:documentId/download', documentController.downloadDocument);
+// Correct the path to match the front-end request
+// Assuming documentRoutes.js is correctly imported and used in your app setup
+router.get('/documents/download/:documentId', authMiddleware, documentController.downloadDocument);
+
+
+
+
 
 module.exports = router;
