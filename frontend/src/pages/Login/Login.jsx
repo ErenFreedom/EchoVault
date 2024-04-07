@@ -23,13 +23,16 @@ const Login = () => {
             const data = await response.json();
 
             if (response.ok) {
-                // Assuming the token is named 'token' in the response
                 sessionStorage.setItem('token', data.token);
 
-                // Optionally, manage user's authentication state here
-                console.log("Attempting to navigate to dashboard");
-
-                navigate('/dashboard'); // Redirect to dashboard after successful login
+                // Check if the user is a premium member and redirect accordingly
+                if (data.user.isPremium) {
+                    console.log("Redirecting to Premium Dashboard");
+                    navigate('/premium-dashboard'); // Redirect to Premium Dashboard
+                } else {
+                    console.log("Redirecting to Standard Dashboard");
+                    navigate('/dashboard'); // Redirect to Standard Dashboard
+                }
             } else {
                 alert(data.message); // Display error message from server
             }

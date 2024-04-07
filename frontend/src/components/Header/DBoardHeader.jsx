@@ -128,7 +128,7 @@ const DBoardHeader = ({ isPremium, isGuest, linkedToUsername }) => {
                             )}
                         </div>
                     ) : (
-                        <a href="/upgrade">Upgrade To Premium</a>
+                        <button onClick={() => navigate('/payment')} className="upgrade-btn">Upgrade To Premium</button>
                     )}
                     <div className={`dropdown ${accountDropdownOpen ? "show" : ""}`}>
                         <button className="dropbtn" onClick={toggleAccountDropdown}>

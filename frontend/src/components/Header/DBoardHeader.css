@@ -118,3 +118,27 @@
 }
 
 
+.upgrade-btn {
+    background-color: #4CAF50; /* Green background for visibility */
+    color: white;
+    padding: 10px 20px; /* Slightly larger padding for emphasis */
+    margin-left: 10px; /* Ensure some space from other nav items */
+    border: none;
+    cursor: pointer;
+    border-radius: 5px; /* Rounded corners */
+    font-size: 18px; /* Slightly smaller font size than nav links for distinction */
+    font-family: 'Helvetica', 'Arial', sans-serif; /* Match the font family of the nav */
+    text-align: center;
+    transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+}
+
+.upgrade-btn:hover {
+    background-color: #45a049; /* Slightly darker green on hover */
+}
+
+/* Ensure consistency with other nav elements */
+.nav-links .upgrade-btn {
+    text-decoration: none; /* Removes underline from links */
+    display: inline-block; /* Align with other inline nav items */
+    margin-right: 10px; /* Consistent margin with other items */
+}

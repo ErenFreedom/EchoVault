@@ -106,11 +106,56 @@ const handleFileUpload = async (e) => {
 };
 
 
-  const handleDownload = (filePath) => {
-    // For a simple download, you might directly navigate to the file URL
-    // If your server is set to handle downloads, it might look something like this:
-    window.location.href = `${process.env.REACT_APP_BACKEND_URL}${filePath}`;
-  };
+const handleDownload = async (documentId) => {
+  const password = prompt("Enter your password to download this document:");
+  if (!password) {
+    alert("Password is required to download the document.");
+    return;
+  }
+
+  try {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/documents/download/${documentId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+        'X-Document-Password': password
+      }
+    });
+
+    if (response.ok) {
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = downloadUrl;
+      // Set the download name for the file
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let fileName = documentId;
+      if (contentDisposition) {
+        const fileNameMatch = contentDisposition.match(/filename="?(.+)"?/);
+        if (fileNameMatch.length === 2) {
+          fileName = fileNameMatch[1];
+        }
+      }
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      a.remove();
+    } else {
+      const errorText = await response.text();
+      alert(`Failed to download document: ${errorText}`);
+    }
+  } catch (error) {
+    console.error('Download error:', error);
+    alert('Error downloading document: ' + error.message);
+  }
+};
+
+
+
+
+
   const getIconForDocument = (fileName) => {
     const fileExtension = fileName.split('.').pop().toLowerCase();
     switch (fileExtension) {
@@ -241,7 +286,7 @@ const handleFileUpload = async (e) => {
                 }}><FaTrash /> {/* Icon for delete button */}</button>
                 <button className="locker-button download" onClick={(e) => {
                   e.stopPropagation(); // Prevent opening the document when clicking download
-                  handleDownload(doc.filePath);
+                  handleDownload(doc._id);
                 }}><FaDownload /></button>
               </div>
             </div>

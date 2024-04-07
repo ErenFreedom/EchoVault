@@ -11,6 +11,7 @@ import Locker from './pages/Locker/Locker';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import OtpPage from './pages/otpPage/otpPage'; // Import the OtpPage
 import ChangePassword from './pages/changePassword/changePassword';
+import Payment from './pages/Payment/Payment';
 
 
 const App = () => {
@@ -29,6 +30,7 @@ const App = () => {
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/otp-verification" element={<OtpPage />} /> {/* OtpPage route */}
         <Route path="/change-password" element={<ChangePassword />} />
+        <Route path="/payment" element={<Payment />} />
 
         {/* Add any additional routes here */}
       </Routes>
