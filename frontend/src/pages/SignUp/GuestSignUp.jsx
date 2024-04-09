@@ -1,21 +1,19 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './GuestSignUp.css';
 
-const GuestSignUp = ({ decoded }) => {
-  // Ensure decoded object is defined, if not, initialize an empty object
-  const decodedData = decoded || {};
+const GuestSignUp = () => {
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    firstName: decodedData.firstName || '',
-    lastName: decodedData.lastName || '',
-    age: decodedData.age || '',
-    gender: decodedData.gender || 'male',
-    username: decodedData.username || '',
-    email: decodedData.email || '',
-    recoveryEmail: decodedData.recoveryEmail || '',
-    phoneNumber: decodedData.phoneNumber || '',
-    password: decodedData.password || '',
-    linkedTo: decodedData.linkedPremiumUserId || '',
+    firstName: '',
+    lastName: '',
+    age: '',
+    gender: 'male',
+    username: '',
+    email: '',
+    password: '',
+    linkedPremiumUsername: '', // Corrected to match the backend's field name
   });
 
   const handleChange = (e) => {
@@ -25,9 +23,27 @@ const GuestSignUp = ({ decoded }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Here, include your logic for handling the guest sign up submission
-    // Make sure to properly handle and secure the password and other sensitive information
-  };
+    try {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/guest-users/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Show success message and navigate to login page
+        alert('Registration successful. You can now log in.');
+        navigate('/login'); // Directly navigate to the login page
+      } else {
+        alert(data.message); // Show error message if registration wasn't successful
+      }
+    } catch (error) {
+      alert('Cannot connect to the server');
+    }
+};
+
 
   return (
     <div className="signup-container">
@@ -82,22 +98,6 @@ const GuestSignUp = ({ decoded }) => {
           required
         />
         <input
-          name="recoveryEmail"
-          type="email"
-          placeholder="Recovery Email"
-          value={formData.recoveryEmail}
-          onChange={handleChange}
-          required
-        />
-        <input
-          name="phoneNumber"
-          type="tel"
-          placeholder="Phone Number"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-          required
-        />
-        <input
           name="password"
           type="password"
           placeholder="Password"
@@ -106,12 +106,12 @@ const GuestSignUp = ({ decoded }) => {
           required
         />
         <input
-        name="linkedTo"
-        placeholder="Linked Premium Username"
-        value={formData.linkedTo}
-        onChange={handleChange}
-        required
-  />
+          name="linkedPremiumUsername"
+          placeholder="Linked Premium Username"
+          value={formData.linkedPremiumUsername}
+          onChange={handleChange}
+          required
+        />
         <button type="submit">Sign Up</button>
       </form>
     </div>

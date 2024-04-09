@@ -6,13 +6,13 @@ import SignUp from './pages/SignUp/SignUp';
 import GuestSignUp from './pages/SignUp/GuestSignUp';
 import Dashboard from './pages/DashBoard/DashBoard';
 import PremiumDashBoard from './pages/DashBoard/PremiumDashBoard';
-import GuestDashBoard from './pages/DashBoard/GuestDashBoard';
+//import GuestDashBoard from './pages/DashBoard/GuestDashBoard';
 import Locker from './pages/Locker/Locker';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
 import OtpPage from './pages/otpPage/otpPage'; // Import the OtpPage
 import ChangePassword from './pages/changePassword/changePassword';
 import Payment from './pages/Payment/Payment';
-
+import Permission from './pages/permission/permission';
 
 const App = () => {
   return (
@@ -24,13 +24,14 @@ const App = () => {
         <Route path="/register-guest" element={<GuestSignUp />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/premium-dashboard" element={<PremiumDashBoard />} />
-        <Route path="/guest-dashboard" element={<GuestDashBoard />} />
+       
         <Route path="/locker/:lockerId/:lockerName" element={<Locker />} />
 
         <Route path="/profile" element={<ProfilePage />} />
         <Route path="/otp-verification" element={<OtpPage />} /> {/* OtpPage route */}
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/payment" element={<Payment />} />
+        <Route path="/assign-permissions" element={<Permission />} /> {/* Add the Permission route */}
 
         {/* Add any additional routes here */}
       </Routes>

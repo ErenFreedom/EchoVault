@@ -110,3 +110,33 @@
         height: calc((50% - 1rem) - 60px); /* Adjusted for 2 items per row on smaller screens */
     }
 }
+
+.create-more-lockers {
+    background-color: #f0f0f0;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.create-more-lockers .add-locker-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.create-more-lockers i {
+    font-size: 4em; /* Adjust size as necessary */
+    color: #333; /* Or any color that fits your design */
+    margin-bottom: 0.5rem;
+}
+
+.create-more-lockers p {
+    font-size: 1.2em; /* Adjust size as necessary */
+    color: #333;
+    text-transform: uppercase; /* Optional: for stylistic preference */
+    font-weight: bold; /* Make the text bold */
+    margin: 0; /* Aligns text to the bottom */
+}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { Link } from 'react-router-dom'; // Import Link from react-router-dom
+//import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import './SignUp.css';
 
 
@@ -131,7 +131,7 @@ const SignUp = () => {
             required
           />
           <button type="submit" className="signup-button">Sign Up</button>
-          <Link to="/register-guest" className="guest-register-link">Register as guest user</Link>
+          
         </form>
       </div>
     </div>
