@@ -7,7 +7,6 @@ const bcrypt = require('bcryptjs');
 const fs = require('fs'); // Add this line to import the fs module
 const path = require('path');
 const authMiddleware = require('../middleware/authMiddleware'); // Path might need adjustment
-
 // Set up storage engine for file uploads
 const storage = multer.diskStorage({
   destination: function(req, file, cb) {
@@ -56,7 +55,7 @@ router.delete('/document/:documentId', documentController.deleteDocument);
 // Assuming documentRoutes.js is correctly imported and used in your app setup
 router.get('/documents/download/:documentId', authMiddleware, documentController.downloadDocument);
 
-
+//router.post('/documents/share', authMiddleware, documentController.shareDocument);
 
 
 

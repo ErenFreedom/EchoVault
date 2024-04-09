@@ -22,9 +22,9 @@ function isLoggedIn(req, res, next) {
 
 // Apply isLoggedIn middleware to the login route to prevent already logged-in users from logging in again
 router.post('/login', isLoggedIn, authController.login);
-
 // Route for verifying OTP as part of the login process
 // router.post('/verify-otp', authController.verifyOtpForLogin);
+router.post('/login-guest',isLoggedIn, authController.loginDummyUser);
 
 router.post('/logout', authMiddleware, authController.logout);
 

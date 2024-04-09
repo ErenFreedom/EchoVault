@@ -282,6 +282,22 @@ exports.resendOtp = async (req, res) => {
 // };
 
 
+exports.getLinkedGuestAccounts = async (req, res) => {
+    const premiumUserId = req.params.userId; // Extract premium user ID from request parameters
+
+    try {
+        const linkedGuestAccounts = await User.find({
+            linkedTo: premiumUserId,
+            isGuestUser: true
+        }, 'firstName email'); // Selecting necessary fields
+
+        res.json(linkedGuestAccounts); 
+    } catch (error) {
+        console.error("Error fetching linked guest accounts: ", error);
+        res.status(500).json({ message: "Error fetching linked guest accounts", error: error.toString() });
+    }
+};
+
 
 exports.updateProfile = async (req, res) => {
     try {

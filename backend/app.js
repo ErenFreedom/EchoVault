@@ -10,6 +10,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const lockerRoutes = require('./routes/lockerRoutes');
 const dummyUserRoutes = require('./routes/dummyUserRoutes');
 const permissionsRoutes = require('./routes/permissionRoutes');
+const premiumLockerRoutes = require('./routes/premiumLockerRoutes');
 const connectDB = require('./config/database');
 const session = require('express-session');
 
@@ -56,10 +57,9 @@ app.use('/api/auth', authRoutes);
 app.use('/api', documentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/lockers', lockerRoutes);
-app.use('/api/dummy-users', dummyUserRoutes);
+app.use('/api/guest-users', dummyUserRoutes);
 app.use('/api', permissionsRoutes); // Make sure permissions handling is correctly implemented
-
-
+app.use('/api/premium-lockers', premiumLockerRoutes);
 app.use(errorHandler); // Global error handling
 
 module.exports = app;

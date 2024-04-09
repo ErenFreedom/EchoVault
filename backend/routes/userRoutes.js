@@ -25,6 +25,7 @@ router.get('/data', authMiddleware, async (req, res) => {
         res.status(500).send({ message: 'Error fetching user data', error: error.toString() });
     }
 });
+router.get('/linked-guest-accounts/:userId', userController.getLinkedGuestAccounts);
 
 // Following routes require the user to be logged in
 router.patch('/update-profile', authMiddleware, userController.updateProfile);

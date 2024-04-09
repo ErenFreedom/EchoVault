@@ -153,6 +153,50 @@ exports.login = async (req, res) => {
 };
 
 
+// In your DummyUserController.js or wherever it fits best
+exports.loginDummyUser = async (req, res) => {
+    const { identifier, password } = req.body;
+
+    try {
+        // Find a dummy user by email or username where isGuestUser is true
+        const dummyUser = await DummyUser.findOne({ 
+            $or: [{ email: identifier }, { username: identifier }],
+            isGuestUser: true  // Ensure we're only fetching guest users
+        });
+        if (!dummyUser) {
+            return res.status(404).json({ message: "Guest user not found." });
+        }
+
+        // Verify password
+        const isMatch = await bcrypt.compare(password, dummyUser.password);
+        if (!isMatch) {
+            return res.status(401).json({ message: "Invalid credentials." });
+        }
+
+        // Generate a JWT for the guest user
+        const token = jwt.sign(
+            { id: dummyUser._id, isGuest: true }, // Mark as guest user in the token
+            process.env.JWT_SECRET,
+            { expiresIn: '1h' } // Token validity
+        );
+
+        // Respond with token and user details
+        res.json({
+            message: "Guest login successful.",
+            token,
+            user: {
+                id: dummyUser._id,
+                email: dummyUser.email,
+                username: dummyUser.username,
+                isGuest: true,  // Confirm this is a guest user
+                linkedTo: dummyUser.linkedTo  // Include premium user ID the guest is linked to
+            }
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: "An error occurred during the guest login process." });
+    }
+};
 
 // exports.verifyOtpForLogin = async (req, res) => {
 //     const { otp } = req.body;

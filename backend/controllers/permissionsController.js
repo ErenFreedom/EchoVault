@@ -1,6 +1,5 @@
-const { checkPermissionForDummy, assignPermissionsToDummy } = require('../utils/permissions'); // Adjust the path as needed
+const { checkPermissionForDummy, assignPermissionsToDummy } = require('../utils/permissions');
 
-// Controller method for assigning permissions
 exports.assignPermissions = async (req, res) => {
     const { dummyUserId, lockerId, permissions } = req.body;
 
@@ -13,7 +12,6 @@ exports.assignPermissions = async (req, res) => {
     }
 };
 
-// Controller method for checking permissions
 exports.checkPermissions = async (req, res) => {
     const { dummyUserId, lockerId, requiredPermission } = req.query;
 

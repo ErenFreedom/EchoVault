@@ -202,3 +202,51 @@ exports.downloadDocument = async (req, res) => {
     res.status(500).json({ message: 'Failed to download document.', error: error.message });
   }
 };
+
+
+// exports.shareDocument = async (req, res) => {
+//   const { documentId, usernameToShareWith, lockerType = "Personal" } = req.body;
+
+//   try {
+//     // Find the recipient user by username
+//     const recipientUser = await User.findOne({ username: usernameToShareWith });
+//     if (!recipientUser) {
+//       return res.status(404).json({ message: "Recipient user not found." });
+//     }
+
+//     // Find the document to be shared
+//     const documentToShare = await Document.findById(documentId);
+//     if (!documentToShare) {
+//       return res.status(404).json({ message: "Document not found." });
+//     }
+
+//     // Find the recipient's specific locker by type, such as their 'Personal' locker
+//     const recipientLocker = await Locker.findOne({ userId: recipientUser._id, lockerType });
+//     if (!recipientLocker) {
+//       return res.status(404).json({ message: `Recipient user does not have a ${lockerType} locker.` });
+//     }
+
+//     // Check if a document with the same name already exists in the recipient's locker
+//     const existingDocument = await Document.findOne({
+//       lockerId: recipientLocker._id,
+//       fileName: documentToShare.fileName
+//     });
+//     if (existingDocument) {
+//       return res.status(409).json({ message: "A document with the same name already exists in the recipient's locker." });
+//     }
+
+//     // Share the document
+//     recipientLocker.documents.push(documentToShare._id);
+//     await recipientLocker.save();
+
+//     // Fetch the updated list of documents in the recipient's locker
+//     const updatedLocker = await Locker.findById(recipientLocker._id).populate('documents');
+//     res.status(200).json({
+//       message: "Document shared successfully.",
+//       documents: updatedLocker.documents // Send back the updated list of documents
+//     });
+//   } catch (error) {
+//     console.error('Error sharing document:', error);
+//     res.status(500).json({ message: "An error occurred while sharing the document.", error: error.message });
+//   }
+// };

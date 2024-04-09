@@ -20,11 +20,6 @@ const dummyUserSchema = new mongoose.Schema({
     required: true,
     trim: true,
   },
-  middleName: {
-    type: String,
-    trim: true,
-    default: "",
-  },
   lastName: {
     type: String,
     required: true,
@@ -34,28 +29,11 @@ const dummyUserSchema = new mongoose.Schema({
     type: Number,
     min: 0,
   },
-  phoneNumber: {
-    type: String,
-    required: true,
-  },
   gender: {
     type: String,
     enum: ['male', 'female', 'others'],
   },
-  address: {
-    street: String,
-    city: String,
-    state: String,
-    zipCode: String,
-    country: String,
-  },
   email: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-  },
-  recovery_email: {
     type: String,
     required: true,
     unique: true,
@@ -71,35 +49,23 @@ const dummyUserSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  dateOfBirth: {
-    type: Date,
+  isGuestUser: { // Adding a flag to explicitly mark as a guest user
+    type: Boolean,
+    required: true,
+    default: true // Default to true as this model is for DummyUsers only
   },
-  profilePicture: {
-    type: String,
-    default: "",
-  },
-  occupationStatus: {
-    type: String,
-    enum: ['working', 'student', 'unemployed', 'other'],
-    default: 'other',
-  },
-  // Integrated permissions structure as an array of permissionSchema
   permissions: [permissionSchema],
   linkedTo: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'User', // Adjust this to match the name of your User model
     required: true,
   },
-  refreshToken: {
-    type: String,
-    default: "",
-  },
-  loggedIn: {
+  verified: {
     type: Boolean,
-    default: false,
+    default: false, // Tracks if the user's email has been verified
   }
 }, {
-  timestamps: true, // Adds createdAt and updatedAt timestamps
+  timestamps: true, // Keeps track of user creation and update times
 });
 
 const DummyUser = mongoose.model('DummyUser', dummyUserSchema);
