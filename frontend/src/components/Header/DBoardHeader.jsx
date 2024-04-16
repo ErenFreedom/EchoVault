@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet';
 import { Link, useNavigate } from 'react-router-dom';
+import { useTheme } from '../../context/ThemeContext';
 
 import './DBoardHeader.css';
 
 const DBoardHeader = ({ isPremium }) => {
     const navigate = useNavigate();
     const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+    const [themeDropdownOpen, setThemeDropdownOpen] = useState(false); // For toggling theme dropdown
+    const { theme, setTheme } = useTheme();
 
     const toggleAccountDropdown = () => {
         setAccountDropdownOpen(!accountDropdownOpen);
@@ -16,6 +19,16 @@ const DBoardHeader = ({ isPremium }) => {
         sessionStorage.removeItem('token');
         navigate('/');
     };
+
+    const toggleThemeDropdown = () => {
+        setThemeDropdownOpen(!themeDropdownOpen);
+    };
+
+    const handleThemeChange = (newTheme) => {
+        setTheme(newTheme);
+    };
+
+    
 
     const handleDeleteAccount = async () => {
         const currentPassword = prompt('Please enter your current password to confirm account deletion:');
@@ -57,9 +70,7 @@ const DBoardHeader = ({ isPremium }) => {
         }
     };
 
-    const toggleTheme = () => {
-        console.log('Theme toggled');
-    };
+    
 
     return (
         <>
@@ -72,14 +83,21 @@ const DBoardHeader = ({ isPremium }) => {
                     EchoVault
                 </div>
                 <nav className="nav-links">
-                    <div className="notification-bell">
-                        <i className="fas fa-bell"></i>
-                    </div>
+                   
                     <a href="/home">Home</a>
                     {isPremium && (
-                       <button onClick={toggleTheme} className="dropbtn">Toggle Theme</button>
+                        <div className={`dropdown ${themeDropdownOpen ? "show" : ""}`}>
+                            <button onClick={toggleThemeDropdown} className="dropbtn">Theme</button>
+                            {themeDropdownOpen && (
+                                <div className="dropdown-content">
+                                    <button onClick={() => handleThemeChange('white')} className={theme === 'white' ? 'active' : ''}>White {theme === 'white' && <i className="fas fa-check"></i>}</button>
+                                    <button onClick={() => handleThemeChange('dark')} className={theme === 'dark' ? 'active' : ''}>Dark {theme === 'dark' && <i className="fas fa-check"></i>}</button>
+                                </div>
+                            )}
+                        </div>
                    )}
                     {!isPremium && <button onClick={() => navigate('/payment')} className="upgrade-btn">Upgrade To Premium</button>}
+                    <button onClick={() => navigate('/feedback')} className="rate-us-btn">Rate Us</button>
                     <div className={`dropdown ${accountDropdownOpen ? "show" : ""}`}>
                         <button className="dropbtn" onClick={toggleAccountDropdown}>
                             Your Account

@@ -1,0 +1,98 @@
+.feedback-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  padding: 20px;
+  background-color: #f8f8f8;
+}
+
+.feedback-box {
+  background-color: #ffcc00;
+  padding: 40px;
+  max-width: 600px;
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+h1 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+  color: #444;
+}
+
+.star-rating {
+  display: flex;
+  justify-content: center;
+  font-size: 15em; /* Significantly larger stars */
+  margin: 20px 0; /* Ensure some spacing around the stars */
+}
+
+.star-rating button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #444;
+  font-size: 0.5em;
+  padding: 0 5px; /* Spacing between stars */
+}
+
+.star-rating .on {
+  color: #ff8c00;
+}
+
+textarea {
+  width: 100%;
+  height: 200px; /* Larger text area */
+  font-size: 1.5em;
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+  border: 2px solid #fff;
+  background-color: #fff;
+}
+
+.submit-btn {
+  padding: 15px 30px;
+  font-size: 1.5em;
+  color: #fff;
+  background-color: #333;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-top: 20px;
+  width: 100%; /* Match the width of the text area */
+}
+
+.submit-btn:hover {
+  background-color: #555;
+}
+
+@media (max-width: 768px) {
+  .feedback-box {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .star-rating {
+    font-size: 3em; /* Slightly smaller stars for smaller screens */
+  }
+
+  h1 {
+    font-size: 2em;
+  }
+
+  textarea {
+    font-size: 1em;
+  }
+
+  .submit-btn {
+    font-size: 1em;
+    padding: 10px 20px;
+  }
+}

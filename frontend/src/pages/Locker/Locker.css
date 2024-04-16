@@ -156,3 +156,31 @@ section h2 {
 .document-card .locker-button .fa-download {
   margin-right: 5px;
 }
+
+
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background-color: #44c767; /* Adjust the color to match your design */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  z-index: 1000;
+  width: auto;
+  box-sizing: border-box;
+}
+
+.notification-content {
+  position: relative;
+  z-index: 10; /* Make sure the text appears above the timer bar */
+}
+
+.notification-timer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 5px;
+  background-color: red;
+  transition: width 5s linear; /* This will create a linear transition over 5 seconds */
+}

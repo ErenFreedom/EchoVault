@@ -140,3 +140,27 @@
     font-weight: bold; /* Make the text bold */
     margin: 0; /* Aligns text to the bottom */
 }
+
+/* DashBoardContent.css */
+
+.dashboard-content.white {
+    background-color: #ffffff; /* Light background */
+    color: #000000; /* Dark text */
+  }
+  
+  .dashboard-content.dark {
+    background-color: #333333; /* Dark background */
+    color: #ffffff; /* Light text */
+  }
+  
+  /* Additional themed styles for elements within DashboardContent */
+  .dashboard-content.dark .locker-card {
+    background-color: #424242; /* Darker shade for cards */
+    /* Other dark theme styles for locker cards */
+  }
+  
+  .dashboard-content.white .locker-card {
+    background-color: #f0f0f0; /* Lighter shade for cards */
+    /* Other white theme styles for locker cards */
+  }
+  

@@ -12,6 +12,18 @@ const Locker = () => {
   const [allDocs, setAllDocs] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState(new Set());
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const recentDocsStorageKey = `recentDocs_${lockerId}`;  // This ensures it's unique per locker
+
+  // Function to load documents from local storage
+  const loadDocuments = key => {
+    const data = localStorage.getItem(key);
+    return data ? JSON.parse(data) : [];
+  };
+
+  // Function to save documents to local storage
+  const saveDocuments = (docs, key) => {
+    localStorage.setItem(key, JSON.stringify(docs));
+  };
 
 
   // Function to trigger the file input dialog
@@ -19,6 +31,18 @@ const Locker = () => {
 
   // Function to handle file upload to server
   // Inside your component
+
+  useEffect(() => {
+    const loadedRecentDocs = loadDocuments(recentDocsStorageKey).filter(doc => 
+      new Date().getTime() - new Date(doc.uploadedAt).getTime() < 6 * 60 * 60 * 1000
+    );
+
+    const allDocsKey = `allDocs_${lockerId}`;  // Assuming similar key for 'allDocs'
+    const loadedAllDocs = loadDocuments(allDocsKey);
+
+    setAllDocs(loadedAllDocs);
+    setRecentDocs(loadedRecentDocs);
+  }, [lockerId, recentDocsStorageKey]);
 
 const handleFileUpload = async (e) => {
   const file = e.target.files[0];
@@ -43,8 +67,12 @@ const handleFileUpload = async (e) => {
       }
     } else {
       const data = await response.json();
+      const newDocument = {...data.document, uploadedAt: new Date().toISOString()};
       setRecentDocs(prevDocs => [data.document, ...prevDocs]);
       setAllDocs(prevDocs => [data.document, ...prevDocs]);
+
+      saveDocuments([newDocument, ...recentDocs], recentDocsStorageKey);
+      saveDocuments([newDocument, ...allDocs], `allDocs_${lockerId}`);
     }
   } catch (error) {
     console.error('Upload error:', error);

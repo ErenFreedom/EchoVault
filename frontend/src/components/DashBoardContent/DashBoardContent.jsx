@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import './DashBoardContent.css';
 import useNavigateToLocker from '../../hooks/useNavigateToLocker';
 //import { jwtDecode } from 'jwt-decode'; // Correct named import for jwt-de
-
+import { useTheme } from '../../context/ThemeContext';
 
 
 const DashBoardContent = ({ userName, isPremium, permissions }) => {
     const [lockers, setLockers] = useState([]);
     const navigateToLocker = useNavigateToLocker();
+    const { theme } = useTheme();
 
     
     
@@ -89,7 +90,7 @@ const DashBoardContent = ({ userName, isPremium, permissions }) => {
     
 
     return (
-        <div className="dashboard-content">
+        <div className={`dashboard-content ${isPremium ? theme : ''}`}>
              <h1>Welcome</h1>
 
             {/* Sections for recently used lockers can go here if implemented */}

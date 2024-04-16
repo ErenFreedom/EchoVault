@@ -1,32 +1,83 @@
 .profile-page {
-    max-width: 600px;
-    margin: 20px auto;
-    padding: 20px;
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
     background: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .profile-page h1 {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
 }
 
-.profile-info {
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px; /* Adjust gap to give more space between elements */
+}
+
+.profile-form .profile-info {
     display: grid;
-    grid-template-columns: 1fr 2fr;
-    column-gap: 10px;
-    row-gap: 15px;
+    grid-template-columns: 1fr 3fr; /* Adjust for a better label to input ratio */
+    gap: 20px; /* Increased gap for better spacing */
 }
 
-.profile-info label {
+.profile-form label {
     font-weight: bold;
-    text-align: right;
-    padding-right: 10px;
+    text-align: left;
+    margin-bottom: 5px; /* Space between label and input field */
 }
 
-.profile-info span {
-    background-color: #f2f2f2;
-    padding: 5px 10px;
-    border-radius: 4px;
+.profile-form input[type="text"],
+.profile-form input[type="number"],
+.profile-form input[type="email"],
+.profile-form input[type="password"],
+.profile-form select {
+    height: 50px; /* Standard height for all input fields */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 0 15px;
+    font-size: 16px;
+    box-sizing: border-box; /* Include padding in width and height */
+}
+
+.profile-form span {
+    height: 50px;
+    line-height: 50px; /* Center text vertically */
+    padding: 0 15px;
+    background-color: #e8e8e8;
+    border-radius: 5px;
+}
+
+.profile-form button {
+    height: 50px; /* Match height of input fields */
+    width: 100%; /* Full width */
+    border: none;
+    border-radius: 5px;
+    background-color: #005b96;
+    color: white;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+    font-size: 16px; /* Match font size of input fields */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.profile-form button:hover {
+    background-color: #004d80;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 768px) {
+    .profile-form .profile-info {
+        grid-template-columns: 1fr; /* Stack labels and inputs vertically */
+    }
+
+    .profile-form label {
+        text-align: left;
+        margin-bottom: 5px;
+    }
 }
