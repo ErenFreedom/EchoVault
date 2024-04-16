@@ -38,3 +38,22 @@
 
 // // Export the router to be mounted in your main server file
 // module.exports = router;
+
+
+const express = require('express');
+const router = express.Router();
+const notificationController = require('../controllers/NotificationController');
+const authMiddleware = require('../middleware/authMiddleware'); // Ensure you have an auth middleware
+
+// Simplified route for notifying document upload, deletion, download, profile update, locker creation, and password change
+router.post('/notify-document-upload', authMiddleware, notificationController.notifyDocumentUpload);
+router.post('/notify-document-deletion', authMiddleware, notificationController.notifyDocumentDeletion);
+router.post('/notify-document-download', authMiddleware, notificationController.notifyDocumentDownload);
+router.post('/notify-profile-update', authMiddleware, notificationController.notifyProfileUpdate);
+router.post('/notify-locker-created', authMiddleware, notificationController.notifyLockerCreated);
+router.post('/notify-password-change', authMiddleware, notificationController.notifyPasswordChange);
+
+// Route to mark notifications as read
+router.post('/notifications/mark-as-read', authMiddleware, notificationController.markNotificationsAsRead);
+
+module.exports = router;

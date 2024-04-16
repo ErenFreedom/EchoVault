@@ -1,170 +1,115 @@
-const Notification = require('../models/Notification');
-const User = require('../models/UserModel');
-const DummyUser = require('../models/DummyUser');
+const { createNotification } = require('../utils/NotificationUtils');
 
-// Utility function to check if a user is premium
-async function isUserPremium(userId) {
-    const user = await User.findById(userId);
-    return user && user.isPremium;
-}
-
-// Utility function to check if a user is a guest user
-async function isGuestUser(userId) {
-    const dummyUser = await DummyUser.findById(userId);
-    return !!dummyUser;
-}
-
-async function getUserPermissions(userId) {
+exports.notifyDocumentUpload = async (req, res) => {
+    const userId = req.user._id; // Get the user ID from the authenticated user
+    const { documentTitle } = req.body; // Assuming the document title is sent in the request body
+    const message = `A new document "${documentTitle}" has been uploaded.`;
+    
     try {
-        const guestUser = await DummyUser.findById(userId);
-        if (!guestUser) {
-            // Handle case where no guest user is found for the given ID
-            console.log("No guest user found for the provided ID.");
-            return { success: false, message: "Guest user not found.", permissions: [] };
-        }
-        // Assuming permissions are stored directly in the DummyUser document
-        return { success: true, message: "Permissions fetched successfully.", permissions: guestUser.permissions };
+      await createNotification(userId, message, 'document_uploaded');
+      res.status(200).json({ message: "Notification for document upload sent successfully." });
     } catch (error) {
-        // Handle any potential errors that may occur during database query
-        console.error("Error fetching guest user permissions:", error);
-        return { success: false, message: "Error fetching permissions.", permissions: [] };
+      console.error('Error sending upload notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
-}
+  };
 
-
-// General function to create a notification
-const createNotification = async (userId, dummyUserId, message, type, associatedId = null) => {
-    const newNotification = new Notification({
-        userId,
-        dummyUserId,
-        message,
-        type,
-        associatedId,
-    });
-    await newNotification.save();
-};
-
-// Specific notification functions incorporating checks
-// Notify document upload
-exports.notifyDocumentUpload = async (userId, documentId) => {
-    let canNotify = true; // Assume we can notify the user by default
-
-    if (await isGuestUser(userId)) {
-        const permissions = await getUserPermissions(userId);
-        canNotify = permissions.includes('upload'); // Check if the guest user has 'upload' permission
+  exports.notifyDocumentDeletion = async (req, res) => {
+    const userId = req.user._id;
+    const { documentTitle } = req.body;
+    const message = `The document "${documentTitle}" has been deleted.`;
+  
+    try {
+      await createNotification(userId, message, 'document_deleted');
+      res.status(200).json({ message: "Notification for document deletion sent successfully." });
+    } catch (error) {
+      console.error('Error sending deletion notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
+  };
 
-    if (canNotify) {
-        const message = 'A new document has been uploaded.';
-        const type = 'document_uploaded';
-        await createNotification(userId, null, message, type, documentId);
+  exports.notifyDocumentDownload = async (req, res) => {
+    const userId = req.user._id; // Get the user ID from the authenticated user
+    const { documentTitle } = req.body; // Assuming you're sending the document title in the request body
+    const message = `The document "${documentTitle}" has been downloaded.`;
+  
+    try {
+      await createNotification(userId, message, 'document_downloaded');
+      res.status(200).json({ message: "Notification for document download sent successfully." });
+    } catch (error) {
+      console.error('Error sending download notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
-};
-
-// Notify about document deletion with permission check for guest users
-exports.notifyDocumentDeletion = async (userId, documentId) => {
-    let canNotify = true;
-
-    if (await isGuestUser(userId)) {
-        const permissions = await getUserPermissions(userId);
-        canNotify = permissions.includes('delete'); // Check if the guest user has 'delete' permission
+  };
+  
+  exports.notifyProfileUpdate = async (req, res) => {
+    const userId = req.user._id;
+    const message = `Your profile has been successfully updated.`;
+  
+    try {
+      await createNotification(userId, message, 'profile_updated');
+      res.status(200).json({ message: "Notification for profile update sent successfully." });
+    } catch (error) {
+      console.error('Error sending profile update notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
-
-    if (canNotify) {
-        const message = 'A document has been deleted.';
-        const type = 'document_deleted';
-        await createNotification(userId, null, message, type, documentId);
+  };
+  
+  exports.notifyLockerCreated = async (req, res) => {
+    const userId = req.user._id;
+    const message = `An additional locker has been successfully created.`;
+  
+    try {
+      await createNotification(userId, message, 'locker_created');
+      res.status(200).json({ message: "Notification for locker creation sent successfully." });
+    } catch (error) {
+      console.error('Error sending locker creation notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
-};
-
-// Notify about document download with permission check for guest users
-exports.notifyDocumentDownload = async (userId, documentId) => {
-    let canNotify = true;
-
-    if (await isGuestUser(userId)) {
-        const permissions = await getUserPermissions(userId);
-        canNotify = permissions.includes('download'); // Assuming a permission for download, if applicable
+  };
+  
+  exports.notifyPasswordChange = async (req, res) => {
+    const userId = req.user._id;
+    const message = `Your password has been successfully changed.`;
+  
+    try {
+      await createNotification(userId, message, 'password_changed');
+      res.status(200).json({ message: "Notification for password change sent successfully." });
+    } catch (error) {
+      console.error('Error sending password change notification:', error);
+      res.status(500).json({ message: "Failed to send notification.", error: error.message });
     }
+  };
+// exports.markNotificationsAsRead = async (req, res) => {
+//     try {
+//       // You may want to filter which notifications to mark as read, e.g., by userId
+//       const userId = req.user._id; // Assuming you have the user's ID from auth middleware
+//       await Notification.updateMany(
+//         { userId, isRead: false },
+//         { $set: { isRead: true } }
+//       );
+  
+//       res.status(200).json({ message: "Notifications marked as read." });
+//     } catch (error) {
+//       console.error('Error marking notifications as read:', error);
+//       res.status(500).json({ message: "An error occurred while updating notifications.", error: error.message });
+//     }
+//   };
+  
+exports.markNotificationsAsRead = async (req, res) => {
+    try {
+        const userId = req.user._id; // Assuming you have user info on the request object from auth middleware
 
-    if (canNotify) {
-        const message = 'A document has been downloaded.';
-        const type = 'document_downloaded';
-        await createNotification(userId, null, message, type, documentId);
-    }
-};
+        // Update all notifications setting isRead to true
+        await Notification.updateMany(
+            { userId, isRead: false },
+            { $set: { isRead: true } }
+        );
 
-// Notify premium purchase
-exports.notifyPremiumPurchase = async (userId) => {
-    const user = await User.findById(userId);
-    if (!user) {
-        console.error("User not found for ID:", userId);
-        return;
-    }
-
-    // Check if the user is already premium or is a guest user
-    if (await isUserPremium(userId) || await isGuestUser(userId)) {
-        console.log(`User ${userId} is already premium or is a guest user. No notification sent.`);
-        return;
-    }
-
-    const message = 'Congratulations! You have successfully upgraded to PremiumLocker.';
-    const type = 'premium_purchase';
-
-    const newNotification = new Notification({
-        userId,
-        message,
-        type,
-    });
-
-    await newNotification.save();
-    console.log(`Notification sent to user ${userId} about premium purchase.`);
-};
-// Notify document sharing (Only premium users can share documents)
-exports.notifyDocumentSharing = async (userId, shareWithUserId, documentId) => {
-    // Check if both the sender and receiver are premium users and are not the same user
-    if (await isUserPremium(userId) && await isUserPremium(shareWithUserId) && userId !== shareWithUserId) {
-        const user = await User.findById(shareWithUserId);
-        if (!user) {
-            // Handle the case where the user to share with is not found
-            return { success: false, message: "User to share with not found." };
-        }
-        const sender = await User.findById(userId);
-        if (!sender) {
-            // Handle the case where the sender is not found
-            return { success: false, message: "Sender not found." };
-        }
-
-        const message = `A document has been shared with you by ${sender.username}.`;
-        const type = 'document_shared';
-        await createNotification(userId, null, message, type, documentId);
-        return { success: true, message: "Document shared successfully." };
-    } else {
-        // If either user is not premium or if they are the same user, do not allow sharing
-        return { success: false, message: "Both users must be premium and different to share documents." };
+        res.status(200).json({ message: "Notifications marked as read." });
+    } catch (error) {
+        console.error('Error marking notifications as read:', error);
+        res.status(500).json({ message: "An error occurred while updating notifications.", error: error.message });
     }
 };
-
-
-// Notify linking a guest user (Only premium users can link guest users)
-exports.notifyGuestUserLinking = async (premiumUserId, guestUserId) => {
-    if (await isUserPremium(premiumUserId) && await isGuestUser(guestUserId)) {
-        const guestUser = await DummyUser.findById(guestUserId);
-        const message = `${guestUser.username} has been linked to your account.`;
-        const type = 'guest_user_linked';
-        await createNotification(premiumUserId, null, message, type);
-    }
-};
-
-// Notify permission granted to a guest user
-exports.notifyPermissionGranted = async (premiumUserId, guestUserId, permission) => {
-    if (await isUserPremium(premiumUserId) && await isGuestUser(guestUserId)) {
-        const guestUser = await DummyUser.findById(guestUserId);
-        const message = `Permission ${permission} has been granted to ${guestUser.username}.`;
-        const type = 'permission_granted';
-        await createNotification(premiumUserId, null, message, type);
-    }
-};
-
-// Additional notification functions can be implemented following similar checks and patterns.
-
 

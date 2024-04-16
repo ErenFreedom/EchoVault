@@ -170,9 +170,11 @@ exports.resendOtp = async (req, res) => {
     const { email } = req.body;
 
     try {
-        // Check if the user has initiated the registration process
-        const userExists = await User.findOne({ email });
-        if (!userExists) {
+        // Check if the user has initiated the registration process and exists in either User or TempUser collections
+        let userExists = await User.findOne({ email });
+        let tempUserExists = await TempUser.findOne({ email });
+
+        if (!userExists && !tempUserExists) {
             return res.status(404).send({ message: 'User not found. Please initiate the registration process.' });
         }
 
@@ -182,12 +184,17 @@ exports.resendOtp = async (req, res) => {
         // Send the OTP via email
         const emailSent = await sendOtpEmail(email, otp);
         if (!emailSent) {
-            // Handle failure (e.g., due to email service issues)
             return res.status(500).send({ message: 'Failed to send OTP email.' });
         }
 
-        // Update the existing OTP record or create a new one
-        const otpRecord = await OTP.findOne({ email });
+        // Determine which collection to update based on where the user is found
+        let otpRecord;
+        if (tempUserExists) {
+            otpRecord = tempUserExists;
+        } else {
+            otpRecord = await OTP.findOne({ email });
+        }
+
         if (otpRecord) {
             otpRecord.otp = otp;
             await otpRecord.save();
@@ -201,6 +208,7 @@ exports.resendOtp = async (req, res) => {
         res.status(500).send({ message: 'Failed to resend OTP.', error: error.toString() });
     }
 };
+
 // exports.verifyOtp = async (req, res) => {
 //     const { email, otp } = req.body;
 //     try {

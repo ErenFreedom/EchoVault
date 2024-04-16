@@ -3,44 +3,38 @@ const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 
 // Function to submit feedback
-exports.submitFeedback = async (req, res) => {
-    const { content, rating, userId, dummyUserId } = req.body;
+const submitFeedback = async (req, res) => {
+    const { content, rating } = req.body;  // Destructure content and rating from request body
+    const userId = req.user._id;  // Get userId from authenticated user object
 
     try {
-        let username = null;
+        // Check for recent feedback submission
+        const lastFeedback = await Feedback.findOne({ userId }).sort({ createdAt: -1 });
 
-        // Validate the user or dummy user existence and retrieve username
-        if (userId) {
-            const user = await User.findById(userId);
-            if (!user) return res.status(404).send({ message: 'User not found.' });
-            username = user.username; // Assuming the username field exists in your user model
-        } else if (dummyUserId) {
-            const dummyUser = await DummyUser.findById(dummyUserId);
-            if (!dummyUser) return res.status(404).send({ message: 'Dummy user not found.' });
-            username = dummyUser.username; // Assuming the username field exists in your dummy user model
-        } else {
-            return res.status(400).send({ message: 'User identification is required.' });
+        if (lastFeedback && new Date() - new Date(lastFeedback.createdAt) < 3600000) {
+            // 3600000 milliseconds = 1 hour
+            return res.status(429).json({ message: 'Please wait at least one hour before submitting new feedback.' });
         }
 
+        if (!content || !rating) {
+            return res.status(400).json({ message: 'Content and rating are required.' });
+        }
+
+        // Create new feedback if no recent submission found or if time interval has passed
         const newFeedback = new Feedback({
             userId,
-            dummyUserId,
             content,
             rating
-            // Optionally, you can add username here if your feedback model supports it
         });
 
         await newFeedback.save();
-
-        // Include the username in the success response
-        res.status(201).json({
-            message: "Feedback submitted successfully.",
-            username: username // This line includes the username in the response
-        });
+        res.status(201).json({ message: 'Feedback submitted successfully', feedback: newFeedback });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: "Error submitting feedback", error: error.toString() });
+        console.error('Error submitting feedback:', error);
+        res.status(500).json({ message: 'Failed to submit feedback', error: error.message });
     }
 };
 
-
+module.exports = {
+    submitFeedback
+};
