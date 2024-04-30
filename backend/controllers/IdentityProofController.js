@@ -4,10 +4,10 @@ const DummyUser = require('../models/DummyUser');
 
 exports.addIdentityProof = async (req, res) => {
     const { userId, dummyUserId, proofType, proofNumber } = req.body;
-    const documentIds = req.files.map(file => file.id); // Assuming file upload middleware adds uploaded file IDs to `req.files`
+    const documentIds = req.files.map(file => file.id); 
 
     try {
-        // Validate user or dummy user existence
+        
         let owner;
         if (userId) {
             owner = await User.findById(userId);
@@ -19,7 +19,7 @@ exports.addIdentityProof = async (req, res) => {
         }
 
         const newIdentityProof = new IdentityProofs({
-            userId: userId || null, // Ensure only one is set
+            userId: userId || null, 
             dummyUserId: dummyUserId || null,
             proofType,
             proofNumber,
@@ -54,5 +54,5 @@ exports.listIdentityProofs = async (req, res) => {
     }
 };
 
-// Export additional controller methods as needed
+
 

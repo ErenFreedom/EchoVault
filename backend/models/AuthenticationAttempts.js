@@ -45,21 +45,18 @@ const authenticationAttemptsSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  toJSON: { virtuals: true }, // Ensure virtuals are included when document is converted to JSON
+  toJSON: { virtuals: true }, 
   toObject: { virtuals: true }
 });
 
-// Virtual property to identify the type of user making the authentication attempt
 authenticationAttemptsSchema.virtual('authenticatorType').get(function() {
   return this.userId ? 'Admin User' : 'Dummy User';
 });
 
-// Static method to find authentication attempts by admin user
 authenticationAttemptsSchema.statics.findByAdminUserId = function(adminUserId) {
   return this.find({ userId: adminUserId });
 };
 
-// Static method to find authentication attempts by dummy user
 authenticationAttemptsSchema.statics.findByDummyUserId = function(dummyUserId) {
   return this.find({ dummyUserId: dummyUserId });
 };

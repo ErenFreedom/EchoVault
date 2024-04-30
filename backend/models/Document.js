@@ -4,12 +4,12 @@ const documentSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: false // Now it's explicitly set as not required
+    required: false 
   },
   dummyUserId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DummyUser',
-    required: false // Also not required
+    required: false 
   },
   lockerId: {
     type: mongoose.Schema.Types.ObjectId,
@@ -18,27 +18,27 @@ const documentSchema = new mongoose.Schema({
   },
   documentType: {
     type: String,
-    required: false, // Not required anymore
+    required: false, 
     trim: true
   },
   title: {
     type: String,
-    required: false, // Not required anymore
+    required: false, 
     trim: true
   },
   fileName: {
     type: String,
-    required: true, // Keep required for file identification
+    required: true, 
     trim: true
   },
   filePath: {
     type: String,
-    required: true, // Keep required to locate the file
+    required: true, 
     trim: true
   },
   thumbnailPath: {
     type: String,
-    required: false, // Thumbnails may not exist for all document types
+    required: false, 
   },
   uploadDate: {
     type: Date,

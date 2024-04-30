@@ -4,8 +4,8 @@ const path = require('path');
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-const User = require('../models/UserModel'); // Ensure correct path
-const Locker = require('../models/Lockers'); // Ensure correct path
+const User = require('../models/UserModel'); 
+const Locker = require('../models/Lockers'); 
 
 const mongoURI = process.env.MONGODB_URI;
 
@@ -25,18 +25,15 @@ const lockerTypes = [
 
 const createLockersForUsers = async () => {
   try {
-    // Fetch all users
     const users = await User.find({});
     
-    // Iterate over each user to create default lockers
     for (const user of users) {
       const userLockers = lockerTypes.map(lockerType => ({
         lockerName: `${lockerType} Locker`,
         lockerType,
-        userId: user._id, // Assign the locker to the current user
+        userId: user._id, 
       }));
 
-      // Create lockers for the current user
       await Locker.insertMany(userLockers);
     }
 

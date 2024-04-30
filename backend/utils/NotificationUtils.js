@@ -1,8 +1,6 @@
-// NotificationUtils.js
 const Notification = require('../models/Notifications');
 const User = require('../models/UserModel');
 
-// Utility function to create a notification
 async function createNotification(userId, message) {
   try {
     const notification = new Notification({

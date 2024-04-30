@@ -1,4 +1,4 @@
-const User = require('../models/UserModel'); // Adjust the path as necessary
+const User = require('../models/UserModel'); 
 
 // Middleware to check if the user is a premium user
 const isPremiumMiddleware = async (req, res, next) => {

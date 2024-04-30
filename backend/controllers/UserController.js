@@ -14,6 +14,7 @@ const { v4: uuidv4 } = require('uuid');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
 let passwordChangeAttemptsStore = new Map();
 let failedAttemptsStore = {};
+const MAX_FAILED_PASSWORD_CHANGE_ATTEMPTS=4
 const MAX_FAILED_ATTEMPTS = 3;
 const LOCKOUT_TIME_MS = 6 * 60 * 60 * 1000; // 6 hours in milliseconds
 const failedOtpAttemptsStore = new Map(); // Store failed OTP attempts

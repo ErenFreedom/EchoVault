@@ -4,12 +4,12 @@ const authMethodSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+    required: function() { return !this.dummyUserId; } 
   },
   dummyUserId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DummyUser',
-    required: function() { return !this.userId; } // Required if userId is not provided
+    required: function() { return !this.userId; } 
   },
   methodType: {
     type: String,
@@ -35,17 +35,14 @@ const authMethodSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Virtual property to identify the type of user (Admin or Dummy)
 authMethodSchema.virtual('userType').get(function() {
   return this.userId ? 'Admin' : 'Dummy';
 });
 
-// Static method to find auth methods by admin user ID
 authMethodSchema.statics.findByUserId = function(userId) {
   return this.find({ userId });
 };
 
-// Static method to find auth methods by dummy user ID
 authMethodSchema.statics.findByDummyUserId = function(dummyUserId) {
   return this.find({ dummyUserId });
 };

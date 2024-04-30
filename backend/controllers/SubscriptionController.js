@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Subscription = require('../models/Subscription'); // Adjust the path according to your project structure
+const Subscription = require('../models/Subscription'); 
 
 mongoose.connect('mongodb://localhost:27017/LockerDB', {
     useNewUrlParser: true,
@@ -18,18 +18,18 @@ const createBasicLockerPlan = async () => {
         const basicLockerPlan = new Subscription({
             planName: "BasicLocker",
             price: 0, // Free plan
-            duration: Infinity, // Represents an indefinite duration
+            duration: Infinity, 
             features: [
                 "10 documents per Locker",
                 "Max file size 25MB",
                 "Formats: jpg, jpeg, pdf, img"
             ],
             isActive: true,
-            storageLimit: 10, // 10 documents per locker
-            fileSizeLimit: 25, // Max file size 25MB
-            lockerLimit: 9, // Number of basic lockers available
+            storageLimit: 10, 
+            fileSizeLimit: 25, 
+            lockerLimit: 9, 
             premiumFeatures: [],
-            accountLinkingLimit: 0, // No account linking allowed
+            accountLinkingLimit: 0, 
         });
 
         await basicLockerPlan.save();
@@ -47,11 +47,11 @@ const createPremiumLockerPlan = async () => {
     if (!premiumLockerExists) {
         const premiumLocker = new Subscription({
             planName: "PremiumLocker",
-            price: 15, // 15 dollars
-            duration: 1, // Assuming this field represents months
+            price: 15, 
+            duration: 1, 
             features: ['Unlimited custom lockers', 'Link up to 3 accounts', 'Upload up to 100MB per file', '50 documents per locker'],
             isActive: true,
-            storageLimit: 100, // Assuming this is in MB
+            storageLimit: 100, 
             lockerLimit: 50,
             premiumFeatures: ['CustomLockerCreation', 'AccountLinking', 'IncreasedStorageAndDocumentLimits'],
             accountLinkingLimit: 3
@@ -61,25 +61,24 @@ const createPremiumLockerPlan = async () => {
     }
 };
 
-// Call this function early in your application's lifecycle
+
 createPremiumLockerPlan();
 
 
 exports.upgradeToPremium = async (req, res) => {
-    const { userId } = req.user; // Assuming you extract this from JWT token
-    const { paymentDetails } = req.body; // Assuming you have payment details sent from client
+    const { userId } = req.user; 
+    const { paymentDetails } = req.body; 
 
     try {
         const user = await User.findById(userId);
         const currentSubscription = await UserSubscription.findOne({ userId: user._id, isActive: true });
 
-        // Check if the user is already on a premium plan
+       
         if (user.isPremium) {
             return res.status(400).send({ message: 'You are already on a premium plan.' });
         }
 
-        // Handle payment process here
-        // This is a mock function to simulate payment processing
+      
         const paymentSuccess = processPayment(paymentDetails);
 
         if (!paymentSuccess) {
@@ -98,12 +97,11 @@ exports.upgradeToPremium = async (req, res) => {
             userId: user._id,
             subscriptionId: premiumLockerPlan._id,
             startDate: new Date(),
-            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)), // 1 month from the start date
+            endDate: new Date(new Date().setMonth(new Date().getMonth() + 1)), 
             isActive: true
         });
         await newSubscription.save();
 
-        // Update user to premium
         user.isPremium = true;
         await user.save();
 

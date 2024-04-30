@@ -2,8 +2,7 @@ const UserSession = require('../models/UserSession');
 
 // Create a new user session
 exports.createUserSession = async (req, res) => {
-    const { userId, dummyUserId } = req.body; // Assume these are passed from the frontend
-
+    const { userId, dummyUserId } = req.body; 
     try {
         const sessionData = userId ? { userId } : { dummyUserId };
         const newSession = new UserSession(sessionData);
@@ -46,10 +45,9 @@ exports.checkSessionExpiration = async (req, res) => {
             return res.status(404).json({ message: "Session not found." });
         }
 
-        // Calculate time difference
         const currentTime = new Date();
         const timeDifference = currentTime - session.lastActivity;
-        const idleLimit = 30 * 60 * 1000; // 30 minutes in milliseconds
+        const idleLimit = 30 * 60 * 1000; 
 
         if (timeDifference > idleLimit) {
             session.isActive = false;

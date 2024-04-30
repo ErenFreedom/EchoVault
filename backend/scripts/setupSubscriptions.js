@@ -1,8 +1,7 @@
 const path = require('path');
 require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
-// Make sure this path points to your .env file correctly
 const mongoose = require('mongoose');
-const Subscription = require('../models/Subscription'); // Update the path to where your Subscription model is defined
+const Subscription = require('../models/Subscription'); 
 
 const createBasicLockerPlan = async () => {
     const basicLockerExists = await Subscription.findOne({ planName: "BasicLocker" });
@@ -11,14 +10,14 @@ const createBasicLockerPlan = async () => {
         const basicLockerPlan = new Subscription({
             planName: "BasicLocker",
             price: 0, // Free plan
-            duration: Infinity, // Represents an indefinite duration
+            duration: Infinity, 
             features: ["10 documents per Locker", "Max file size 25MB", "Formats: jpg, jpeg, pdf, docx"],
             isActive: true,
-            storageLimit: 10, // 10 documents per locker
-            fileSizeLimit: 25, // Max file size 25MB
-            lockerLimit: 1, // Number of basic lockers available
+            storageLimit: 10, 
+            fileSizeLimit: 25, 
+            lockerLimit: 1, 
             premiumFeatures: [],
-            accountLinkingLimit: 0, // No account linking allowed
+            accountLinkingLimit: 0, 
         });
 
         await basicLockerPlan.save();
@@ -34,15 +33,15 @@ const createPremiumLockerPlan = async () => {
     if (!premiumLockerExists) {
         const premiumLockerPlan = new Subscription({
             planName: "PremiumLocker",
-            price: 15, // 15 dollars per month
-            duration: 1, // 1 month duration
+            price: 15, 
+            duration: 1, 
             features: ["Unlimited custom lockers", "Link up to 3 accounts", "Upload up to 100MB per file", "50 documents per locker"],
             isActive: true,
-            storageLimit: 100, // 100MB storage limit
-            fileSizeLimit: 100, // Max file size 100MB
-            lockerLimit: Infinity, // Unlimited lockers
+            storageLimit: 100, 
+            fileSizeLimit: 100, 
+            lockerLimit: Infinity, 
             premiumFeatures: ["CustomLockerCreation", "AccountLinking", "IncreasedStorageAndDocumentLimits"],
-            accountLinkingLimit: 3, // Can link up to 3 accounts
+            accountLinkingLimit: 3, 
         });
 
         await premiumLockerPlan.save();

@@ -10,7 +10,7 @@ const documents = [
 const seedDocuments = async () => {
     try {
         await connectDB();
-        await Document.deleteMany(); // Caution: This will delete all existing documents!
+        await Document.deleteMany(); 
         await Document.insertMany(documents);
         console.log('Documents seeded successfully');
         process.exit();

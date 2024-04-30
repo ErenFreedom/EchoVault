@@ -43,9 +43,8 @@
 const express = require('express');
 const router = express.Router();
 const notificationController = require('../controllers/NotificationController');
-const authMiddleware = require('../middleware/authMiddleware'); // Ensure you have an auth middleware
+const authMiddleware = require('../middleware/authMiddleware'); 
 
-// Simplified route for notifying document upload, deletion, download, profile update, locker creation, and password change
 router.post('/notify-document-upload', authMiddleware, notificationController.notifyDocumentUpload);
 router.post('/notify-document-deletion', authMiddleware, notificationController.notifyDocumentDeletion);
 router.post('/notify-document-download', authMiddleware, notificationController.notifyDocumentDownload);

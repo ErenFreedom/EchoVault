@@ -1,11 +1,10 @@
 const nodemailer = require('nodemailer');
 
-// Create a transporter object using the default SMTP transport
 let transporter = nodemailer.createTransport({
-    service: 'gmail', // Use your email service provider
+    service: 'gmail', 
     auth: {
-        user: process.env.EMAIL_USERNAME, // Your email address
-        pass: process.env.EMAIL_PASSWORD // Your email password
+        user: process.env.EMAIL_USERNAME, 
+        pass: process.env.EMAIL_PASSWORD 
     }
 });
 
@@ -13,11 +12,10 @@ let transporter = nodemailer.createTransport({
 const sendEmail = async (options) => {
     try {
         let mailOptions = {
-            from: process.env.EMAIL_USERNAME, // Sender address
-            to: options.to, // List of receivers
-            subject: options.subject, // Subject line
-            text: options.text, // Plain text body
-            // html: options.html // html body (if you want to send HTML emails)
+            from: process.env.EMAIL_USERNAME, 
+            to: options.to, 
+            subject: options.subject, 
+            text: options.text, 
         };
 
         const info = await transporter.sendMail(mailOptions);
@@ -25,7 +23,7 @@ const sendEmail = async (options) => {
         return info;
     } catch (error) {
         console.error('Error sending email: ', error);
-        throw error; // Rethrow the error for the caller to handle
+        throw error; 
     }
 };
 

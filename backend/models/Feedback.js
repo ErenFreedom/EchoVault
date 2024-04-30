@@ -35,7 +35,6 @@ const feedbackSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Static method to find feedback by user ID
 feedbackSchema.statics.findByUserId = function(userId) {
   return this.find({ userId });
 };

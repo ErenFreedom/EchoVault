@@ -9,7 +9,7 @@ const tempDummyUserSchema = new mongoose.Schema({
     username: { type: String, required: true, unique: true, trim: true },
     password: { type: String, required: true },
     linkedTo: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-    createdAt: { type: Date, default: Date.now, expires: '10m' }, // Temp record expiry
+    createdAt: { type: Date, default: Date.now, expires: '10m' }, 
 }, {
     timestamps: true,
 });

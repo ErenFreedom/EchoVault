@@ -4,24 +4,23 @@ const accessLogsSchema = new mongoose.Schema({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
-    required: function() { return !this.dummyUserId; } // Required if dummyUserId is not provided
+    required: function() { return !this.dummyUserId; } 
   },
   dummyUserId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'DummyUser',
-    required: function() { return !this.userId; } // Required if userId is not provided
+    required: function() { return !this.userId; } 
   },
   actionType: {
     type: String,
     required: true,
     trim: true,
-    enum: ['login', 'logout', 'create', 'read', 'update', 'delete', 'download', 'share', 'other'] // Add more action types as necessary
+    enum: ['login', 'logout', 'create', 'read', 'update', 'delete', 'download', 'share', 'other'] 
   },
   timestamp: {
     type: Date,
     default: Date.now
   },
-  // Additional fields
   ipAddress: {
     type: String,
     trim: true
@@ -37,25 +36,22 @@ const accessLogsSchema = new mongoose.Schema({
   outcome: {
     type: String,
     trim: true,
-    enum: ['success', 'failure', 'error'] // Represents the outcome of the action
+    enum: ['success', 'failure', 'error'] 
   }
 }, {
-  timestamps: { createdAt: 'timestamp', updatedAt: false } // Only log the creation time
+  timestamps: { createdAt: 'timestamp', updatedAt: false } 
 });
 
 
 
-// Virtual property to identify the type of user
 accessLogsSchema.virtual('userType').get(function() {
   return this.userId ? 'Normal User' : 'Dummy User';
 });
 
-// Static method to find logs by normal user
 accessLogsSchema.statics.findByUserId = function(userId) {
   return this.find({ userId: userId });
 };
 
-// Static method to find logs by dummy user
 accessLogsSchema.statics.findByDummyUserId = function(dummyUserId) {
   return this.find({ dummyUserId: dummyUserId });
 };

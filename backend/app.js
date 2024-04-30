@@ -3,7 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const helmet = require('helmet');
 const errorHandler = require('./middleware/errorMiddleware');
-const userRoutes = require('./routes/userRoutes'); // Ensure this includes your updated routes for OTP handling
+const userRoutes = require('./routes/userRoutes'); 
 const authRoutes = require('./routes/authRoutes');
 const documentRoutes = require('./routes/documentRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
@@ -46,24 +46,24 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Ensure cookies are secure in production
-    httpOnly: true, // Helps mitigate XSS attacks
+    secure: process.env.NODE_ENV === 'production', 
+    httpOnly: true, 
   }
 }));
 
 // Routes
 app.get('/', (req, res) => res.send('Server is running!'));
-app.use('/api/users', userRoutes); // Ensure this is correctly linked to your user-related functionalities
+app.use('/api/users', userRoutes); 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api/auth', authRoutes);
 app.use('/api', documentRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/lockers', lockerRoutes);
 app.use('/api/guest-users', dummyUserRoutes);
-app.use('/api', permissionsRoutes); // Make sure permissions handling is correctly implemented
+app.use('/api', permissionsRoutes); 
 app.use('/api/premium-lockers', premiumLockerRoutes);
 app.use('/api/notifications', notificationRoutes); 
 app.use('/api/feedback', feedbackRoutes); 
-app.use(errorHandler); // Global error handling
+app.use(errorHandler); 
 
 module.exports = app;

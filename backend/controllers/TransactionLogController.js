@@ -8,15 +8,15 @@ exports.createTransactionLog = async (userId, transactionAmount) => {
             userId,
             transactionType: 'subscription_purchase',
             transactionAmount: transactionAmount,
-            transactionStatus: 'pending', // Assuming the transaction starts as pending
+            transactionStatus: 'pending', 
         });
 
         await transactionLog.save();
         console.log("Transaction log created successfully.");
-        return transactionLog._id; // Return the ID of the created log
+        return transactionLog._id; 
     } catch (error) {
         console.error("Error creating transaction log: ", error);
-        throw error; // Propagate the error
+        throw error; 
     }
 };
 
@@ -39,13 +39,13 @@ exports.updateTransactionStatus = async (transactionId, status, additionalInfo =
         return true;
     } catch (error) {
         console.error("Error updating transaction status: ", error);
-        throw error; // Propagate the error
+        throw error; 
     }
 };
 
 // Get transaction logs for a user
 exports.getUserTransactionLogs = async (req, res) => {
-    const userId = req.user._id; // Assuming user ID comes from authenticated session
+    const userId = req.user._id; 
 
     try {
         const transactions = await TransactionLogs.find({ userId: userId });

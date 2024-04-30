@@ -1,8 +1,8 @@
 const { createNotification } = require('../utils/NotificationUtils');
 
 exports.notifyDocumentUpload = async (req, res) => {
-    const userId = req.user._id; // Get the user ID from the authenticated user
-    const { documentTitle } = req.body; // Assuming the document title is sent in the request body
+    const userId = req.user._id; 
+    const { documentTitle } = req.body; 
     const message = `A new document "${documentTitle}" has been uploaded.`;
     
     try {
@@ -29,8 +29,8 @@ exports.notifyDocumentUpload = async (req, res) => {
   };
 
   exports.notifyDocumentDownload = async (req, res) => {
-    const userId = req.user._id; // Get the user ID from the authenticated user
-    const { documentTitle } = req.body; // Assuming you're sending the document title in the request body
+    const userId = req.user._id; 
+    const { documentTitle } = req.body; 
     const message = `The document "${documentTitle}" has been downloaded.`;
   
     try {
@@ -98,9 +98,9 @@ exports.notifyDocumentUpload = async (req, res) => {
   
 exports.markNotificationsAsRead = async (req, res) => {
     try {
-        const userId = req.user._id; // Assuming you have user info on the request object from auth middleware
+        const userId = req.user._id; 
 
-        // Update all notifications setting isRead to true
+       
         await Notification.updateMany(
             { userId, isRead: false },
             { $set: { isRead: true } }

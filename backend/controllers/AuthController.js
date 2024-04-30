@@ -5,12 +5,12 @@ const User = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 const { generateOtp, sendOtpEmail } = require('../utils/otpService');
 const TempLogin = require('../models/TempLogin'); 
-const OTP = require('../models/otpModel'); // Update with the correct path
+const OTP = require('../models/otpModel'); 
 
 const LOGIN_ATTEMPTS_LIMIT = 3;
 const OTP_ATTEMPTS_LIMIT = 3;
-const LOGIN_LOCKOUT_TIME = 3600000; // 1 hour in milliseconds
-const OTP_EXPIRATION_MS = 60000; // 1 minute for OTP expiration
+const LOGIN_LOCKOUT_TIME = 3600000; 
+const OTP_EXPIRATION_MS = 60000; 
 const loginAttemptsStore = new Map();
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -153,34 +153,34 @@ exports.login = async (req, res) => {
 };
 
 
-// In your DummyUserController.js or wherever it fits best
+
 exports.loginDummyUser = async (req, res) => {
     const { identifier, password } = req.body;
 
     try {
-        // Find a dummy user by email or username where isGuestUser is true
+        
         const dummyUser = await DummyUser.findOne({ 
             $or: [{ email: identifier }, { username: identifier }],
-            isGuestUser: true  // Ensure we're only fetching guest users
+            isGuestUser: true  
         });
         if (!dummyUser) {
             return res.status(404).json({ message: "Guest user not found." });
         }
 
-        // Verify password
+       
         const isMatch = await bcrypt.compare(password, dummyUser.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Invalid credentials." });
         }
 
-        // Generate a JWT for the guest user
+        
         const token = jwt.sign(
-            { id: dummyUser._id, isGuest: true }, // Mark as guest user in the token
+            { id: dummyUser._id, isGuest: true }, 
             process.env.JWT_SECRET,
-            { expiresIn: '1h' } // Token validity
+            { expiresIn: '1h' } 
         );
 
-        // Respond with token and user details
+        
         res.json({
             message: "Guest login successful.",
             token,
@@ -188,8 +188,8 @@ exports.loginDummyUser = async (req, res) => {
                 id: dummyUser._id,
                 email: dummyUser.email,
                 username: dummyUser.username,
-                isGuest: true,  // Confirm this is a guest user
-                linkedTo: dummyUser.linkedTo  // Include premium user ID the guest is linked to
+                isGuest: true,  
+                linkedTo: dummyUser.linkedTo  
             }
         });
     } catch (error) {
@@ -249,12 +249,10 @@ exports.loginDummyUser = async (req, res) => {
 
 exports.logout = async (req, res) => {
     try {
-        // Assuming req.user is populated by your authentication middleware
+        
         const userId = req.user._id;
 
-        // Optional: Invalidate the user's refresh token if you're storing and managing these server-side.
-        // This example assumes you have a method to mark a refresh token as invalidated.
-        // await invalidateUserRefreshToken(userId);
+        
 
         res.json({ message: "Logout successful." });
     } catch (error) {

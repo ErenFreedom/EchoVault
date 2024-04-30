@@ -9,8 +9,8 @@ const users = [
 
 const seedUsers = async () => {
     try {
-        await connectDB(); // Make sure you have a function to connect to your DB
-        await User.deleteMany(); // Caution: This will delete all existing users!
+        await connectDB(); 
+        await User.deleteMany(); 
         await User.insertMany(users);
         console.log('Users seeded successfully');
         process.exit();

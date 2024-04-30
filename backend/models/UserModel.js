@@ -47,10 +47,10 @@ const userSchema = new mongoose.Schema({
   },
   verified: {
     type: Boolean,
-    default: false // Tracks if the user's email has been verified
+    default: false 
   }
 }, {
-  timestamps: true, // Keeps track of user creation and update times
+  timestamps: true, 
 });
 
 const User = mongoose.model('User', userSchema);

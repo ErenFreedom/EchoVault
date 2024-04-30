@@ -41,7 +41,7 @@ const subscriptionSchema = new mongoose.Schema({
   }],
   accountLinkingLimit: {
     type: Number,
-    default: 0 // Default to 0, indicating no linked accounts allowed for basic plans
+    default: 0 
   }
 }, {
   timestamps: true

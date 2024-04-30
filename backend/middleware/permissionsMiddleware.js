@@ -2,8 +2,8 @@ const Locker = require('../models/Lockers');
 
 // Helper function to check permissions for dummy users
 const checkPermissionForDummy = async (req, res, next, action) => {
-    const { lockerId } = req.body; // Or wherever the locker ID comes from in your request
-    const userId = req.user._id; // Extracted from the JWT or session
+    const { lockerId } = req.body; 
+    const userId = req.user._id; 
   
     try {
       const locker = await Locker.findById(lockerId);

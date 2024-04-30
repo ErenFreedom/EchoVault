@@ -1,7 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const User = require('../models/UserModel'); // Adjust the path according to your project structure
-
-// Common validation rules for registering any user
+const User = require('../models/UserModel'); 
 const userValidations = [
   check('firstName').trim().not().isEmpty().withMessage('First name is required'),
   check('lastName').trim().not().isEmpty().withMessage('Last name is required'),
@@ -13,7 +11,6 @@ const userValidations = [
   check('recovery_email').normalizeEmail().isEmail().withMessage('Must be a valid recovery email address'),
 ];
 
-// Validation for dummy users, includes all from userValidations plus checks for premiumUsername
 exports.validateDummyRegistration = [
   ...userValidations,
   check('premiumUsername').trim().not().isEmpty().withMessage('Premium username is required for linking to a premium account')
@@ -25,7 +22,6 @@ exports.validateDummyRegistration = [
     }),
 ];
 
-// Middleware to execute the validation checks and return any errors
 exports.runValidation = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
@@ -36,13 +32,10 @@ exports.runValidation = (req, res, next) => {
 
 
 exports.validateLogin = [
-    // Check 'identifier' which can be an email or username
     check('identifier').trim().not().isEmpty().withMessage('Email/Username is required'),
-    // Check 'password'
     check('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters long'),
 ];
 
-// Middleware to execute the validation checks and return any errors
 exports.runLoginValidation = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {

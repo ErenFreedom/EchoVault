@@ -16,7 +16,7 @@ const identityProofsSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  documentIds: [{ // An array of document IDs that are linked to this identity proof
+  documentIds: [{ 
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Documents'
   }]
@@ -24,7 +24,6 @@ const identityProofsSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index to ensure that a user cannot have duplicate proofs of the same type and number
 identityProofsSchema.index({ userId: 1, proofType: 1, proofNumber: 1 }, { unique: true });
 
 const IdentityProofs = mongoose.model('IdentityProofs', identityProofsSchema);

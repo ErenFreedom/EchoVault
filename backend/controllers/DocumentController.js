@@ -4,7 +4,7 @@ const path = require('path');
 const User = require('../models/UserModel');
 const Document = require('../models/Document');
 const bcrypt = require('bcryptjs');
-const Locker = require('../models/Lockers'); // Ensure correct model name and path
+const Locker = require('../models/Lockers'); 
 const { checkPermissionForDummy } = require('../utils/permissions');
 
 
@@ -90,10 +90,10 @@ exports.uploadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Locker not found.' });
     }
 
-    // Check if the document already exists in this locker
+    
     const existingDocument = await Document.findOne({ lockerId, fileName: file.originalname });
     if (existingDocument) {
-      // Optionally, you might want to delete the uploaded file from the server if it's a duplicate
+      
       return res.status(409).json({ message: 'A document with the same name already exists in this locker.' });
     }
 
@@ -103,12 +103,12 @@ exports.uploadDocument = async (req, res) => {
       documentType,
       title,
       fileName: file.originalname,
-      filePath: `/uploads/${file.filename}`, // Assuming the file is saved in the 'uploads' directory
+      filePath: `/uploads/${file.filename}`, 
     });
 
     await newDocument.save();
 
-    // Optionally, update the locker's document list if you're maintaining a reference to documents
+    
     locker.documents.push(newDocument._id);
     await locker.save();
 
@@ -132,23 +132,22 @@ exports.deleteDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found.' });
     }
 
-    // Construct the full path for the document
+    
     const filePath = path.join(__dirname, '..', 'uploads', documentToDelete.fileName);
 
-    // Attempt to delete the file from the filesystem
+    
     fs.unlink(filePath, (err) => {
       if (err && err.code !== 'ENOENT') {
-        // Log the error if it's not about the file not existing
+       
         console.error('Error deleting file from file system:', err);
       }
-      // Even if the file doesn't exist, or there was an error deleting it,
-      // proceed with removing the document reference from the database.
+      
     });
 
     // Perform deletion of the document in the database
     await Document.findByIdAndDelete(documentId);
 
-    // Optionally, update the locker to remove the document reference
+    
     await Locker.updateOne(
       { _id: documentToDelete.lockerId },
       { $pull: { documents: documentId } }
@@ -189,7 +188,7 @@ exports.downloadDocument = async (req, res) => {
       return res.status(404).json({ message: 'Document not found.' });
     }
 
-    // Adjust filePath to remove leading slash if present
+    
     const filePath = path.resolve(__dirname, '..', document.filePath.startsWith('/') ? document.filePath.substring(1) : document.filePath);
 
     if (fs.existsSync(filePath)) {

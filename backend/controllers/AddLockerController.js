@@ -1,4 +1,4 @@
-const Locker = require('../models/Lockers'); // Adjust the path to your LockerModel if necessary
+const Locker = require('../models/Lockers'); 
 
 const addLocker = async (req, res) => {
     if (!req.user.isPremium) {
@@ -14,11 +14,11 @@ const addLocker = async (req, res) => {
     }
 
     try {
-        // Since lockerType is not provided by the user, set a default type or manage it accordingly
+        
         const newLocker = new Locker({
             lockerName,
-            lockerType: 'Custom', // Set a default type or manage it based on your requirements
-            userId: req.user._id, // Assign the locker to the current user
+            lockerType: 'Custom', 
+            userId: req.user._id, 
         });
 
         const savedLocker = await newLocker.save();

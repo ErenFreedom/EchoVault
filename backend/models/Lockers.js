@@ -17,12 +17,12 @@ const lockerSchema = new mongoose.Schema({
       'Property', 
       'Travel', 
       'Legal', 
-      'Custom' // Allow for custom locker types for premium users
+      'Custom' 
     ],
   },
   userId: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User', // Assume your User model is named 'User'
+    ref: 'User', 
     required: true
   }],
   documents: [{
@@ -34,7 +34,7 @@ const lockerSchema = new mongoose.Schema({
       type: mongoose.Schema.Types.ObjectId,
       ref: 'DummyUser'
     },
-    allowedActions: [String] // e.g., ['upload', 'delete', 'download']
+    allowedActions: [String] 
   }],
   createdAt: {
     type: Date,
@@ -48,7 +48,7 @@ const lockerSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Unique index to prevent duplicate lockers of the same name for a user
+
 lockerSchema.index({ lockerName: 1, userId: 1 }, { unique: true });
 
 const Locker = mongoose.model('Locker', lockerSchema);

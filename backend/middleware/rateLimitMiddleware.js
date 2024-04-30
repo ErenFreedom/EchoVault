@@ -1,38 +1,35 @@
 const rateLimit = require('express-rate-limit');
-const User = require('../models/UserModel'); // Adjust the path as necessary
-const DummyUser = require('../models/DummyUser'); // Include the DummyUser model
+const User = require('../models/UserModel'); 
+const DummyUser = require('../models/DummyUser'); 
 
 // General rate limit for all users
 const generalRateLimit = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
+    windowMs: 15 * 60 * 1000, 
+    max: 100, 
     message: "Too many requests, please try again later.",
-    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    standardHeaders: true, 
+    legacyHeaders: false, 
 });
 
-// Higher rate limit for premium users
 const premiumRateLimit = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 200, // Limit each IP to 200 requests per `window` (here, per 15 minutes)
+    windowMs: 15 * 60 * 1000, 
+    max: 200, 
     message: "Too many requests, please try again later.",
     standardHeaders: true,
     legacyHeaders: false,
 });
 
-// Specific rate limit for dummy users
 const dummyUserRateLimit = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 50, // Limit each IP to 50 requests per `window` (here, per 15 minutes)
+    windowMs: 15 * 60 * 1000, 
+    max: 50, 
     message: "Too many requests, please try again later for dummy users.",
     standardHeaders: true,
     legacyHeaders: false,
 });
 
-// Middleware to apply different rate limits based on user type
 const dynamicRateLimiter = async (req, res, next) => {
     try {
-        // Assume req.user._id contains the user ID and req.user.type indicates the user type ('User', 'Premium', 'DummyUser')
+        
         if (req.user.type === 'DummyUser') {
             const dummyUser = await DummyUser.findById(req.user._id);
             if (dummyUser) {
@@ -44,11 +41,11 @@ const dynamicRateLimiter = async (req, res, next) => {
                 return premiumRateLimit(req, res, next);
             }
         }
-        // Apply general rate limit if user is not premium or a specific check fails
+        
         return generalRateLimit(req, res, next);
     } catch (error) {
         console.error('Error determining user type for rate limiting:', error);
-        // Fallback to general rate limit if user determination fails
+       
         return generalRateLimit(req, res, next);
     }
 };

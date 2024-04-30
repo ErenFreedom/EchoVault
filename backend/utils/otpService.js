@@ -17,11 +17,11 @@ const sendOtpEmail = async (email, otp) => {
     });
 
     const mailOptions = {
-        from: `"Eren Jaeger" <${process.env.EMAIL_USERNAME}>`, // Replace with your sender name and email
+        from: `"Eren Jaeger" <${process.env.EMAIL_USERNAME}>`, 
         to: email,
         subject: 'Your OTP',
         text: `Your OTP is: ${otp}`,
-        html: `<p>Your OTP is: <b>${otp}</b></p>`, // You can style this HTML email as desired
+        html: `<p>Your OTP is: <b>${otp}</b></p>`, 
     };
 
     try {

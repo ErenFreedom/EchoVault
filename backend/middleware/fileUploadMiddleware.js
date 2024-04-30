@@ -3,12 +3,10 @@ const path = require('path');
 const UserModel = require('../models/UserModel');
 const DummyUser = require('../models/DummyUser');
 const Lockers = require('../models/Lockers');
- // Import necessary models
 
-// Set up storage options for multer
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/') // Replace 'uploads/' with your desired upload directory
+    cb(null, 'uploads/') 
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
@@ -16,10 +14,10 @@ const storage = multer.diskStorage({
   }
 });
 
-// Initialize multer with the storage configuration and file size limit
+
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 1024 * 1024 * 5 }, // 5MB file size limit
+  limits: { fileSize: 1024 * 1024 * 5 }, 
   fileFilter: function (req, file, cb) {
     const fileTypes = /jpeg|jpg|png|gif|pdf/;
     const mimeType = fileTypes.test(file.mimetype);
@@ -30,9 +28,8 @@ const upload = multer({
       cb('Error: File upload only supports the following filetypes - ' + fileTypes);
     }
   }
-}).single('document'); // 'document' is the field name in the form
+}).single('document'); 
 
-// Middleware to check if user has permission to upload to the specified locker
 const checkUploadPermission = async (req, res, next) => {
     const lockerId = req.body.lockerId;
     const userId = req.user._id;
@@ -43,17 +40,16 @@ const checkUploadPermission = async (req, res, next) => {
         return res.status(404).json({ message: 'Locker not found.' });
       }
   
-      // Assuming `User` schema has an `isPremium` field
       const user = await UserModel.findById(userId);
       const isOwner = user && locker.userId.equals(userId);
       const isPremium = user && user.isPremium;
   
-      // If the user is the owner or a premium user, they have upload permissions by default
+      
       if (isOwner || isPremium) {
         return next();
       }
   
-      // If it's a dummy user, check specific permissions in the locker
+     
       if (!user) {
         const dummyUser = await DummyUser.findById(userId);
         const canUpload = dummyUser && locker.dummyUserIds.some(dummyId => dummyId.equals(userId) && dummyUser.permissions.includes('upload'));

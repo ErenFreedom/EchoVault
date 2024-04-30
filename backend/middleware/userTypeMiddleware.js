@@ -1,7 +1,6 @@
 const UserSubscription = require('../models/UserSubscription');
 const Subscription = require('../models/Subscription');
 
-// Middleware to check if the user is a normal user
 const ensureIsNormalUser = async (req, res, next) => {
   if (req.userType === 'User') {
     return next();
@@ -10,7 +9,6 @@ const ensureIsNormalUser = async (req, res, next) => {
   }
 };
 
-// Middleware to check if the user is a premium user
 const ensureIsPremiumUser = async (req, res, next) => {
   try {
     const subscription = await UserSubscription.findOne({
@@ -29,7 +27,6 @@ const ensureIsPremiumUser = async (req, res, next) => {
   }
 };
 
-// Middleware to check if the user is a dummy user
 const ensureIsDummyUser = async (req, res, next) => {
   if (req.userType === 'DummyUser') {
     return next();

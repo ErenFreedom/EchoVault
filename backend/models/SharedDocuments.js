@@ -28,16 +28,16 @@ const sharedDocumentSchema = new mongoose.Schema({
     enum: ['normal', 'premium'],
     default: 'normal'
   },
-  accessFee: { // This fee is applicable if the owner is not a premium user
+  accessFee: { 
     type: Number,
     default: 0
   },
-  transactionId: { // Reference to the payment transaction if an access fee is paid
+  transactionId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'TransactionLogs',
     default: null
   },
-  isOwnerPremium: { // Helper flag to quickly check if the sharing is under premium benefits
+  isOwnerPremium: { 
     type: Boolean,
     default: false
   }
@@ -45,7 +45,6 @@ const sharedDocumentSchema = new mongoose.Schema({
   timestamps: true
 });
 
-// Index to prevent sharing the same document with the same user multiple times
 sharedDocumentSchema.index({ documentId: 1, sharedWith: 1 }, { unique: true });
 
 const SharedDocument = mongoose.model('SharedDocument', sharedDocumentSchema);
