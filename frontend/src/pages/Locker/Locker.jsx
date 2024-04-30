@@ -13,6 +13,9 @@ const Locker = () => {
   const [selectedDocs, setSelectedDocs] = useState(new Set());
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
   const recentDocsStorageKey = `recentDocs_${lockerId}`;  // This ensures it's unique per locker
+  const [showNotif, setShowNotif] = useState(false);
+  const [notifMessage, setNotifMessage] = useState('');
+
 
   // Function to load documents from local storage
   const loadDocuments = key => {
@@ -24,6 +27,8 @@ const Locker = () => {
   const saveDocuments = (docs, key) => {
     localStorage.setItem(key, JSON.stringify(docs));
   };
+  
+  
 
 
   // Function to trigger the file input dialog
@@ -70,6 +75,9 @@ const handleFileUpload = async (e) => {
       const newDocument = {...data.document, uploadedAt: new Date().toISOString()};
       setRecentDocs(prevDocs => [data.document, ...prevDocs]);
       setAllDocs(prevDocs => [data.document, ...prevDocs]);
+      setNotifMessage('Document successfully uploaded.');
+      setShowNotif(true);
+      setTimeout(() => setShowNotif(false), 5000);
 
       saveDocuments([newDocument, ...recentDocs], recentDocsStorageKey);
       saveDocuments([newDocument, ...allDocs], `allDocs_${lockerId}`);
@@ -122,6 +130,10 @@ const handleFileUpload = async (e) => {
     // Refresh the documents list or remove the document from state
     setAllDocs(prevDocs => prevDocs.filter(doc => doc._id !== documentId));
     setRecentDocs(prevDocs => prevDocs.filter(doc => doc._id !== documentId));
+
+    setNotifMessage('Document successfully deleted.');
+    setShowNotif(true);
+    setTimeout(() => setShowNotif(false), 5000);
 
     // If you want to show a notification or message
     console.log('Document deleted successfully.');
@@ -243,6 +255,12 @@ const handleDownload = async (documentId) => {
 
   return (
     <div className="locker-page">
+     {showNotif && (
+      <div className="notification">
+        <div className="notification-content">{notifMessage}</div>
+        <div className="notification-timer" style={{ width: '100%' }}></div>
+      </div>
+    )}
       <input type="file" ref={fileInputRef} style={{ display: 'none' }} onChange={handleFileUpload} />
       <div className="locker-header">
         <h1 className="locker-name">
