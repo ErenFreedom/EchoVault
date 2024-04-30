@@ -10,7 +10,7 @@ const Landing = () => {
   let navigate = useNavigate();
 
   const handleLearnMoreClick = () => {
-    navigate('/login'); // Navigate to the Login page when Learn More is clicked
+    navigate('/login'); 
   };
 
   

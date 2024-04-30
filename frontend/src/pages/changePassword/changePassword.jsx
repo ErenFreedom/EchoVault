@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './changePassword.css'; // Make sure the CSS file is correctly referenced
+import './changePassword.css'; 
 
 const ChangePassword = () => {
     const [currentPassword, setCurrentPassword] = useState('');
@@ -15,12 +15,11 @@ const ChangePassword = () => {
             return;
         }
 
-        // Add your API endpoint here
         const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/change-password`, {
             method: 'PATCH',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionStorage.getItem('token')}`, // or localStorage
+                'Authorization': `Bearer ${sessionStorage.getItem('token')}`, 
             },
             body: JSON.stringify({ currentPassword, newPassword }),
         });
@@ -28,7 +27,7 @@ const ChangePassword = () => {
         const data = await response.json();
         if (response.ok) {
             alert('Password changed successfully');
-            navigate('/'); // Navigate to the landing page or dashboard
+            navigate('/'); 
         } else {
             alert(data.message || 'An error occurred while changing the password.');
         }

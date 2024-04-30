@@ -25,16 +25,15 @@ const Login = () => {
             if (response.ok) {
                 sessionStorage.setItem('token', data.token);
 
-                // Check if the user is a premium member and redirect accordingly
                 if (data.user.isPremium) {
                     console.log("Redirecting to Premium Dashboard");
-                    navigate('/premium-dashboard'); // Redirect to Premium Dashboard
+                    navigate('/premium-dashboard'); 
                 } else {
                     console.log("Redirecting to Standard Dashboard");
                     navigate('/dashboard'); // Redirect to Standard Dashboard
                 }
             } else {
-                alert(data.message); // Display error message from server
+                alert(data.message); 
             }
         } catch (error) {
             console.error('Network error:', error);

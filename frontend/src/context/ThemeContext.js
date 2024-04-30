@@ -1,4 +1,3 @@
-// ThemeContext.js
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { jwtDecode } from "jwt-decode";
 
@@ -12,7 +11,7 @@ const getUserIdFromToken = () => {
   if (!token) return null;
   try {
     const decoded = jwtDecode(token);
-    return decoded.id; // Assuming the user's ID is in the 'id' field
+    return decoded.id; 
   } catch (error) {
     console.error('Error decoding token:', error);
     return null;
@@ -27,7 +26,7 @@ export const ThemeProvider = ({ children }) => {
     if (userId) {
       localStorage.setItem(`theme-${userId}`, theme);
     }
-    document.body.className = theme; // Or apply to a specific container as needed
+    document.body.className = theme; 
   }, [theme, userId]);
 
   return (

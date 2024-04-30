@@ -4,16 +4,15 @@
 }
 
 .locker-name {
-  font-size: 3rem; /* Larger font size for locker name */
-  font-weight: bold; /* Bold font weight */
-  margin-bottom: 2rem; /* Space below the locker name */
-  text-align: center; /* Center the locker name */
-  text-transform: uppercase; /* Uppercase locker name */
+  font-size: 3rem; 
+  font-weight: bold; 
+  margin-bottom: 2rem; 
+  text-align: center; 
+  text-transform: uppercase; 
 }
 
-/* Section styles for recently uploaded and all documents */
 section {
-  text-align: left; /* Align text to the left for sections */
+  text-align: left; 
   margin-bottom: 1.5rem;
 }
 
@@ -22,136 +21,127 @@ section h2 {
   margin-bottom: 1rem;
 }
 
-/* Document Grid and Cards */
 .documents-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
-  justify-content: flex-start; /* Align cards to the start */
+  justify-content: flex-start; 
 }
 
 .document-card {
-  width: calc(33.333% - 1rem); /* Three cards per row */
+  width: calc(33.333% - 1rem); 
   padding: 1rem;
   border: 1px solid #ddd;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-/* Locker Actions and Buttons */
 .locker-header {
   display: flex;
-  justify-content: space-between; /* Aligns items on the same line with space between */
-  align-items: center; /* Centers items vertically */
-  margin-bottom: 2rem; /* Provides space below the header */
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 2rem; 
 }
 
 .locker-actions {
-  display: flex; /* This will align your buttons in a row */
-  gap: 10px; /* Adjust the space between buttons as needed */
+  display: flex; 
+  gap: 10px; 
 }
 
 .locker-button {
-  background-color: #FF6A5C; /* Your specified color */
-  color: white; /* Text color */
-  border: none; /* Removes the border */
-  padding: 10px 15px; /* Adds padding inside the buttons */
-  border-radius: 4px; /* Rounds the corners of the buttons */
-  cursor: pointer; /* Shows a pointer cursor on hover */
-  font-weight: bold; /* Makes the text bold */
-  text-transform: uppercase; /* Transforms text to uppercase */
-  transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+  background-color: #FF6A5C; 
+  color: white; 
+  border: none; 
+  padding: 10px 15px; 
+  border-radius: 4px; 
+  cursor: pointer; 
+  font-weight: bold; 
+  text-transform: uppercase; 
+  transition: background-color 0.3s ease; 
 }
 
 .locker-button:hover {
-  background-color: #e6554d; /* Slightly darker shade on hover */
+  background-color: #e6554d; 
 }
 
-/* Responsive Design Adjustments */
 @media (max-width: 768px) {
   .locker-header {
-    flex-direction: column; /* Stacks items vertically on smaller screens */
-    align-items: flex-start; /* Aligns items to the start */
+    flex-direction: column; 
+    align-items: flex-start; 
   }
 
   .locker-actions {
-    flex-direction: row; /* Keeps buttons in a row even on smaller screens */
-    justify-content: space-around; /* Distributes space around buttons */
-    width: 100%; /* Full width to accommodate buttons */
-    padding-top: 1rem; /* Adds space above the buttons */
+    flex-direction: row; 
+    justify-content: space-around; 
+    width: 100%; 
+    padding-top: 1rem; 
   }
 
   .locker-name {
-    text-align: left; /* Aligns the locker name to the left on smaller screens */
+    text-align: left; 
   }
 
   .document-card {
-    width: calc(50% - 1rem); /* Adjusts to two cards per row on smaller screens */
+    width: calc(50% - 1rem); 
   }
 }
 
 
 /* Locker.css */
-/* ... rest of your styles */
+
 
 .document-icon {
-  font-size: 3rem; /* Large size for icons */
+  font-size: 3rem; 
 }
 
 .document-icon.pdf {
-  color: #E53E3E; /* Color for PDF icons */
+  color: #E53E3E; 
 }
 
 .document-icon.image {
-  color: #38B2AC; /* Color for image icons */
+  color: #38B2AC; 
 }
 
 .document-icon.other {
-  color: #718096; /* Color for other file types */
+  color: #718096; 
 }
 
 .document-thumbnail-placeholder {
   width: 100%;
-  height: 100px; /* Fixed height for placeholder */
+  height: 100px; 
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f0f0f0; /* Placeholder background color */
+  background-color: #f0f0f0; 
 }
 
 .document-title {
-  font-size: 1rem; /* Font size for document title */
-  overflow: hidden; /* Hide overflow */
-  white-space: nowrap; /* No wrapping */
-  text-overflow: ellipsis; /* Add ellipsis for overflow */
-  margin-top: 0.5rem; /* Space between icon and title */
-  text-align: center; /* Center the title */
+  font-size: 1rem; 
+  overflow: hidden; 
+  white-space: nowrap; 
+  text-overflow: ellipsis; 
+  margin-top: 0.5rem; 
+  text-align: center; 
 }
 
-/* Ensure document card is positioned relatively to contain absolutely positioned buttons */
 .document-card {
   position: relative;
-  /* ... other styles ... */
 }
 
-/* Positioning the delete and download buttons */
 .document-card .locker-button.delete,
 .document-card .locker-button.download {
   position: absolute;
   bottom: 10px;
 }
 
-/* Delete button positioned a bit to the left of the download button */
 .document-card .locker-button.delete {
-  right: 70px; /* Adjust the spacing based on your design */
+  right: 70px; 
 }
 
-/* Download button right at the edge of the card */
 .document-card .locker-button.download {
   right: 10px;
 }
 
-/* Icons inside the buttons for delete and download */
 .document-card .locker-button .fa-trash,
 .document-card .locker-button .fa-download {
   margin-right: 5px;
@@ -162,7 +152,7 @@ section h2 {
   position: fixed;
   top: 20px;
   right: 20px;
-  background-color: #44c767; /* Adjust the color to match your design */
+  background-color: #44c767;
   color: white;
   padding: 10px 20px;
   border-radius: 5px;
@@ -173,7 +163,7 @@ section h2 {
 
 .notification-content {
   position: relative;
-  z-index: 10; /* Make sure the text appears above the timer bar */
+  z-index: 10; 
 }
 
 .notification-timer {
@@ -182,5 +172,5 @@ section h2 {
   left: 0;
   height: 5px;
   background-color: red;
-  transition: width 5s linear; /* This will create a linear transition over 5 seconds */
+  transition: width 5s linear; 
 }

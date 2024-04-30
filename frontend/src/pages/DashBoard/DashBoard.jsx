@@ -13,7 +13,7 @@ const Dashboard = () => {
 
         const fetchData = async () => {
             try {
-                const token = sessionStorage.getItem('token'); // Adjusted to 'token' for consistency
+                const token = sessionStorage.getItem('token'); 
                 const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/data`, {
                     method: 'GET',
                     headers: {

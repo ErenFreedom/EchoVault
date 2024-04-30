@@ -3,33 +3,31 @@ import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import './otpPage.css'; // Make sure the path to your CSS is correct
+import './otpPage.css'; 
 
 const OtpPage = () => {
     const navigate = useNavigate();
 
-    // Retrieve the email from localStorage instead of location.state
     const email = localStorage.getItem('emailForVerification');
     const [otp, setOtp] = useState('');
-    const [timer, setTimer] = useState(60); // Timer for OTP expiration
+    const [timer, setTimer] = useState(60); 
 
     useEffect(() => {
-        // Timer countdown for UX
         const interval = setInterval(() => {
             setTimer((prevTimer) => prevTimer > 0 ? prevTimer - 1 : 0);
         }, 1000);
 
-        // Redirect user if email is not set (i.e., direct navigation to OTP page without email)
+       
         if (!email) {
             alert("No email found for verification. Please register first.");
-            navigate('/signup'); // Adjust the route as needed
+            navigate('/signup'); 
         }
 
         return () => clearInterval(interval);
     }, [navigate, email]);
 
     const resendOtp = async () => {
-        setTimer(60); // Reset timer for new OTP
+        setTimer(60); 
         try {
             const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/resend-otp`, {
                 method: 'POST',
@@ -70,8 +68,8 @@ const OtpPage = () => {
                         progress: undefined,
                     });
                     // Navigate to dashboard or next step after successful OTP verification
-                    navigate('/login'); // Adjust as per your route setup
-                    localStorage.removeItem('emailForVerification'); // Clean up
+                    navigate('/login'); 
+                    localStorage.removeItem('emailForVerification'); 
                 } else {
                     throw new Error(data.message || 'Error verifying OTP');
                 }

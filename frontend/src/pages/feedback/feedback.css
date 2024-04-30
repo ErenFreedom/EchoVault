@@ -28,8 +28,8 @@ h1 {
 .star-rating {
   display: flex;
   justify-content: center;
-  font-size: 15em; /* Significantly larger stars */
-  margin: 20px 0; /* Ensure some spacing around the stars */
+  font-size: 15em; 
+  margin: 20px 0; 
 }
 
 .star-rating button {
@@ -38,7 +38,7 @@ h1 {
   cursor: pointer;
   color: #444;
   font-size: 0.5em;
-  padding: 0 5px; /* Spacing between stars */
+  padding: 0 5px; 
 }
 
 .star-rating .on {
@@ -47,7 +47,7 @@ h1 {
 
 textarea {
   width: 100%;
-  height: 200px; /* Larger text area */
+  height: 200px; 
   font-size: 1.5em;
   padding: 20px;
   margin-bottom: 20px;
@@ -66,7 +66,7 @@ textarea {
   cursor: pointer;
   transition: background-color 0.3s;
   margin-top: 20px;
-  width: 100%; /* Match the width of the text area */
+  width: 100%; 
 }
 
 .submit-btn:hover {
@@ -80,7 +80,7 @@ textarea {
   }
 
   .star-rating {
-    font-size: 3em; /* Slightly smaller stars for smaller screens */
+    font-size: 3em; 
   }
 
   h1 {

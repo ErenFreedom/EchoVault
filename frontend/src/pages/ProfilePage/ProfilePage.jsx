@@ -3,20 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import './ProfilePage.css';
 
 const ProfilePage = () => {
-    // Placeholder user data - replace with actual user data retrieval logic
     const navigate = useNavigate();
-    // Initialize state
     const [userData, setUserData] = useState({
         firstName: '',
         lastName: '',
         age: '',
         gender: '',
         username: '',
-        email: '', // Email is view-only
+        email: '', 
         recovery_email: ''
     });
     const [currentPassword, setCurrentPassword] = useState('');
-    const [isFetching, setIsFetching] = useState(true); // State to track data fetching status
+    const [isFetching, setIsFetching] = useState(true); 
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -24,17 +22,17 @@ const ProfilePage = () => {
                 const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/data`, {
                     method: 'GET',
                     headers: {
-                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`, // or localStorage
+                        'Authorization': `Bearer ${sessionStorage.getItem('token')}`, 
                     },
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.message || "Failed to fetch profile data");
-                setUserData(data); // Set fetched data into state
+                setUserData(data); 
             } catch (error) {
                 alert(error.message);
-                navigate('/login'); // Redirect to login page if unauthorized
+                navigate('/login'); 
             } finally {
-                setIsFetching(false); // Set fetching status to false once data is fetched or an error occurs
+                setIsFetching(false); 
             }
         };
 
@@ -62,7 +60,7 @@ const ProfilePage = () => {
                 method: 'PATCH',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`, // or localStorage
+                    'Authorization': `Bearer ${sessionStorage.getItem('token')}`, 
                 },
                 body: JSON.stringify({ currentPassword, updates }),
             });
@@ -70,13 +68,13 @@ const ProfilePage = () => {
             const data = await response.json();
             if (!response.ok) throw new Error(data.message || "Failed to update profile");
             alert('Profile updated successfully');
-            setUserData({ ...userData, ...updates }); // Update local state with the new data
+            setUserData({ ...userData, ...updates }); 
         } catch (error) {
             alert(error.message);
         }
     };
 
-    // If data is still being fetched, you can return a loading indicator
+    
     if (isFetching) {
         return <div>Loading...</div>;
     }

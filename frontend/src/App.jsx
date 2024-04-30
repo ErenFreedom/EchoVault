@@ -9,13 +9,13 @@ import PremiumDashBoard from './pages/DashBoard/PremiumDashBoard';
 //import GuestDashBoard from './pages/DashBoard/GuestDashBoard';
 import Locker from './pages/Locker/Locker';
 import ProfilePage from './pages/ProfilePage/ProfilePage';
-import OtpPage from './pages/otpPage/otpPage'; // Import the OtpPage
+import OtpPage from './pages/otpPage/otpPage'; 
 import ChangePassword from './pages/changePassword/changePassword';
 import Payment from './pages/Payment/Payment';
 import Permission from './pages/permission/permission';
 import Feedback from './pages/feedback/feedback'; 
 import { ThemeProvider } from './context/ThemeContext';
-// In index.js
+
 import './index.css';
 
 
@@ -40,7 +40,7 @@ const App = () => {
         <Route path="/assign-permissions" element={<Permission />} /> {/* Add the Permission route */}
         <Route path="/feedback" element={<Feedback />} /> {/* Feedback route */}
 
-        {/* Add any additional routes here */}
+        
       </Routes>
     </Router>
     </ThemeProvider>

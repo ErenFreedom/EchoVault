@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-//import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 import './SignUp.css';
 
 
@@ -11,8 +10,8 @@ const SignUp = () => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
-    age: '', // Ensure this is a string for controlled components
-    gender: 'male', // Default value
+    age: '', 
+    gender: 'male', 
     username: '',
     email: '',
     password: '',
@@ -26,27 +25,27 @@ const SignUp = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prepare the data for the backend, ensuring field names match the backend model
+    
     const payload = {
       ...formData,
-      recovery_email: formData.recoveryEmail, // Convert to the expected backend field name
+      recovery_email: formData.recoveryEmail, 
     };
-    delete payload.recoveryEmail; // Remove the original recoveryEmail to avoid confusion
+    delete payload.recoveryEmail; 
   
     try {
       const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/users/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload), // Use the adjusted payload
+        body: JSON.stringify(payload), 
       });
   
       const data = await response.json();
   
       if (response.ok) {
-        // Store the email in local storage for later OTP verification
+        
         localStorage.setItem('emailForVerification', formData.email);
         alert('Registration in process. Please verify your account with the OTP sent to your email.');
-        navigate('/otp-verification'); // Navigate to the OTP verification page
+        navigate('/otp-verification'); 
       } else {
         console.error('Registration failed:', data.message);
         alert(data.message);

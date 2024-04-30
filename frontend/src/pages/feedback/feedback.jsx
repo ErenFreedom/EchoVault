@@ -17,8 +17,8 @@ const Feedback = () => {
     }
 
     const feedbackData = {
-        rating,     // This is correct
-        content: comment  // Changed from 'comment' to 'content' to match backend
+        rating,     
+        content: comment  
       };
 
     try {
@@ -26,7 +26,7 @@ const Feedback = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${sessionStorage.getItem('token')}` // Assuming you store the token in sessionStorage
+          'Authorization': `Bearer ${sessionStorage.getItem('token')}` 
         },
         body: JSON.stringify(feedbackData)
       });

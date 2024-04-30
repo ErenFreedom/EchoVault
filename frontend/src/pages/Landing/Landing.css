@@ -9,13 +9,13 @@
 
 .left-content {
   background-color: #a7d9dc;
-  width: 60%; /* Changed from 50% to 60% */
-  min-height: calc(100vh - 70px); /* Adjust for the height of your header */
+  width: 60%; 
+  min-height: calc(100vh - 70px); 
   display: flex;
   flex-direction: column;
-  align-items: flex-start; /* Aligns content to the left */
+  align-items: flex-start; 
   justify-content: center;
-  padding: 0 50px; /* Padding on the left and right */
+  padding: 0 50px; 
   box-sizing: border-box;
   z-index: 2;
 }
@@ -27,33 +27,32 @@
 }
 
 .additional-info {
-  text-align: left; /* Align text to the left */
-  margin-top: 20px; /* Add some space above the paragraph */
+  text-align: left; 
+  margin-top: 20px; 
   color: #333;
   font-size: 1rem;
 }
 
 .learn-more {
-  padding: 15px 30px; /* Increased padding for a larger button */
-  margin-top: 20px; /* Space above the button */
+  padding: 15px 30px; 
+  margin-top: 20px; 
   border: none;
-  border-radius: 30px; /* Increased border-radius for a rounder (curlier) look */
-  background-color: #ff6b6b; /* Muted coral color for the button */
-  color: #fff; /* White text color to maintain contrast */
-  font-size: 18px; /* Slightly larger font size */
-  font-weight: bold; /* Makes the text bold */
+  border-radius: 30px; 
+  background-color: #ff6b6b; 
+  color: #fff; 
+  font-size: 18px; 
+  font-weight: bold; 
   cursor: pointer;
   transition: background-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
-  text-align: center; /* Center the text within the button */
-  display: inline-block; /* Allows the button to have padding and margin properly */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  user-select: none; /* Prevents text selection */
+  text-align: center; 
+  display: inline-block; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); 
+  user-select: none; 
 }
 
 .learn-more:hover {
-  background-color: #e55a38; /* A slightly darker shade for hover state */
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); /* Increased shadow for hover effect */
-  transform: translateY(-2px); /* Lifts the button a bit on hover */
+  background-color: #e55a38; 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2); 
+  transform: translateY(-2px);
 }
 
-/* Rest of the styles */

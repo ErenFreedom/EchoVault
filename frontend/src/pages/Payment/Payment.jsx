@@ -5,7 +5,7 @@ import './Payment.css';
 const Payment = ({ onUpgradeToPremium }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const navigate = useNavigate(); // Add this line
+  const navigate = useNavigate(); 
 
   // In Payment.jsx
   const handleSubmit = async (e) => {
@@ -20,7 +20,6 @@ const Payment = ({ onUpgradeToPremium }) => {
             body: JSON.stringify({ email, password }),
         });
 
-        // Check if the response is JSON
         const contentType = response.headers.get("Content-Type");
         if (contentType && contentType.indexOf("application/json") !== -1) {
             const data = await response.json();
@@ -31,7 +30,6 @@ const Payment = ({ onUpgradeToPremium }) => {
                 throw new Error(data.message || "Upgrade failed");
             }
         } else {
-            // Handle non-JSON responses here
             const textData = await response.text();
             throw new Error(textData || "An unexpected response was received");
         }

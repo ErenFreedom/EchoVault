@@ -12,7 +12,7 @@ const Locker = () => {
   const [allDocs, setAllDocs] = useState([]);
   const [selectedDocs, setSelectedDocs] = useState(new Set());
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
-  const recentDocsStorageKey = `recentDocs_${lockerId}`;  // This ensures it's unique per locker
+  const recentDocsStorageKey = `recentDocs_${lockerId}`;  
   const [showNotif, setShowNotif] = useState(false);
   const [notifMessage, setNotifMessage] = useState('');
 
@@ -34,15 +34,14 @@ const Locker = () => {
   // Function to trigger the file input dialog
   const triggerFileUpload = () => fileInputRef.current.click();
 
-  // Function to handle file upload to server
-  // Inside your component
+  
 
   useEffect(() => {
     const loadedRecentDocs = loadDocuments(recentDocsStorageKey).filter(doc => 
       new Date().getTime() - new Date(doc.uploadedAt).getTime() < 6 * 60 * 60 * 1000
     );
 
-    const allDocsKey = `allDocs_${lockerId}`;  // Assuming similar key for 'allDocs'
+    const allDocsKey = `allDocs_${lockerId}`;  
     const loadedAllDocs = loadDocuments(allDocsKey);
 
     setAllDocs(loadedAllDocs);
@@ -66,7 +65,7 @@ const handleFileUpload = async (e) => {
     if (!response.ok) {
       if (response.status === 409) {
         const result = await response.json();
-        alert(result.message); // Show the error message from the server
+        alert(result.message); 
       } else {
         throw new Error('Failed to upload document');
       }
@@ -91,32 +90,25 @@ const handleFileUpload = async (e) => {
   
 
   const handleDeleteSelected = async () => {
-    // Show confirmation dialog
     const isConfirmed = window.confirm('Are you sure you want to delete the selected documents? This action cannot be undone.');
     if (!isConfirmed) return;
 
-    // Call API to delete selected documents
     selectedDocs.forEach(async (docId) => {
       await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/document/${docId}`, {
         method: 'DELETE',
       });
-      // Optionally handle response
     });
 
-    // Update state to remove deleted documents
     const updatedDocs = allDocs.filter(doc => !selectedDocs.has(doc._id));
     setAllDocs(updatedDocs);
-    setSelectedDocs(new Set()); // Clear selection
+    setSelectedDocs(new Set()); 
   };
 
   const handleDelete = async (documentId, documentName) => {
-  // Confirmation dialog
   const isConfirmed = window.confirm(`Are you sure you want to delete "${documentName}"? After deletion, your document will become irrecoverable.`);
 
-  // If the user clicks "No", stop the function
   if (!isConfirmed) return;
 
-  // Implement the logic to call your API to delete a document
   try {
     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/document/${documentId}`, {
       method: 'DELETE',
@@ -127,7 +119,6 @@ const handleFileUpload = async (e) => {
       throw new Error(errorData.message || 'Failed to delete document');
     }
 
-    // Refresh the documents list or remove the document from state
     setAllDocs(prevDocs => prevDocs.filter(doc => doc._id !== documentId));
     setRecentDocs(prevDocs => prevDocs.filter(doc => doc._id !== documentId));
 
@@ -135,12 +126,10 @@ const handleFileUpload = async (e) => {
     setShowNotif(true);
     setTimeout(() => setShowNotif(false), 5000);
 
-    // If you want to show a notification or message
     console.log('Document deleted successfully.');
 
   } catch (error) {
     console.error('Delete error:', error);
-    // If you have a mechanism to show user-facing messages or notifications, use it here
     alert('Error deleting document: ' + error.message);
   }
 };
@@ -168,7 +157,6 @@ const handleDownload = async (documentId) => {
       const a = document.createElement('a');
       a.style.display = 'none';
       a.href = downloadUrl;
-      // Set the download name for the file
       const contentDisposition = response.headers.get('Content-Disposition');
       let fileName = documentId;
       if (contentDisposition) {
@@ -204,7 +192,6 @@ const handleDownload = async (documentId) => {
       case 'jpg':
       case 'jpeg':
         return <FaFileImage className="document-icon image" />;
-      // You can add more cases for other file types here
       default:
         return <FaFileAlt className="document-icon other" />;
     }
@@ -218,7 +205,6 @@ const handleDownload = async (documentId) => {
 
 
 
-  // Fetch documents for the locker
   useEffect(() => {
     const fetchDocuments = async () => {
       try {
@@ -239,18 +225,16 @@ const handleDownload = async (documentId) => {
     if (lockerId) fetchDocuments();
   }, [lockerId]);
 
-  // Effect to filter recent documents to show as recent for 15 minutes
   useEffect(() => {
     const interval = setInterval(() => {
       setRecentDocs(current => current.filter(doc => new Date() - new Date(doc.uploadedAt) < 15 * 60 * 1000));
-    }, 60000); // Check every minute
+    }, 60000); 
 
     return () => clearInterval(interval);
   }, []);
 
 
 
-  // ...rest of the component logic
 
 
   return (
@@ -302,7 +286,7 @@ const handleDownload = async (documentId) => {
               {doc.thumbnailPath ? (
                 <img src={`${process.env.REACT_APP_BACKEND_URL}${doc.thumbnailPath}`} alt="Document Thumbnail" className="document-thumbnail"/>
               ) : (
-                getIconForDocument(doc.fileName) // This function returns an icon based on the document's file type
+                getIconForDocument(doc.fileName) 
               )}
               <div className="document-details">
                 <p>{doc.fileName}</p>
@@ -322,16 +306,16 @@ const handleDownload = async (documentId) => {
               {doc.thumbnailPath ? (
                 <img src={`${process.env.REACT_APP_BACKEND_URL}${doc.thumbnailPath}`} alt="Document Thumbnail"/>
               ) : (
-                getIconForDocument(doc.fileName) // Adjust according to the document type
+                getIconForDocument(doc.fileName) 
               )}
               <div className="document-details">
                 <p>{doc.fileName}</p>
                 <button className="locker-button delete" onClick={(e) => {
-                  e.stopPropagation(); // Prevent opening the document when clicking delete
-                  handleDelete(doc._id, doc.fileName); // Now passing fileName for better user prompt
+                  e.stopPropagation(); 
+                  handleDelete(doc._id, doc.fileName); 
                 }}><FaTrash /> {/* Icon for delete button */}</button>
                 <button className="locker-button download" onClick={(e) => {
-                  e.stopPropagation(); // Prevent opening the document when clicking download
+                  e.stopPropagation(); 
                   handleDownload(doc._id);
                 }}><FaDownload /></button>
               </div>

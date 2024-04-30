@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './permission.css'; // Make sure the CSS file path matches
+import './permission.css'; 
 
 const Permission = () => {
   const [formData, setFormData] = useState({
@@ -14,17 +14,17 @@ const Permission = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Assuming your backend endpoint for assigning permissions looks something like this
+    
     const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/permissions/assign-permissions`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        // Include authorization header if needed
+       
       },
       body: JSON.stringify({
         dummyUserEmail: formData.dummyUserEmail,
         lockerName: formData.lockerName,
-        password: formData.password, // This might be used for authentication in the backend
+        password: formData.password, 
       }),
     });
 
