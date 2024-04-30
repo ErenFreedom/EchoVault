@@ -14,6 +14,7 @@ import ChangePassword from './pages/changePassword/changePassword';
 import Payment from './pages/Payment/Payment';
 import Permission from './pages/permission/permission';
 import Feedback from './pages/feedback/feedback'; 
+import Info from './pages/info/info';
 import { ThemeProvider } from './context/ThemeContext';
 
 import './index.css';
@@ -39,6 +40,7 @@ const App = () => {
         <Route path="/payment" element={<Payment />} />
         <Route path="/assign-permissions" element={<Permission />} /> {/* Add the Permission route */}
         <Route path="/feedback" element={<Feedback />} /> {/* Feedback route */}
+        <Route path="/info" element={<Info />} />
 
         
       </Routes>
